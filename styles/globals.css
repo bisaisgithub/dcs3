@@ -14,3 +14,19 @@ a {
 * {
   box-sizing: border-box;
 }
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  background: #dcd7d7;
+  padding: 10px 15px;
+}
+.navbar-container a {
+  margin: 0px 10px;
+}
+.navbar-container p {
+  margin: 0;
+}
+.navbar-container div {
+  display: flex;
+  justify-content: space-between;
+}
