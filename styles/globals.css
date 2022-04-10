@@ -30,3 +30,9 @@ a {
   display: flex;
   justify-content: space-between;
 }
+table{
+  border-collapse: collapse;
+}
+th, td{
+  border: solid;
+}
