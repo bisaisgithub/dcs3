@@ -25,15 +25,10 @@ const Users = ({ user }) => {
   if (isLoading){
     return <p>Loading...</p>
   }
-  // const router = useRouter();
-  // const addUser = ()=>{
-  //   router.push('users/add-user');
-  // }
   return (
     <div>
       <Navbarcdcs user={user} />
       <h1>Users</h1>
-      {/* <button onClick={addUser}>Add User</button> */}
       <Link href={'/cdcs/dashboard/users/add-user'} passHref><button>Add User</button></Link>
       <table>
         <thead>
@@ -43,13 +38,14 @@ const Users = ({ user }) => {
             <th>DOB</th>
             <th>Type</th>
             <th>Allergen</th>
+            <th>Added By</th>
           </tr>
         </thead>
         <tbody>
           {data &&
             data.map((user) => {
               // const dob = new Date(user.dob).toDateString();
-              // console.log('user', user);
+              console.log('user', user);
               return (
                 <tr key={user._id}>
                   <td>{user.name}</td>
@@ -57,6 +53,7 @@ const Users = ({ user }) => {
                   <td>{new Date(user.dob).toDateString().substring(4)}</td>
                   <td>{user.type}</td>
                   <td>{user.allergen}</td>
+                  <td>{user.created_by.name}</td>
                 </tr>
               );
             })}

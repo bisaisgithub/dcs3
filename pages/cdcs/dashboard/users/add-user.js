@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 // import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
 import dbConnect from "../../../../utils/dbConnect";
-import CDCSUsers5 from "../../../../models/cdcs/Users";
+import CDCSUsers6 from "../../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 // import Link from "next/link";
 import DatePicker from "react-datepicker";
@@ -61,6 +61,7 @@ const AddUser = ({ user }) => {
       >
         <option value="Receptionist">Receptionist</option>
         <option value="Doctor">Doctor</option>
+        <option value="Admin">Admin</option>
         <option value="">-select type-</option>
       </select>
       <DatePicker
@@ -95,7 +96,7 @@ export async function getServerSideProps({ req, res }) {
     } else {
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
-      const obj = await CDCSUsers5.findOne(
+      const obj = await CDCSUsers6.findOne(
         { _id: verified.id },
         { type: 1, name: 1 }
       );

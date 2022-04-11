@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+
 const CDCSUsersSchema = new mongoose.Schema(
   {
     email: {
@@ -22,12 +23,20 @@ const CDCSUsersSchema = new mongoose.Schema(
     dob: Date,
     allergen: String,
     created_by: {
-      type: String,
-      required: [true, "Please add a created by"],
+      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers6'
     },
   },
   { timestamps: true }
 );
 
+let CDCSUsers6;
+
+try {
+  CDCSUsers6 = mongoose.model("CDCSUsers6");
+}catch(err){
+  CDCSUsers6 = mongoose.model('CDCSUsers6', CDCSUsersSchema);
+}
+
 module.exports =
-  mongoose.models.CDCSUsers5 || mongoose.model("CDCSUsers5", CDCSUsersSchema);
+  // mongoose.models.CDCSUsers6 || mongoose.model("CDCSUsers6", CDCSUsersSchema);
+  CDCSUsers6;
