@@ -9,7 +9,7 @@ const Login = () => {
   const login = async () => {
     const credentials = { email, password };
     const user = await axios.post(
-      "http://localhost:3000/api/cdcs/login",
+      "/api/cdcs/login",
       credentials
     );
     console.log(user);

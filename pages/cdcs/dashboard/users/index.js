@@ -14,7 +14,7 @@ const Users = ({ user }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
     setLoading(true)
-    fetch('http://localhost:3000/api/cdcs/users')
+    fetch('/api/cdcs/users')
       .then((res) => res.json())
       .then((data) => {
         console.log('data', data.data);

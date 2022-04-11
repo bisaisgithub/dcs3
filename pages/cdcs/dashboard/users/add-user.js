@@ -23,7 +23,7 @@ const AddUser = ({ user }) => {
     userInput.created_by = user.id;
     console.log("user:", userInput);
     const response = await axios.post(
-      "http://localhost:3000/api/cdcs/users",
+      "/api/cdcs/users",
       userInput
     );
     console.log("user:", response);
