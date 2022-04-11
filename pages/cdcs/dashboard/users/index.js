@@ -1,7 +1,7 @@
 import Navbarcdcs from "../../../../components/cdcs/Navbarcdcs";
 // import axios from "axios";
 import { useState, useEffect } from "react";
-// import {useRouter} from 'next/router';
+import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
 import dbConnect from "../../../../utils/dbConnect";
 import CDCSUsers5 from "../../../../models/cdcs/Users";
@@ -9,9 +9,8 @@ import jwt from "jsonwebtoken";
 // import Link from "next/link";
 
 const Users = ({ user }) => {
-  const [data, setData] = useState(null)
-  const [isLoading, setLoading] = useState(false)
-
+  const [isLoading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
   useEffect(() => {
     setLoading(true)
     fetch('http://localhost:3000/api/cdcs/users')
@@ -22,12 +21,18 @@ const Users = ({ user }) => {
         setLoading(false)
       })
   }, [])
-
-  if (isLoading) return <p>Loading...</p>
+  if (isLoading){
+    return <p>Loading...</p>
+  }
+  const router = useRouter();
+  const addUser = ()=>{
+    router.push('users/add-user');
+  }
   return (
     <div>
       <Navbarcdcs user={user} />
       <h1>Users</h1>
+      <button onClick={addUser}>Add User</button>
       <table>
         <thead>
           <tr>

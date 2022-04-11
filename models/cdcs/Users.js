@@ -21,6 +21,10 @@ const CDCSUsersSchema = new mongoose.Schema(
     type: String,
     dob: Date,
     allergen: String,
+    created_by: {
+      type: String,
+      required: [true, "Please add a created by"],
+    },
   },
   { timestamps: true }
 );
