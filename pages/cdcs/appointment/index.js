@@ -1,10 +1,10 @@
-import Navbarcdcs from "../../../../components/cdcs/Navbarcdcs";
+import Navbarcdcs from "../../../components/cdcs/Navbarcdcs";
 import axios from "axios";
 // import {useState} from 'react';
 // import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
-import dbConnect from "../../../../utils/dbConnect";
-import CDCSUsers5 from "../../../../models/cdcs/Users";
+import dbConnect from "../../../utils/dbConnect";
+import CDCSUsers5 from "../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 import { useEffect, useState } from "react";
 import Link from "next/link";

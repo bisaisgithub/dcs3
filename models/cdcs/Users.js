@@ -25,6 +25,9 @@ const CDCSUsersSchema = new mongoose.Schema(
     created_by: {
       type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers6'
     },
+    mobile: String,
+    gender: String,
+    status: String,
   },
   { timestamps: true }
 );
