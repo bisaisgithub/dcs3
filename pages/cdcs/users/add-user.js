@@ -95,14 +95,22 @@ const AddUser = ({ user }) => {
           </div>
         <div className='details-details-modal-body'>
           <div className='details-details-modal-body-input-box'>
+              <span>Full Name</span>
+              <input type="text" placeholder="Enter name" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
+          </div>
+          <div className='details-details-modal-body-input-box'>
               <span>Date of Birth</span>
               <DatePicker maxDate={new Date()} yearDropdownItemNumber={90} showYearDropdown scrollableYearDropdown={true} 
               dateFormat='yyyy/MM/dd' className='date-picker' placeholderText="Click to select" selected={userInput.dob} 
               onChange={date=>setUserInput(prev=>({...prev,dob:date}))} />
           </div>
           <div className='details-details-modal-body-input-box'>
-              <span>Full Name</span>
-              <input type="text" placeholder="Enter name" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
+              <span>Email</span>
+              <input type="text" placeholder="Enter email" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
+          </div>
+          <div className='details-details-modal-body-input-box'>
+              <span>Pasword</span>
+              <input type="text" placeholder="Enter password" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
           </div>
           <div className="details-details-modal-body-input-box">
               <span>Mobile</span>
@@ -115,6 +123,16 @@ const AddUser = ({ user }) => {
           <div className="details-details-modal-body-status-gender">
             <div className="details-details-modal-body-input-box">
               <span>Status</span>
+              <select value={userInput.status} onChange={(e)=>{setUserInput(p=>({...p,status:e.target.value}))}}>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Deleted">Deleted</option>
+                  <option value="">-Select Status-</option>
+              </select>
+            </div>
+            <div className="details-details-modal-body-input-box">
+              <span>Type</span>
               <select value={userInput.status} onChange={(e)=>{setUserInput(p=>({...p,status:e.target.value}))}}>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
