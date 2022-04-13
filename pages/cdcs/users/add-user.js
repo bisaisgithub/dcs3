@@ -1,23 +1,23 @@
-import Navbarcdcs from "../../../components/cdcs/Navbarcdcs";
+// import Navbarcdcs from "../../../components/cdcs/Navbarcdcs";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
 import dbConnect from "../../../utils/dbConnect";
-import CDCSUsers6 from "../../../models/cdcs/Users";
+import CDCSUsers7 from "../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const AddUser = ({ user }) => {
+const AddUser = () => {
   const router = useRouter();
   const [userInput, setUserInput] = useState({
-    name: null,email: null,password: null,dob: null,type: "",
-    allergen: null,mobile:null,status:'',
+    name: undefined,email: undefined,password: undefined,dob: undefined,type: "",
+    allergen: undefined,mobile:undefined,status:'',gender:undefined,
   });
   const addUser = async () => {
-    userInput.created_by = user.id;
+    // userInput.created_by = user.id;
     console.log("user:", userInput);
     const response = await axios.post(
       "/api/cdcs/users",
@@ -32,62 +32,6 @@ const AddUser = ({ user }) => {
     }
   };
   return (
-    // <div>
-    //   <Navbarcdcs user={user} />
-    //   <h1>AddUser</h1>
-    //   <input
-    //     type="text"
-    //     placeholder="name"
-    //     onChange={(e) =>
-    //       setUserInput((prev) => ({ ...prev, name: e.target.value }))
-    //     }
-    //   />
-    //   <input
-    //     type="text"
-    //     placeholder="email"
-    //     onChange={(e) =>
-    //       setUserInput((prev) => ({ ...prev, email: e.target.value }))
-    //     }
-    //   />
-    //   <input
-    //     type="password"
-    //     placeholder="password"
-    //     onChange={(e) =>
-    //       setUserInput((prev) => ({ ...prev, password: e.target.value }))
-    //     }
-    //   />
-    //   <select
-    //     value={userInput.type}
-    //     onChange={(e) =>
-    //       setUserInput((prev) => ({ ...prev, type: e.target.value }))
-    //     }
-    //   >
-    //     <option value="_Patient">Patient</option>
-    //     <option value="Receptionist">Receptionist</option>
-    //     <option value="Doctor">Doctor</option>
-    //     <option value="Admin">Admin</option>
-    //     <option value="">-select type-</option>
-    //   </select>
-    //   <DatePicker
-    //     maxDate={new Date()}
-    //     yearDropdownItemNumber={90}
-    //     showYearDropdown
-    //     scrollableYearDropdown={true}
-    //     dateFormat="yyyy/MM/dd"
-    //     className="date-picker"
-    //     placeholderText="Click to select    "
-    //     selected={userInput.dob}
-    //     onChange={(date) => setUserInput((prev) => ({ ...prev, dob: date }))}
-    //   />
-    //   <input
-    //     type="text"
-    //     placeholder="allergen"
-    //     onChange={(e) =>
-    //       setUserInput((prev) => ({ ...prev, allergen: e.target.value }))
-    //     }
-    //   />
-    //   <button onClick={addUser}>Add User</button>
-    // </div>
     <div className='details-details-container'>
       <div className='details-details-modal-container'>
         <div className='details-details-modal-title'>
@@ -106,11 +50,11 @@ const AddUser = ({ user }) => {
           </div>
           <div className='details-details-modal-body-input-box'>
               <span>Email</span>
-              <input type="text" placeholder="Enter email" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
+              <input type="text" placeholder="Enter email" value={userInput.email} required onChange={e=>setUserInput(prev=>({...prev,email:e.target.value}))} />
           </div>
           <div className='details-details-modal-body-input-box'>
               <span>Pasword</span>
-              <input type="text" placeholder="Enter password" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
+              <input type="password" placeholder="Enter password" value={userInput.password} required onChange={e=>setUserInput(prev=>({...prev,password:e.target.value}))} />
           </div>
           <div className="details-details-modal-body-input-box">
               <span>Mobile</span>
@@ -133,11 +77,11 @@ const AddUser = ({ user }) => {
             </div>
             <div className="details-details-modal-body-input-box">
               <span>Type</span>
-              <select value={userInput.status} onChange={(e)=>{setUserInput(p=>({...p,status:e.target.value}))}}>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Deleted">Deleted</option>
+              <select value={userInput.type} onChange={(e)=>{setUserInput(p=>({...p,type:e.target.value}))}}>
+                  <option value="_Patient">Patient</option>
+                  <option value="Receptionist">Receptionist</option>
+                  <option value="Dentist">Dentist</option>
+                  {/* <option value="Admin">Admin</option> */}
                   <option value="">-Select Status-</option>
               </select>
             </div>
@@ -157,7 +101,7 @@ const AddUser = ({ user }) => {
           </div>
         </div>
         <div className='details-details-modal-body-button'>                    
-            <button onClick={()=>{}}>Add</button>                               
+            <button onClick={addUser}>Add</button>                               
             <button><Link href="/cdcs/users">Close</Link></button>
         </div>
           
@@ -175,7 +119,7 @@ export async function getServerSideProps({ req, res }) {
     } else {
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
-      const obj = await CDCSUsers6.findOne(
+      const obj = await CDCSUsers7.findOne(
         { _id: verified.id },
         { type: 1, name: 1 }
       );

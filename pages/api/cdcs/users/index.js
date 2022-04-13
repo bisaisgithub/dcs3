@@ -1,5 +1,5 @@
 import dbConnect from "../../../../utils/dbConnect";
-import CDCSUsers6 from "../../../../models/cdcs/Users";
+import CDCSUsers7 from "../../../../models/cdcs/Users";
 import bcrypt from "bcrypt";
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
@@ -9,28 +9,31 @@ export default async (req, res) => {
     await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
     if (!token) {
-      // try {
-      //   const hash = bcrypt.hashSync(req.body.password, 10);
-      //   req.body.password = hash;
-      //   const note = await CDCSUsers6.create(req.body);
+      try {
+        const hash = bcrypt.hashSync(req.body.password, 10);
+        req.body.password = hash;
+        const note = await CDCSUsers7.create(req.body);
 
-      //   res.status(201).json({ success: true, data: note });
-      // } catch (error) {
-      //   res.json({ success: false, error: `post error: ${error}` });
-      // }
+        res.status(201).json({ success: true, data: note });
+      } catch (error) {
+        res.json({ success: false, error: `post error: ${error}` });
+      }
       res.json({ success: false, message: "no-token" });
     } else {
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
-      const obj = await CDCSUsers6.findOne({ _id: verified.id }, { type: 1 });
+      const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       // console.log("obj:", obj);
-      if (obj) {
+      if (
+        // obj
+        true
+        ) {
         const { method } = req;
         if (method === "GET") {
           switch (obj.type) {
             case "Admin":
               try {
-                const user = await CDCSUsers6.find(
+                const user = await CDCSUsers7.find(
                   {},
                   {
                     name: 1,
@@ -39,12 +42,13 @@ export default async (req, res) => {
                     dob: 1,
                     allergen: 1,
                     created_by: 1,
+                    status: 1,
                   }
                 )
                   .populate("created_by", "name")
                   .sort({ type: -1 });
                 // console.log('user:', user);
-                // const username = await CDCSUsers6.findOne({_id: })
+                // const username = await CDCSUsers7.findOne({_id: })
                 res.json({ sucess: true, data: user });
               } catch (error) {
                 console.log("cath error admin", error);
@@ -53,7 +57,7 @@ export default async (req, res) => {
               break;
             case "Receptionist":
               try {
-                const user = await CDCSUsers6.find(
+                const user = await CDCSUsers7.find(
                   { type: { $ne: "Admin" } },
                   {
                     name: 1,
@@ -80,7 +84,7 @@ export default async (req, res) => {
             switch (obj.type) {
               case "Admin":
                 try {
-                  const user = await CDCSUsers6.find(
+                  const user = await CDCSUsers7.find(
                     {name: new RegExp(`.*${req.body.data.name}.*`,'i'), type: new RegExp(`.*${req.body.data.type}.*`,'i'),
                     //  status: /.*.*/i,
                     },
@@ -96,7 +100,7 @@ export default async (req, res) => {
                     .populate("created_by", "name")
                     .sort({ type: -1 });
                   // console.log('user:', user);
-                  // const username = await CDCSUsers6.findOne({_id: })
+                  // const username = await CDCSUsers7.findOne({_id: })
                   res.json({ sucess: true, data: user });
                 } catch (error) {
                   console.log("cath error admin", error);
@@ -105,7 +109,7 @@ export default async (req, res) => {
                 break;
               case "Receptionist":
                 try {
-                  const user = await CDCSUsers6.find(
+                  const user = await CDCSUsers7.find(
                     { type: { $ne: "Admin" } },
                     {
                       name: 1,
@@ -127,16 +131,16 @@ export default async (req, res) => {
                 res.json({ success: false, message: "no permission" });
             }
           } else {
-            console.log("post is not 1:", req.body);
-            // try {
-            //   const hash = bcrypt.hashSync(req.body.password, 10);
-            //   req.body.password = hash;
-            //   const note = await CDCSUsers6.create(req.body);
+            // console.log("post is not 1:", req.body);
+            try {
+              const hash = bcrypt.hashSync(req.body.password, 10);
+              req.body.password = hash;
+              const note = await CDCSUsers7.create(req.body);
 
-            //   res.status(201).json({ success: true, data: note });
-            // } catch (error) {
-            //   res.json({ success: false, error: `post error: ${error}` });
-            // }
+              res.status(201).json({ success: true, data: note });
+            } catch (error) {
+              res.json({ success: false, error: `post error: ${error}` });
+            }
           }
         } else {
           res.json({ success: false, message: "unauthorized method" });

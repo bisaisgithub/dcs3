@@ -21,19 +21,31 @@ const Login = () => {
     }
   };
   return (
-    <div>
-      <h1>Login</h1>
-      <input
-        onChange={(e) => setEmail(e.target.value)}
-        type="text"
-        placeholder="Enter email"
-      />
-      <input
-        onChange={(e) => setPassword(e.target.value)}
-        type="password"
-        placeholder="Enter password"
-      />
-      <button onClick={login}>Login</button>
+    <div className='details-details-container'>
+      <div className="details-details-modal-container">
+        <div className="details-details-modal-body">
+          <div className="details-details-modal-body-input-box">
+            <span>Email</span>
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Enter email"
+            />
+          </div>
+          <div className="details-details-modal-body-input-box">
+            <span>Password</span>
+            <input
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              placeholder="Enter password"
+            />
+          </div>
+          <div className="details-details-modal-body-button">
+            <button onClick={login}>Login</button>
+          </div>
+        </div>
+        
+      </div>
     </div>
   );
 };

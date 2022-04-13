@@ -23,7 +23,7 @@ const CDCSUsersSchema = new mongoose.Schema(
     dob: Date,
     allergen: String,
     created_by: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers6'
+      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
     },
     mobile: String,
     gender: String,
@@ -32,14 +32,14 @@ const CDCSUsersSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-let CDCSUsers6;
+let CDCSUsers7;
 
 try {
-  CDCSUsers6 = mongoose.model("CDCSUsers6");
+  CDCSUsers7 = mongoose.model("CDCSUsers7");
 }catch(err){
-  CDCSUsers6 = mongoose.model('CDCSUsers6', CDCSUsersSchema);
+  CDCSUsers7 = mongoose.model('CDCSUsers7', CDCSUsersSchema);
 }
 
 module.exports =
-  // mongoose.models.CDCSUsers6 || mongoose.model("CDCSUsers6", CDCSUsersSchema);
-  CDCSUsers6;
+  // mongoose.models.CDCSUsers7 || mongoose.model("CDCSUsers7", CDCSUsersSchema);
+  CDCSUsers7;

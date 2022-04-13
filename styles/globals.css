@@ -421,6 +421,10 @@ th, td{
   transition: all 0.3s ease;
   background: linear-gradient(135deg, #71b7e6, #9b59b6);
 }
+.details-details-modal-body-button a {
+  text-decoration: none;
+  color: white;
+}
 .details-details-modal-body-button {
   display: flex;
   justify-content: space-between;
