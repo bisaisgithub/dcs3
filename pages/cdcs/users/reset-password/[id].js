@@ -3,14 +3,17 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
-import dbConnect from "../../../utils/dbConnect";
-import CDCSUsers7 from "../../../models/cdcs/Users";
+import dbConnect from "../../../../utils/dbConnect";
+import CDCSUsers7 from "../../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const AddUser = () => {
+const ResetPassword = () => {
+  if (true) {
+    return <h1>Reset Password Under Construction</h1>
+  }
   const router = useRouter();
   const [userInput, setUserInput] = useState({
     name: "",email: "",password: "",dob: "",type: "",
@@ -147,4 +150,4 @@ export async function getServerSideProps({ req, res }) {
   }
 }
 
-export default AddUser;
+export default ResetPassword;

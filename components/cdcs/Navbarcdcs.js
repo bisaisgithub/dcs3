@@ -55,6 +55,19 @@ const Navbarcdcs = ({ user }) => {
           <span>Dashboard</span>
         </a>
       </Link>
+      <Link href="/cdcs/logout" passHref>
+        <a className="nav__link">
+          <div>
+            <Image
+              src="/navbar/exit-smalllikeart-flaticon.png"
+              alt="Logout"
+              width={40}
+              height={40}
+            />
+          </div>
+          <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
+        </a>
+      </Link>
     </div>
   );
 };

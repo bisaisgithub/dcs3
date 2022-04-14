@@ -1,42 +1,59 @@
-// import Navbarcdcs from "../../../components/cdcs/Navbarcdcs";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
 import dbConnect from "../../../utils/dbConnect";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const AddUser = () => {
+const UserDetails = () => {
   const router = useRouter();
+  const [isLoading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
   const [userInput, setUserInput] = useState({
     name: "",email: "",password: "",dob: "",type: "",
     allergen: "",mobile:"",status:'',gender:"",
   });
-  const addUser = async () => {
-    // userInput.created_by = user.id;
-    console.log("user:", userInput);
-    const response = await axios.post(
-      "/api/cdcs/users",
-      userInput
+  useEffect(() => {
+    setLoading(true);
+    getUserDetails();
+  }, [])
+  if (isLoading){
+    return <p>Loading...</p>
+  }
+  const getUserDetails = async ()=>{
+    const response = await axios.get(`/api/cdcs/users/${router.query.id}`,
+      // {post:2,id:router.query.id,}
     );
-    // console.log("user:", response);
+    if (response.data) {
+      setUserInput(response.data.data);
+        console.log(response.data);
+        setLoading(false);
+    }else{
+      console.log('Failed getting users without filter')
+    }
+  }
+  const updateUser = async ()=>{
+    // console.log('userInput: ', userInput)
+    const response = await axios.post(`/api/cdcs/users/${router.query.id}`, userInput);
+    console.log('update response: ', response);
     if (response.data.success) {
-      alert('Adding User Successful');
+      alert('Updating User Successful');
       router.push('/cdcs/users');
     } else {
-      alert('Failed Adding User')
+      alert('Failed Updating User')
     }
-  };
-  return (
+  }
+  return ( 
     <div className='details-details-container'>
       <div className='details-details-modal-container'>
         <div className='details-details-modal-title'>
-          {/* {patient_id? `${patient_name} Details --  Age: ${patientAge}`: 'Patient Details'} */}
-          </div>
+        {/* {patient_id? `${patient_name} Details --  Age: ${patientAge}`: 'Patient Details'} */}
+        </div>
+        <input type="text" placeholder={`${router.query.id}`}/>
         <div className='details-details-modal-body'>
           <div className='details-details-modal-body-input-box'>
               <span>Full Name</span>
@@ -45,7 +62,11 @@ const AddUser = () => {
           <div className='details-details-modal-body-input-box'>
               <span>Date of Birth</span>
               <DatePicker maxDate={new Date()} yearDropdownItemNumber={90} showYearDropdown scrollableYearDropdown={true} 
-              dateFormat='yyyy/MM/dd' className='date-picker' placeholderText="Click to select" selected={userInput.dob} 
+              dateFormat='yyyy/MM/dd' className='date-picker' placeholderText="Click to select" 
+              selected={
+                // userInput.dob
+                ''
+              } 
               onChange={date=>setUserInput(prev=>({...prev,dob:date}))} />
           </div>
           <div className='details-details-modal-body-input-box'>
@@ -54,7 +75,8 @@ const AddUser = () => {
           </div>
           <div className='details-details-modal-body-input-box'>
               <span>Pasword</span>
-              <input type="password" placeholder="Enter password" value={userInput.password} required onChange={e=>setUserInput(prev=>({...prev,password:e.target.value}))} />
+              {/* <input type="password" placeholder="Enter password" value={userInput.password} required onChange={e=>setUserInput(prev=>({...prev,password:e.target.value}))} /> */}
+              <Link href={`/cdcs/users/reset-password/test`}><button className="button">Reset Password</button></Link>
           </div>
           <div className="details-details-modal-body-input-box">
               <span>Mobile</span>
@@ -101,14 +123,18 @@ const AddUser = () => {
           </div>
         </div>
         <div className='details-details-modal-body-button'>                    
-            <button onClick={addUser}>Add</button>                               
+            <button 
+            onClick={updateUser}
+            >
+              {/* {userInput.password !== "" ? 'Password Reset' : 'User Update'} */}
+              Update
+            </button>                               
             <button><Link href="/cdcs/users">Close</Link></button>
         </div>
-          
       </div>
     </div>
-  );
-};
+   );
+}
 
 export async function getServerSideProps({ req, res }) {
   try {
@@ -131,7 +157,7 @@ export async function getServerSideProps({ req, res }) {
       ) {
         return {
           props: {
-            user: { type: obj.type, name: obj.name, id: verified.id },
+            user: { type: obj.type, name: obj.name },
           },
         };
       } else {
@@ -146,5 +172,5 @@ export async function getServerSideProps({ req, res }) {
     return { redirect: { destination: "/cdcs/login" } };
   }
 }
-
-export default AddUser;
+ 
+export default UserDetails;

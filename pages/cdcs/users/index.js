@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 // import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
 import dbConnect from "../../../utils/dbConnect";
-import CDCSUsers5 from "../../../models/cdcs/Users";
+import CDCSUsers7 from "../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
 // import Link from "next/link";
@@ -17,14 +17,6 @@ const Users = ({ user }) => {
     name_: '',status_: '',type: '',
   });
   useEffect(() => {
-    // setLoading(true)
-    // fetch('/api/cdcs/users')
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     console.log('data', data.data);
-    //     setData(data.data)
-    //     setLoading(false)
-    //   })
     getUsers();
   }, [])
   if (isLoading){
@@ -65,7 +57,7 @@ const Users = ({ user }) => {
               </th>
               <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
               <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-              <th><Link href="/cdcs/users/add-user"><p>New</p></Link></th>
+              <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
             </tr>
           </thead>
           <thead className='table-table2-table-thead'>
@@ -90,7 +82,7 @@ const Users = ({ user }) => {
                   </td>
                   <td>{user.type}</td>
                   <td className='table-table2-table-body-tr-td'>
-                      <button onClick={()=>{detailsFunction(user.id)}}>Details</button>
+                      <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
                   </td>
               </tr>
                 );
@@ -98,39 +90,7 @@ const Users = ({ user }) => {
             }
           </tbody>
         </table>
-
       </div>
-      {/* <h1>Users</h1>
-      <Link href={'/cdcs/users/add-user'} passHref><button>Add User</button></Link>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>DOB</th>
-            <th>Type</th>
-            <th>Allergen</th>
-            <th>Added By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data &&
-            data.map((user) => {
-              // const dob = new Date(user.dob).toDateString();
-              // console.log('user', user);
-              return (
-                <tr key={user._id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{new Date(user.dob).toDateString().substring(4)}</td>
-                  <td>{user.type}</td>
-                  <td>{user.allergen}</td>
-                  <td>{user.created_by.name}</td>
-                </tr>
-              );
-            })}
-        </tbody>
-      </table> */}
     </div>
   );
 };
@@ -144,7 +104,7 @@ export async function getServerSideProps({ req, res }) {
     } else {
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
-      const obj = await CDCSUsers5.findOne(
+      const obj = await CDCSUsers7.findOne(
         { _id: verified.id },
         { type: 1, name: 1 }
       );

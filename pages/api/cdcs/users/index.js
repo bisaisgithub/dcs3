@@ -25,11 +25,12 @@ export default async (req, res) => {
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       // console.log("obj:", obj);
       if (
-        // obj
-        true
+        obj
+        // true
         ) {
         const { method } = req;
         if (method === "GET") {
+          // console.log('req.method', req.method)
           switch (obj.type) {
             case "Admin":
               try {
@@ -130,7 +131,8 @@ export default async (req, res) => {
                 console.log("user get default not admin or receptionist");
                 res.json({ success: false, message: "no permission" });
             }
-          } else {
+          } 
+          else {
             // console.log("post is not 1:", req.body);
             try {
               const hash = bcrypt.hashSync(req.body.password, 10);
