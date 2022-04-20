@@ -45,7 +45,7 @@ const Users = ({ user }) => {
     }
   }
   return (
-    <div >
+    <div className="blackbg" >
       <Navbarcdcs user={user} />
       <div className='table-table2-container'>
         <table className="table-table2-table">

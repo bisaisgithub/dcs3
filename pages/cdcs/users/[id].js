@@ -48,7 +48,8 @@ const UserDetails = () => {
     }
   }
   return ( 
-    <div className='details-details-container'>
+    <div className="blackbg">
+      <div className='details-details-container'>
       <div className='details-details-modal-container'>
         <div className='details-details-modal-title'>
         {/* {patient_id? `${patient_name} Details --  Age: ${patientAge}`: 'Patient Details'} */}
@@ -133,6 +134,8 @@ const UserDetails = () => {
         </div>
       </div>
     </div>
+    </div>
+    
    );
 }
 
