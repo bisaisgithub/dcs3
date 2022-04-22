@@ -1,36 +1,46 @@
 import Link from "next/link";
 import {useState} from 'react';
+import styles from '../../styles/NavbarHome.module.css';
 
 const NavbarHome = () => {
-  const [navActive, setNavActive] = useState('nav-home-menu');
+  const [navActive, setNavActive] = useState(styles.nav_home_menu);
   const navToggle = ()=>{
-    navActive === 'nav-home-menu' ? 
-    setNavActive('nav-home-menu nav-home-active') :
-    setNavActive('nav-home-menu');
+    navActive === styles.nav_home_menu ? 
+    setNavActive(`${styles.nav_home_menu} ${styles.nav_home_active}`) :
+    setNavActive(styles.nav_home_menu);
     //TogglerIcon
-    toggleIcon === 'nav-home-toggler' ?
-    setToggleIcon('nav-home-toggler toggle') :
-    setToggleIcon('nav-home-toggler')
+    toggleIcon === styles.nav_home_toggler ?
+    setToggleIcon(`${styles.nav_home_toggler } ${styles.toggle}`) :
+    setToggleIcon(styles.nav_home_toggler )
   }
-  const [toggleIcon, setToggleIcon] = useState('nav-home-toggler');
+  const [toggleIcon, setToggleIcon] = useState(`${styles.nav_home_toggler}`);
   return ( 
-    <nav className="nav-home">
-      <Link href={'#'} className="company">Calimlim Dental Clinic</Link>
+    <nav className={styles.nav_home}>
+      <Link href={'#'} passHref>
+        <a className={styles.company}>Calimlim Dental Clinic</a>
+      </Link>
       <ul className={navActive}>
-        <li  className={"item"}>
-          <Link href={'#'} className="link">Home</Link>
+        <li  onClick={navToggle} className={styles.nav_home_li}>
+          <Link  href={'#'} passHref>
+            <a className={styles.nav_home_a}>Home</a></Link>
         </li>
-        <li className="item">
-          <Link href={'#'} className="link">Services</Link>
+        <li onClick={navToggle}  className={styles.nav_home_li}>
+          <Link href={'#'} passHref>
+            <a className={styles.nav_home_a}>Services</a></Link>
         </li>
-        <li className="item">
-          <Link href={'#'} className="link">Login</Link>
+        <li onClick={navToggle}  className={styles.nav_home_li}>
+          <Link href={'#'} passHref>
+            <a className={styles.nav_home_a}>About</a></Link>
+        </li>
+        <li onClick={navToggle}  className={styles.nav_home_li}>
+          <Link href={'http://localhost:3000/cdcs/login'} passHref>
+            <a className={styles.nav_home_a}>Login/Register</a></Link>
         </li>
       </ul>
       <div onClick={navToggle} className={toggleIcon}>
-        <div className="line1"></div>
-        <div className="line2"></div>
-        <div className="line3"></div>
+        <div className={`${styles.nav_home_toggler_div} ${styles.line1}`}></div>
+        <div className={`${styles.nav_home_toggler_div} ${styles.line2}`}></div>
+        <div className={`${styles.nav_home_toggler_div} ${styles.line3}`}></div>
       </div>
     </nav>
    );

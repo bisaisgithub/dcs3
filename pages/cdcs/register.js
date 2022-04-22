@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import NavbarHome from "../../components/cdcs/navbarhome";
 import Link from 'next/link';
 
-const Login = () => {
+const Register = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,12 +27,15 @@ const Login = () => {
     <div className='details-details-container'>
       <NavbarHome/>
       <form className="form-container-login" onSubmit={login}>
+        
         <div className="form-body-login">
-        <div className="form-title-container">
-          <div className='form-title-text'>
-            Login
+          <div className="form-title-container">
+            <div className='form-title-text'>
+              Register
+            </div>
+            <h3>Step 1 of 2</h3>
+            <p>Verifying Email First</p>
           </div>
-        </div>
           <div className="form-body-input-box">
             <span className="form-body-input-box-span">Email</span>
             <input
@@ -42,19 +45,10 @@ const Login = () => {
               required
             />
           </div>
-          <div className="form-body-input-box">
-            <span className="form-body-input-box-span">Password</span>
-            <input
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              placeholder="Enter password"
-              required
-            />
-          </div>
           <div className="details-details-modal-body-button">
-            <button type="submit">Login</button>
+            <button type="submit">Verify</button>
           </div>
-          <p>You do not have an account? Register <Link href={`http://localhost:3000/cdcs/register`}>Here</Link></p>
+          <p>You do have an account? Login <Link href={`http://localhost:3000/cdcs/login`}>Here</Link></p>
         </div>
         
       </form>
@@ -62,4 +56,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -12,11 +12,11 @@ const Logout = () => {
 export async function getServerSideProps({ req, res }) {
   try {
     removeCookies("cdcsjwt", { req, res });
-    return { redirect: { destination: "/cdcs/login" } };
+    return { redirect: { destination: "/cdcs/" } };
   } catch (error) {
     console.log("login error:", error);
     removeCookies("cdcsjwt", { req, res });
-    return { redirect: { destination: "/cdcs/login" } };
+    return { redirect: { destination: "/cdcs/" } };
   }
 
 }
