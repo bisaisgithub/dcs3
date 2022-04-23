@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import NavbarHome from "../../components/cdcs/navbarhome";
+import NavbarHome from "../../../components/cdcs/navbarhome";
 import Link from 'next/link';
 
 const Login = () => {
@@ -51,10 +51,11 @@ const Login = () => {
               required
             />
           </div>
+          <p className="forgot_password">Forgot Password? Click <Link href={`/cdcs/forgotpassword`}>Here</Link></p>
           <div className="details-details-modal-body-button">
             <button type="submit">Login</button>
           </div>
-          <p>You do not have an account? Register <Link href={`http://localhost:3000/cdcs/register`}>Here</Link></p>
+          <p>You do not have an account? Register <Link href={`/cdcs/register`}>Here</Link></p>
         </div>
         
       </form>

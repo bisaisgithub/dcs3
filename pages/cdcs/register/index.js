@@ -1,0 +1,221 @@
+import axios from "axios";
+import { useRouter } from "next/router";
+import NavbarHome from "../../../components/cdcs/navbarhome";
+import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { getCookie, removeCookies } from "cookies-next";
+import dbConnect from "../../../utils/dbConnect";
+import CDCSUsers7 from "../../../models/cdcs/Users";
+import jwt from "jsonwebtoken";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { verify } from "jsonwebtoken";
+
+const Register = () => {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [userInput, setUserInput] = useState({
+    name: "",email: "",password: "",dob: "",type: "Patient",
+    allergen: "",mobile:"",status:'',gender:"",status:"Active"
+  });
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [step, setStep] = useState({one: true, two: false, three: false});
+  const [inputCode, setInputCode] = useState('');
+  const [receivedCode, setReceivedCode] = useState('');
+  const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false})
+  const verifyEmail = async (e) => {
+    e.preventDefault();
+    setDisableButton({...disableButton, verify: true})
+    // console.log('userInput: ', userInput)
+    const credentials = { email };
+    const sendEmailResponse = await axios.post(
+      "/api/cdcs/verifyemail",
+      credentials
+    );
+    
+    if (sendEmailResponse.data.success) {
+      const sendEmailResponse = await axios.post(
+        "/api/cdcs/sendmail",
+        credentials
+      );
+      // console.log('sendEmailResponse: ',sendEmailResponse);
+      if (sendEmailResponse.data.success) {
+        // let inputCode = prompt('Enter the code you receive in your email');
+        // console.log('inputCode: ', inputCode)
+        // console.log('reponsecode: ', sendEmailResponse.data.c.toString())
+        // if (sendEmailResponse.data.c.toString() === inputCode) {
+        //   // alert('code is correct')
+        //   setEmailVerified(true);
+        //   setUserInput(prev=>({...prev,email}))
+        // } else {
+        //   alert('incorrect code')
+        // }
+        setReceivedCode(sendEmailResponse.data.c);
+        setStep({one: false, two: false, three: true});
+      }else{
+        alert('Failed sending email, you try again');
+      }
+    } else {
+      alert('Your email is already registered')
+    }
+  };
+  const verifyCode = async (e)=>{
+    e.preventDefault();
+    setDisableButton({...disableButton, submitCode: true});
+    // alert(`verify code function inputCode: ${inputCode}, receivedCode: ${receivedCode}`);
+    console.log('inputCode', inputCode)
+    console.log('received Code', receivedCode)
+    if (receivedCode.toString()===inputCode) {
+      // alert('Code is correct')
+      setStep({one: false, two: true, three: false});
+    } else {
+      alert('Code is incorrect');
+      setDisableButton({...disableButton, submitCode: false});
+    }
+  }
+  const addUser = async (e) => {
+    e.preventDefault();
+    setDisableButton({...disableButton, register: true})
+    // userInput.created_by = user.id;
+    console.log("user:", userInput);
+    const response = await axios.post(
+      "/api/cdcs/users",
+      userInput
+    );
+    // console.log("user:", response);
+    if (response.data.success) {
+      alert('Adding User Successful');
+      router.push('/cdcs/users');
+    } else {
+      alert('Failed Adding User')
+    }
+  };
+ 
+  return (
+    <div className='details-details-container'>
+      <NavbarHome/>
+      {/* step1 */}
+      {/* <div className='details-details-container'> */}
+        <form className={step.one? "form-container-login" : "form-container-login display-none"} onSubmit={verifyEmail} >
+          <div className={"form-body-login"}
+          // style={step.one? {display: ''}: {display: 'none'}}
+          >
+            <div className="form-title-container">
+              <div className='form-title-text'>
+                Registration
+              </div>
+              {/* <h3 className="text_center_margin0">Step 1 of 2</h3> */}
+              <p className="text_center_margin0">Verifying Email First</p>
+            </div>
+            <div className="form-body-input-box">
+              <span className="form-body-input-box-span">Email</span>
+              <input
+                onChange={e=>setEmail(e.target.value)}
+                type="email"
+                placeholder="Enter email"
+                required
+                disabled={disableButton.verify}
+              />
+            </div>
+            <div className="details-details-modal-body-button">
+              <button disabled={disableButton.verify} type="submit">{disableButton.verify? 'Verifying...' : 'Verify'}</button>
+              {/* {emailVerified? (<button type="button" onClick={()=>{setStep({one: false, two: true})}}>Next</button>) : (<button type="submit">Verify</button>)} */}
+            </div>
+            <p>Do you have an account? Login 
+              <Link href={`/cdcs/login`}> Here</Link>
+              </p>
+          </div>
+        </form>
+      {/* </div> */}
+      {/* step2 form */}
+      {/* <div className={step.two? 'details-details-container' : 'details-details-container display-none'}> */}
+        <form onSubmit={addUser} className={step.two? 'details-details-modal-container':'details-details-modal-container display-none'}>
+          {/* <div className='details-details-modal-title'>
+            </div> */}
+          <div className="form-title-container">
+              <div className='form-title-text'>
+                Registration
+              </div>
+              {/* <h3 className="text_center_margin0">Step 1 of 2</h3> */}
+              {/* <p className="text_center_margin0">Verifying Email First</p> */}
+          </div>
+          <div className='details-details-modal-body'>
+            <div className='details-details-modal-body-input-box'>
+                <span>Full Name</span>
+                <input type="text" placeholder="Enter name" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
+            </div>
+            <div className='details-details-modal-body-input-box'>
+                <span>Date of Birth</span>
+                <DatePicker maxDate={new Date()} yearDropdownItemNumber={90} showYearDropdown scrollableYearDropdown={true} 
+                dateFormat='yyyy/MM/dd' className='date-picker' placeholderText="Click to select a date" selected={userInput.dob} 
+                onChange={date=>setUserInput(prev=>({...prev,dob:date}))} required/>
+            </div>
+            <div className='details-details-modal-body-input-box'>
+                <span>Email</span>
+                <input type="text" disabled placeholder="Enter email" value={userInput.email} required 
+                // onChange={e=>setUserInput(prev=>({...prev,email:e.target.value}))} 
+                />
+            </div>
+            <div className='details-details-modal-body-input-box'>
+                <span>Pasword</span>
+                <input type="password" placeholder="Enter password" value={userInput.password} required onChange={e=>setUserInput(prev=>({...prev,password:e.target.value}))} />
+            </div>
+            <div className="details-details-modal-body-input-box">
+                <span>Mobile</span>
+                <input type="text" placeholder="Enter mobile" value={userInput.mobile} required onChange={e=>setUserInput(p=>({...p,mobile:e.target.value}))}/>
+            </div>                       
+            <div className="details-details-modal-body-input-box">
+                <span>Allergen</span>
+                <input type="text" placeholder="Enter allergens" value={userInput.allergen} required onChange={e=>setUserInput(p=>({...p,allergen:e.target.value}))}/>
+            </div>
+            <div className="details-details-modal-body-status-gender">
+              <div className="details-details-modal-body-input-box">
+                <span>Gender</span>
+                <select value={userInput.gender} onChange={(e)=>{setUserInput(p=>({...p,gender:e.target.value}))}} required>
+                    <option value="">-Select Gender-</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className='details-details-modal-body-button'>                    
+              <button disabled={disableButton.register} type="submit">{disableButton.register? 'Registering...' : 'Register'}</button>                               
+              <button><Link href="/cdcs/">Cancel</Link></button>
+          </div>
+            
+        </form>
+      {/* </div> */}
+      {/* step 3 */}
+      <form className={step.three? "form-container-login" : "form-container-login display-none"} onSubmit={verifyCode} >
+          <div className={"form-body-login"}
+          // style={step.one? {display: ''}: {display: 'none'}}
+          >
+            <div className="form-title-container">
+              <div className='form-title-text'>
+                Registration
+              </div>
+              {/* <h3 className="text_center_margin0">Step 1 of 2</h3> */}
+              <p className="text_center_margin0">Enter the code you received in your email</p>
+            </div>
+            <div className="form-body-input-box">
+              {/* <span className="form-body-input-box-span">Code</span> */}
+              <input
+                onChange={e=>setInputCode(e.target.value)}
+                type="number"
+                placeholder="Enter code"
+                required
+                disabled={disableButton.submitCode}
+              />
+            </div>
+            <div className="details-details-modal-body-button">
+              <button disabled={disableButton.submitCode} type="submit">{disableButton.submitCode? 'Submitting...' : 'Submit'}</button>
+            </div>
+          </div>
+        </form>
+    </div>
+    
+  );
+};
+
+export default Register;

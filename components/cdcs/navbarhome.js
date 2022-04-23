@@ -21,8 +21,8 @@ const NavbarHome = () => {
       </Link>
       <ul className={navActive}>
         <li  onClick={navToggle} className={styles.nav_home_li}>
-          <Link  href={'#'} passHref>
-            <a className={styles.nav_home_a}>Home</a></Link>
+            <Link  href={'/cdcs'} passHref>
+              <a className={styles.nav_home_a}>Home</a></Link>
         </li>
         <li onClick={navToggle}  className={styles.nav_home_li}>
           <Link href={'#'} passHref>
@@ -33,7 +33,7 @@ const NavbarHome = () => {
             <a className={styles.nav_home_a}>About</a></Link>
         </li>
         <li onClick={navToggle}  className={styles.nav_home_li}>
-          <Link href={'http://localhost:3000/cdcs/login'} passHref>
+          <Link href={'/cdcs/login'} passHref>
             <a className={styles.nav_home_a}>Login/Register</a></Link>
         </li>
       </ul>

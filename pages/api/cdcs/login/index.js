@@ -1,7 +1,7 @@
 import { sign } from "jsonwebtoken";
 import { serialize } from "cookie";
-import dbConnect from "../../../utils/dbConnect";
-import CDCSUsers7 from '../../../models/cdcs/Users'
+import dbConnect from "../../../../utils/dbConnect";
+import CDCSUsers7 from '../../../../models/cdcs/Users'
 const bcrypt = require("bcrypt");
 
 dbConnect();
