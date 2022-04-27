@@ -1,14 +1,14 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import dbConnect from "../../utils/dbConnect";
-import CDCSUsers7 from "../../models/cdcs/Users";
+import dbConnect from "../../../../utils/dbConnect";
+import CDCSUsers7 from "../../../../models/cdcs/Users";
 import bcrypt from "bcrypt";
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 
-export default async function handler(req, res) {
+export default function handler(req, res) {
   try {
     const user = await CDCSUsers7.find(
-      {"name": "Patient Number4", "created_by": { $exists: true },},
+      {},
       {
         name: 1,
         email: 1,

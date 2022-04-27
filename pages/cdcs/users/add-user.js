@@ -10,7 +10,7 @@ import Link from "next/link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const AddUser = () => {
+const AddUser = ({user}) => {
   const router = useRouter();
   const [userInput, setUserInput] = useState({
     name: "",email: "",password: "",dob: "",type: "",
@@ -21,7 +21,7 @@ const AddUser = () => {
     console.log("user:", userInput);
     const response = await axios.post(
       "/api/cdcs/users",
-      userInput
+      {...userInput, created_by:user.id}
     );
     // console.log("user:", response);
     if (response.data.success) {

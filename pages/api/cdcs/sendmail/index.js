@@ -31,6 +31,7 @@ export default async function (req, res) {
     })
   } catch (error) {
     res.json({success: false})
+    console
   }
   
 

@@ -1,1 +1,2 @@
+token for registration
 Patient Dashboard

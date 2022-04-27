@@ -12,17 +12,22 @@ import "react-datepicker/dist/react-datepicker.css";
 import { verify } from "jsonwebtoken";
 
 const Register = () => {
+  const [render, setRender] = useState(0);
+  useEffect(()=>{
+
+  }, [render])
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [userInput, setUserInput] = useState({
-    name: "",email: "",password: "",dob: "",type: "Patient",
+    name: "",email: "",password: "",dob: "",type: "_Patient",
     allergen: "",mobile:"",status:'',gender:"",status:"Active"
   });
   const [emailVerified, setEmailVerified] = useState(false);
-  const [step, setStep] = useState({one: true, two: false, three: false});
+  const [step, setStep] = useState({one: false, two: true, three: false});
   const [inputCode, setInputCode] = useState('');
   const [receivedCode, setReceivedCode] = useState('');
-  const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false})
+  const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
+ 
   const verifyEmail = async (e) => {
     e.preventDefault();
     setDisableButton({...disableButton, verify: true})
@@ -54,6 +59,8 @@ const Register = () => {
         setStep({one: false, two: false, three: true});
       }else{
         alert('Failed sending email, you try again');
+        setRender(prev=>prev + 1);
+        console.log('render: ', render)
       }
     } else {
       alert('Your email is already registered')
@@ -67,6 +74,7 @@ const Register = () => {
     console.log('received Code', receivedCode)
     if (receivedCode.toString()===inputCode) {
       // alert('Code is correct')
+      setUserInput(prev=>({...prev,email}))
       setStep({one: false, two: true, three: false});
     } else {
       alert('Code is incorrect');
@@ -84,8 +92,8 @@ const Register = () => {
     );
     // console.log("user:", response);
     if (response.data.success) {
-      alert('Adding User Successful');
-      router.push('/cdcs/users');
+      alert('Your are now registered and may login');
+      router.push('/cdcs/login');
     } else {
       alert('Failed Adding User')
     }
@@ -162,11 +170,18 @@ const Register = () => {
             </div>
             <div className="details-details-modal-body-input-box">
                 <span>Mobile</span>
-                <input type="text" placeholder="Enter mobile" value={userInput.mobile} required onChange={e=>setUserInput(p=>({...p,mobile:e.target.value}))}/>
+                <input type="text" placeholder="Enter mobile" value={userInput.mobile} 
+                pattern="[0-9]{10}"
+                // pattern="[A-Za-z\d\.]{6,12}"
+                // pattern="https?://.+"
+                title="must be 10 digit number"
+                required onChange={e=>setUserInput(p=>({...p,mobile:e.target.value}))}/>
             </div>                       
             <div className="details-details-modal-body-input-box">
-                <span>Allergen</span>
-                <input type="text" placeholder="Enter allergens" value={userInput.allergen} required onChange={e=>setUserInput(p=>({...p,allergen:e.target.value}))}/>
+                <span>Allergies</span>
+                <input type="text" placeholder="Enter allergies"
+                title="Enter things that causing you allergies else put N/A"
+                value={userInput.allergen} required onChange={e=>setUserInput(p=>({...p,allergen:e.target.value}))}/>
             </div>
             <div className="details-details-modal-body-status-gender">
               <div className="details-details-modal-body-input-box">
