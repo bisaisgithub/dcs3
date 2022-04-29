@@ -23,7 +23,7 @@ const Register = () => {
     allergen: "",mobile:"",status:'',gender:"",status:"Active"
   });
   const [emailVerified, setEmailVerified] = useState(false);
-  const [step, setStep] = useState({one: false, two: true, three: false});
+  const [step, setStep] = useState({one: true, two: false, three: false});
   const [inputCode, setInputCode] = useState('');
   const [receivedCode, setReceivedCode] = useState('');
   const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
