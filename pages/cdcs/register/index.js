@@ -64,6 +64,7 @@ const Register = () => {
       }
     } else {
       alert('Your email is already registered')
+      setDisableButton({...disableButton, submitCode: false});
     }
   };
   const verifyCode = async (e)=>{
@@ -77,7 +78,7 @@ const Register = () => {
       setUserInput(prev=>({...prev,email}))
       setStep({one: false, two: true, three: false});
     } else {
-      alert('Code is incorrect');
+      alert('Code is incorrect, please try again');
       setDisableButton({...disableButton, submitCode: false});
     }
   }

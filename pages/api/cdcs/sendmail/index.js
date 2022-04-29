@@ -8,15 +8,15 @@ export default async function (req, res) {
   let mailTransporter = nodemailer.createTransport({
     service:'gmail',
     auth:{
-      user: 'benaremailtestapp@gmail.com',
-      pass: 'Raneb@g012583e21'
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
     }
   })
   const code = Math.floor(1000 + Math.random() * 9000);
   let details = {
-    from: 'benaremailtestapp@gmail.com',
+    from: process.env.EMAIL_USER,
     to: `${req.body.email}`,
-    subject: 'test sendmail nodemailer',
+    subject: 'Calimlim Registration Code',
     text: `Calimlim Registration code: ${code}`
   }
   
