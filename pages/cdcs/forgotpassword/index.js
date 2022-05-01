@@ -21,7 +21,7 @@ const Login = () => {
       alert('Your new password has been sent to your email')
       router.push("/cdcs/login");
     }else{
-      alert('Invalid Email or Password');
+      alert('Invalid Email or its not yet registered');
     }
   };
   return (
