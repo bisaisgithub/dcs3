@@ -1,0 +1,105 @@
+.exam-container{
+    width: 100%x;
+    display: flex;
+    justify-content: center;
+    margin: 5px 0 5px 0;
+    
+}
+.exam-container div{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+.exam-container div select{
+    font-size: 16px;
+    font-weight: 550;
+    height: 30px;
+    width: 30px;
+    appearance: none;
+    text-align: center;
+    /* margin: 2px 0px 0px 0px; */
+}
+.exam-container div img{
+    /* height: 100px;
+    width: 40px; */
+    /* height: 80px;
+    width: 35px; */
+    height: 60px;
+    width: 26px;
+}
+.exam-container div span{
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+.border-left{
+    margin-left: 5px;
+}
+.exam-container div input{
+    height: 30px;
+    width: 30px;
+}
+@media (max-width: 360px) {
+    .exam-container{
+        justify-content: flex-start;
+    }
+}
+.exam-button{
+    padding: 7px;
+    font-size: 15px;
+    font-weight: bold;
+    background: linear-gradient(135deg,#71b7e6, #9b59b6);
+    border-radius: 5px;
+    border: none;
+    margin: 3px;
+}
+
+/* baby tooth chart */
+
+.exam-container2{
+    width: 100%x;
+    display: flex;
+    justify-content: center;
+    margin: 5px 0 5px 0;
+    
+}
+.exam-container2 div{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+.exam-container2 div select{
+    font-size: 16px;
+    font-weight: 550;
+    height: 30px;
+    width: 30px;
+    appearance: none;
+    text-align: center;
+    /* margin: 2px 0px 0px 0px; */
+}
+.exam-container2 div img{
+    /* height: 100px;
+    width: 40px; */
+    /* height: 80px;
+    width: 35px; */
+    height: 40px;
+    width: 26px;
+}
+.exam-container2 div span{
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+.exam-container2 div input{
+    height: 30px;
+    width: 30px;
+}
+@media (max-width: 360px) {
+    .exam-container2{
+        justify-content: flex-start;
+    }
+}

@@ -131,7 +131,42 @@ export default async (req, res) => {
                 console.log("user get default not admin or receptionist");
                 res.json({ success: false, message: "no permission" });
             }
-          } 
+          } else if(req.body.post === 20){
+            try {
+              const users = await CDCSUsers7.find(
+                {
+                  $or:[{type: "_Patient"},{type:"Dentist"}]
+                },
+                {
+                  name: 1,
+                  type: 1,
+                }
+              )
+                .sort({ name: 1 });
+                let patients = [{value: '', label: 'Select Patient'}];
+                let doctors = [{value: '', label: 'Select Doctor'}];
+                await users.map((user)=>{
+                  if(user.type === '_Patient'){
+                    patients = [...patients, {value: user.id, label: user.name}]
+                  }else{
+                      console.log('type did not catch:',user.type);
+                  }
+                  if(user.type === 'Dentist'){
+                      console.log('type doctor true')
+                    doctors = [...doctors, {value: user.id, label: user.name}]
+                  }
+                  
+                  return null;
+                });
+                
+              // console.log('user:', user);
+              // const username = await CDCSUsers7.findOne({_id: })
+              res.json({ sucess: true, users: {patients, doctors} });
+            } catch (error) {
+              console.log("cath error admin", error);
+              res.json({ success: false, error: `get error: ${error}` });
+            }
+          }
           else {
             // console.log("post is not 1:", req.body);
             try {

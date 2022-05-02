@@ -7,11 +7,10 @@ import dbConnect from "../../../utils/dbConnect";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
-// import Link from "next/link";
 
 const Users = ({ user }) => {
-  const [isLoading, setLoading] = useState(false);
-  const [data, setData] = useState(null);
+  // const [isLoading, setLoading] = useState(false);
+  // const [data, setData] = useState(null);
   const [usersData, setUsersData] = useState(null);
   const [search, setSearch] = useState({
     name_: '',status_: '',type: '',
@@ -19,9 +18,9 @@ const Users = ({ user }) => {
   useEffect(() => {
     getUsers();
   }, [])
-  if (isLoading){
-    return <p>Loading...</p>
-  }
+  // if (isLoading){
+  //   return <p>Loading...</p>
+  // }
   const getUsers = async (data)=>{
     if (data) {
       console.log('data is not empty', data);
