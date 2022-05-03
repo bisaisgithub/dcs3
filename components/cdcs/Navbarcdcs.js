@@ -16,7 +16,7 @@ const Navbarcdcs = ({ user }) => {
     // </div>
     /* New */
     <div className="nav">
-      <Link href="/cdcs/appointment" passHref>
+      <Link href="/cdcs/appointments" passHref>
         <a className="nav__link">
           <div>
             <Image
