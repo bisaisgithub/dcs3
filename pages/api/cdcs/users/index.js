@@ -5,6 +5,7 @@ import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 
 export default async (req, res) => {
+
   try {
     await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
@@ -18,7 +19,7 @@ export default async (req, res) => {
       } catch (error) {
         res.json({ success: false, error: `post error: ${error}` });
       }
-      res.json({ success: false, message: "no-token" });
+      // res.json({ success: false, message: "no-token" });
     } else {
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
@@ -143,31 +144,17 @@ export default async (req, res) => {
                 }
               )
                 .sort({ name: 1 });
-                let patients = [{value: '', label: 'Select Patient'}];
-                let doctors = [{value: '', label: 'Select Doctor'}];
-                await users.map((user)=>{
-                  if(user.type === '_Patient'){
-                    patients = [...patients, {value: user.id, label: user.name}]
-                  }else{
-                      console.log('type did not catch:',user.type);
-                  }
-                  if(user.type === 'Dentist'){
-                      console.log('type doctor true')
-                    doctors = [...doctors, {value: user.id, label: user.name}]
-                  }
-                  
-                  return null;
-                });
+                
                 
               // console.log('user:', user);
               // const username = await CDCSUsers7.findOne({_id: })
-              res.json({ sucess: true, users: {patients, doctors} });
+              res.json({ sucess: true, users });
             } catch (error) {
               console.log("cath error admin", error);
               res.json({ success: false, error: `get error: ${error}` });
             }
           }
-          else {
+          else if(req.body.post === 30){
             // console.log("post is not 1:", req.body);
             try {
               const hash = bcrypt.hashSync(req.body.password, 10);
@@ -177,10 +164,12 @@ export default async (req, res) => {
               res.status(201).json({ success: true, data: note });
             } catch (error) {
               res.json({ success: false, error: `post error: ${error}` });
+              res.end();
             }
           }
         } else {
           res.json({ success: false, message: "unauthorized method" });
+          res.end();
         }
       } else {
         console.log("if obj false");
@@ -189,6 +178,7 @@ export default async (req, res) => {
     }
   } catch (error) {
     console.log("api cdcs user error:", error);
+    res.end();
     // removeCookies("cdcsjwt", { req, res });
     // return { redirect: { destination: "/cdcs/login" } };
   }

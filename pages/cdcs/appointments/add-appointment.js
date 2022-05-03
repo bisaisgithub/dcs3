@@ -14,12 +14,15 @@ import Link from 'next/link'
 
 const AppointmentDetails = () => {
   const [app, setApp] = useState({
-    date:'',date_end: '',patient_id: {value: 'select', label: 'Select Patient'},doctor_id: {value: '', label: 'Select Doctor'},
+    date:'',patient_id: '',doctor_id: '',
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
       },]
   })
+  const [app2, setApp2]=useState({
+    date_end:'',
+  });
   const [usersList, setUserList] = useState([]);
   const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
       proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
@@ -156,7 +159,7 @@ const AppointmentDetails = () => {
             }
             setApp({...app, proc_fields: values});
 
-            setApp({...app, date_end: new Date(
+            setApp2({...app2, date_end: new Date(
                 new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
                     )});
             
@@ -164,6 +167,17 @@ const AppointmentDetails = () => {
             alert('please select start time first')
         }
     }
+    let patients = [{value: '', label: 'Select Patient'}];
+    let doctors = [{value: '', label: 'Select Doctor'}];
+    usersList.map((user)=>{
+        if(user.type === '_Patient'){
+        patients = [...patients, {value: user._id, label: user.name}]
+        }
+        if(user.type === 'Dentist'){
+        doctors = [...doctors, {value: user._id, label: user.name}]
+        }
+        return null;
+    });
 
     return(
         <>
@@ -173,17 +187,20 @@ const AppointmentDetails = () => {
                         <div className='details-details-modal-body'>
                             <div className="details-details-modal-body-input-box">
                                 <span>Patient</span>
-                                <Select options={usersList.patients} 
+                                <Select options={patients} 
                                 defaultValue={{value: '', label: 'Select Patient'}}
+                                instanceId="long-value-select-patient"
                                 // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
                                 onChange={(value)=>{
+                                    console.log('value:', value.value)
                                     setApp({...app, patient_id: value.value})
                                     // set_app_patient_id(value.value);
                                     }}/>
                             </div>
                             <div className="details-details-modal-body-input-box">
                                 <span>Doctor</span>
-                                <Select options={usersList.doctors} defaultValue={{value: '', label: 'Select Doctor'}} 
+                                <Select options={doctors} defaultValue={{value: '', label: 'Select Doctor'}} 
+                                instanceId="long-value-select-doctor"
                                 onChange={(value)=>{
                                     setApp({...app, doctor_id: value.value})
                                     }}/>
@@ -209,10 +226,11 @@ const AppointmentDetails = () => {
                                             totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
                                             return null;
                                         });
-                                        setApp(
-                                            {...app, date,
+                                        setApp2(
+                                            {...app2,
                                             date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
                                                 )});
+                                        setApp({...app, date});
                                     }} />
                                     
                                 </div>
@@ -285,7 +303,7 @@ const AppointmentDetails = () => {
                                                                 }
                                                                 return null;
                                                             });
-                                                            setApp({...app, date_end: new Date(
+                                                            setApp2({...app2, date_end: new Date(
                                                                 new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
                                                                 )
                                                             }); 
@@ -328,8 +346,8 @@ const AppointmentDetails = () => {
                                     <div className='duration-minutes-container'>
                                         {/* <input value={app_end_time} disabled/> */}
                                         <DatePicker
-                                            selected={app.date_end}
-                                            onChange={(date) => setApp({...app, date_end: date})}
+                                            selected={app2.date_end}
+                                            // onChange={(date) => setApp({...app, date_end: date})}
                                             showTimeSelect
                                             showTimeSelectOnly
                                             // timeIntervals={30}
