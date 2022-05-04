@@ -184,6 +184,14 @@ const AppointmentDetails = () => {
         <>
             <div className='details-details-container'>
                 <div className='details-details-modal-container'>
+                    <div className='details-details-modal-body-button margin-bottom-20'> 
+                        <button className='add-payment-button height-80p' onClick={()=>{
+                            // addPaymentFieldFunction()
+                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
+                            }}>Add Payment
+                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                        </button>
+                    </div>
                     <div className='details-details-modal-body-container'>
                         <div className='details-details-modal-body'>
                             <div className="details-details-modal-body-input-box">
@@ -250,9 +258,44 @@ const AppointmentDetails = () => {
                                         dateFormat="h:mm aa"
                                     />
                                 </div>
-                                {app_id && 
-                                    <button className='add-remove-button-exam' onClick={()=>{set_is_exam_open(!is_exam_open)}}>{is_exam_open? 'Hide Exam':'Show Exam'}</button>
-                                }
+                                <div className="details-details-modal-body-input-box">
+                                    <span>End Time</span>
+                                    <div className='duration-minutes-container'>
+                                        {/* <input value={app_end_time} disabled/> */}
+                                        <DatePicker
+                                            selected={app2.date_end}
+                                            // onChange={(date) => setApp({...app, date_end: date})}
+                                            showTimeSelect
+                                            showTimeSelectOnly
+                                            // timeIntervals={30}
+                                            // minTime={setHours(setMinutes(new Date(), 0), 8)}
+                                            // maxTime={setHours(setMinutes(new Date(), 30), 18)}
+                                            // placeholderText="Select Start Time"
+                                            timeCaption="Time"
+                                            dateFormat="h:mm aa"
+                                            disabled
+                                        />
+                                    </div> 
+                                    
+                                </div>
+                            </div>
+                            <div style={{display: 'flex', width: '100%'}}>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Total Cost</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
+                                </div>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Total Payment</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
+                                </div>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Balance</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
+                                </div>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Change</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
+                                </div>
                             </div>
                             
                         </div>
@@ -349,34 +392,22 @@ const AppointmentDetails = () => {
                                         setApp((prev)=>{return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0}] } })
                                         }}>+</button>
                                 </div>
-                                <div className="details-details-modal-body-input-box">
+                                {/* <div className="details-details-modal-body-input-box">
                                     <span>Total Cost</span>
                                     <input type='number' value={app_total_proc_cost} disabled />
-                                    
                                 </div>
                                 <div className="details-details-modal-body-input-box">
-                                    <span>End Time</span>
-                                    <div className='duration-minutes-container'>
-                                        {/* <input value={app_end_time} disabled/> */}
-                                        <DatePicker
-                                            selected={app2.date_end}
-                                            // onChange={(date) => setApp({...app, date_end: date})}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            // timeIntervals={30}
-                                            // minTime={setHours(setMinutes(new Date(), 0), 8)}
-                                            // maxTime={setHours(setMinutes(new Date(), 30), 18)}
-                                            // placeholderText="Select Start Time"
-                                            timeCaption="Time"
-                                            dateFormat="h:mm aa"
-                                            disabled
-                                        />
-                                    </div> 
-                                    
+                                    <span>Total Payment</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
                                 </div>
-                            </div>
-
-                            <div className='display-flex'>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Balance</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
+                                </div>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Change</span>
+                                    <input type='number' value={app_total_proc_cost} disabled />
+                                </div> */}
                                 <div className="details-details-modal-body-input-box">
                                     <span>Status</span>
                                     <select name="status" value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
@@ -393,6 +424,24 @@ const AppointmentDetails = () => {
                                     </select>       
                                 </div>
                             </div>
+
+                            {/* <div className='display-flex'>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Status</span>
+                                    <select name="status" value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
+                                        <option value="">-Select Status-</option>
+                                        <option value="On Schedule">On Schedule</option>
+                                    </select>       
+                                </div>
+                                <div className="details-details-modal-body-input-box">
+                                    <span>Type</span>
+                                    <select name="status" value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
+                                        <option value="">-Select Type-</option>
+                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Walk-in">Walk-in</option>
+                                    </select>       
+                                </div>
+                            </div> */}
                             {
                                 app_pay_fields.map((payfield, index)=>{
                                     return (
@@ -463,18 +512,13 @@ const AppointmentDetails = () => {
                                     );
                                 })
                             }
-                            <button className='add-payment-button height-80p' onClick={()=>{
-                                // addPaymentFieldFunction()
+                            {/* <button className='add-payment-button height-80p' onClick={()=>{
                                 set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
                                 }}>Add Payment
-                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
-                            </button>
-                            {/* <p>app_proc_fields: {app_proc_fields}</p> */}
+                            </button> */}
                         </div>
 
                     </div>
-                        
-
                     <div className='details-details-modal-body-button'> 
                         
                         <button className='button-w70' 

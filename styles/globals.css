@@ -237,7 +237,7 @@ th, td{
 }
 .details-details-modal-body-container {
   overflow-y: auto;
-  max-height: 590px;
+  height: 600px;
   margin-bottom: 10px;
 }
 .details-details-modal-title {
@@ -259,7 +259,8 @@ th, td{
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  margin: 10px -10px 0 -10px;
+  margin: 10px -10px 0 -2px;
+  width: 100%;
 }
 .details-details-modal-body-input-box {
   margin: 0 10px 7px 10px;
@@ -422,6 +423,9 @@ input[type="text"] {
   font-size: 15px;
   font-weight: bold;
   background: linear-gradient(135deg, #71b7e6, #9b59b6);
+}
+.margin-bottom-20{
+  margin-bottom: 20px;
 }
 @media (max-height: 370px) {
   .details-details-modal-body-container {
