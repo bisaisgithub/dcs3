@@ -29,12 +29,12 @@ export default async function (req, res) {
           let mailTransporter = nodemailer.createTransport({
             service:'gmail',
             auth:{
-              user: 'benaremailtestapp@gmail.com',
-              pass: 'Raneb@g012583e21'
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS
             }
           })
           let details = {
-            from: 'benaremailtestapp@gmail.com',
+            from: process.env.EMAIL_USER,
             to: `${req.body.email}`,
             subject: 'Calimlim: Password Reset',
             text: `Calimlim: Your new password is: ${password}`

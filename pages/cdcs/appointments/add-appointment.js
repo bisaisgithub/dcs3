@@ -17,9 +17,10 @@ const AppointmentDetails = () => {
     date:'',patient_id: '',doctor_id: '',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
-      },]
-  })
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0,
+      },],
+    payment: [{amount: '', date: ''}]
+  });
   const [app2, setApp2]=useState({
     date_end:'',
   });
@@ -72,7 +73,7 @@ const AppointmentDetails = () => {
             const values = [...app_pay_fields];
             values[index][event.target.name] = event.target.value;
 
-            await set_app_pay_fields(values);
+            set_app_pay_fields(values);
             values.map(async (field, index)=>{
                 let totalPayment = 0;
                 for(let i = 0; i<= index; i++){
@@ -88,14 +89,14 @@ const AppointmentDetails = () => {
                     const values2 = [...app_pay_fields];
                     values[index]['pay_change'] = 0;
                     values[index]['pay_balance'] = parseFloat(app_total_proc_cost-totalPayment);
-                    await set_app_pay_fields(values2);
+                    set_app_pay_fields(values2);
                 } else {
                     // await set_app_pay_balance(0);
                     // await set_app_pay_change(parseFloat(totalPayment-app_total_proc_cost));
                     const values2 = [...app_pay_fields];
                     values[index]['pay_change'] = parseFloat(totalPayment-app_total_proc_cost);
                     values[index]['pay_balance'] = 0;
-                    await set_app_pay_fields(values2);
+                    set_app_pay_fields(values2);
                 }
             })
 
@@ -287,39 +288,51 @@ const AppointmentDetails = () => {
                                             <div className="details-details-modal-body-input-box3">
                                                 <span style={index? {display: 'none'}:{}}>Cost</span>
                                                 <div className='duration-minutes-container'>
-                                                    <input type='number' name="proc_cost" value={app_proc_field.proc_cost} onChange={(event)=>{handleChangeInput(index, event)}}/>
+                                                    <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
+                                                        onChange={(event)=>{
+                                                            // handleChangeInput(index, event)
+                                                            console.log('index: ', index)
+                                                        }}
+                                                        />
                                                     <button className='add-remove-button' 
                                                     onClick={async ()=>{
-                                                            let totalCost = 0;
-                                                            let totalMinutes = 0;
-                                                            const values = [...app.proc_fields];
-                                                            values.splice(index, 1);
-                                                            values.map((value)=>{
-                                                                if (value.proc_cost > -1) {
-                                                                totalCost = totalCost+parseFloat(value.proc_cost); 
-                                                                }
-                                                                if (value.proc_duration_minutes> -1) {
-                                                                    totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
-                                                                }
-                                                                return null;
-                                                            });
-                                                            setApp2({...app2, date_end: new Date(
-                                                                new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                                                                )
-                                                            }); 
-                                                            set_app_total_proc_cost(totalCost);
-                                                            if (app_pay_amount) {
-                                                                if (parseFloat(totalCost-app_pay_amount)>0) {
-                                                                set_app_pay_change(0);
-                                                                set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
+                                                        if(app.date){
+                                                            let input = confirm('Do you want to delete the procedure?')
+                                                            if (input) {
+                                                                let totalCost = 0;
+                                                                let totalMinutes = 0;
+                                                                const values = [...app.proc_fields];
+                                                                values.splice(index, 1);
+                                                                values.map((value)=>{
+                                                                    if (value.proc_cost > -1) {
+                                                                    totalCost = totalCost+parseFloat(value.proc_cost); 
+                                                                    }
+                                                                    if (value.proc_duration_minutes> -1) {
+                                                                        totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
+                                                                    }
+                                                                    return null;
+                                                                });
+                                                                setApp2({...app2, date_end: new Date(
+                                                                    new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
+                                                                    )
+                                                                }); 
+                                                                set_app_total_proc_cost(totalCost);
+                                                                if (app_pay_amount) {
+                                                                    if (parseFloat(totalCost-app_pay_amount)>0) {
+                                                                    set_app_pay_change(0);
+                                                                    set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
+                                                                    }else{
+                                                                        set_app_pay_change(parseFloat(app_pay_amount-totalCost));
+                                                                        set_app_pay_balance(0)
+                                                                    }
                                                                 }else{
-                                                                    set_app_pay_change(parseFloat(app_pay_amount-totalCost));
-                                                                    set_app_pay_balance(0)
+                                                                    set_app_pay_balance(totalCost);
                                                                 }
-                                                            }else{
-                                                                set_app_pay_balance(totalCost);
+                                                                setApp({...app, proc_fields: values})
                                                             }
-                                                            setApp({...app, proc_fields: values})
+                                                        }else{
+                                                            alert('Enter Date First')
+                                                        }
                                                     }}
                                                     >-</button>
                                                 </div>                                    
@@ -393,15 +406,7 @@ const AppointmentDetails = () => {
                                                         onChange={(e)=>{
                                                             handleChangeInputPayment(index, e)
                                                         }} />
-                                                        <button className='add-remove-button height-80p' onClick={()=>{
-                                                            if (payfield.pay_id) {
-                                                                if (window.confirm('Delete this payment in the database?')) {
-                                                                    set_app_pay_fields_delete((prev)=>{
-                                                                        const newValue = [...prev, payfield.pay_id];
-                                                                        return newValue;
-                                                                    })
-                                                                }else return false;
-                                                            }
+                                                        <button disabled={index !== app_pay_fields.length -1} className='add-remove-button height-80p' onClick={()=>{
                                                             const values = [...app_pay_fields];
                                                             values.splice(index, 1);
                                                             set_app_pay_fields(values);
@@ -460,7 +465,7 @@ const AppointmentDetails = () => {
                             }
                             <button className='add-payment-button height-80p' onClick={()=>{
                                 // addPaymentFieldFunction()
-                                set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '', pay_id: null, is_deleted: 0}])
+                                set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
                                 }}>Add Payment
                                 {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                             </button>
