@@ -24,6 +24,7 @@ const AppointmentDetails = () => {
   const [app2, setApp2]=useState({
     date_end:'',
   });
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [usersList, setUserList] = useState([]);
   const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
       proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
@@ -64,7 +65,6 @@ const AppointmentDetails = () => {
     const response = await axios.post(`/api/cdcs/users`,{
       post:20
       });
-      console.log('getPatientDoctorList response: ', response )
       setUserList(response.data.users)
   }
     
@@ -186,12 +186,31 @@ const AppointmentDetails = () => {
                 <div className='details-details-modal-container'>
                     <div className='details-details-modal-body-button margin-bottom-20'> 
                         <button className='add-payment-button height-80p' onClick={()=>{
+                            setIsPaymentOpen(true);
+                            console.log('isPaymentOpen', isPaymentOpen)
+                            }}>Add Payment
+                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                        </button>
+                        <button className='add-payment-button height-80p' onClick={()=>{
                             // addPaymentFieldFunction()
                             set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
                             }}>Add Payment
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
+                        <button className='add-payment-button height-80p' onClick={()=>{
+                            // addPaymentFieldFunction()
+                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
+                            }}>Add Payment
+                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                        </button>
+                        <button className='add-payment-button height-80p' onClick={()=>{
+                            // addPaymentFieldFunction()
+                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
+                            }}>{`isPaymentOpen: ${isPaymentOpen}`}
+                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                        </button>
                     </div>
+                    
                     <div className='details-details-modal-body-container'>
                         <div className='details-details-modal-body'>
                             <div className="details-details-modal-body-input-box">
@@ -201,7 +220,6 @@ const AppointmentDetails = () => {
                                 instanceId="long-value-select-patient"
                                 // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
                                 onChange={(value)=>{
-                                    console.log('value:', value.value)
                                     setApp({...app, patient_id: value.value})
                                     // set_app_patient_id(value.value);
                                     }}/>
@@ -519,6 +537,7 @@ const AppointmentDetails = () => {
                         </div>
 
                     </div>
+                    
                     <div className='details-details-modal-body-button'> 
                         
                         <button className='button-w70' 
@@ -537,6 +556,115 @@ const AppointmentDetails = () => {
                       <Link href="/cdcs/appointments" passHref><button className='button-w20'>Close</button></Link>
                     </div>
                 </div>
+                {
+                    isPaymentOpen && (
+                        <div className='details-details-container'>
+                            <div className='details-details-modal-container'>
+                                <div className='details-details-modal-body-button margin-bottom-20'> 
+                                </div>
+                                
+                                <div className='details-details-modal-body-container'>
+                                    <div style={{display: 'flex', width: '100%'}}>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Total Cost</span>
+                                            <input type='number' value={app_total_proc_cost} disabled />
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Total Payment</span>
+                                            <input type='number' value={app_total_proc_cost} disabled />
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Balance</span>
+                                            <input type='number' value={app_total_proc_cost} disabled />
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Change</span>
+                                            <input type='number' value={app_total_proc_cost} disabled />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {
+                                            app_pay_fields.map((payfield, index)=>{
+                                                return (
+                                                    <div key={index}>
+                                                        <div className='display-flex' style={{marginTop:'0px'}} >
+                                                            <div className='details-details-modal-body-input-box'>
+                                                                <span style={false? {display: 'none'}:{}} >Payment</span>
+                                                                <div className='display-flex'>
+                                                                    
+                                                                    <input type='number' name='pay_amount' value={payfield.pay_amount}
+                                                                    onChange={(e)=>{
+                                                                        handleChangeInputPayment(index, e)
+                                                                    }} />
+                                                                    <button disabled={index !== app_pay_fields.length -1} className='add-remove-button height-80p' onClick={()=>{
+                                                                        const values = [...app_pay_fields];
+                                                                        values.splice(index, 1);
+                                                                        set_app_pay_fields(values);
+                                                                        if (parseFloat(payfield.pay_amount)>0) {
+                                                                            set_app_pay_balance(parseFloat(app_pay_balance + parseFloat(payfield.pay_amount))); 
+                                                                        }else{
+                                                                            console.log(' else proc_cost:', payfield.pay_amount)
+                                                                        }
+                                                                        }}>-</button>
+                                                                </div>
+                                                            </div>
+                                                                
+                                                                
+                                                            <div className='details-details-modal-body-input-box'>
+                                                                <span style={false? {display: 'none'}:{}}>Date of Payment</span>
+                                                                    
+                                                                <DatePicker 
+                                                                name='pay_date'
+                                                                maxDate={new Date()} 
+                                                                yearDropdownItemNumber={90}
+                                                                showTimeSelect
+                                                                showYearDropdown 
+                                                                scrollableYearDropdown={true} 
+                                                                dateFormat='MMMM d, yyyy h:mm aa' 
+                                                                className='date-picker' 
+                                                                placeholderText="Select Date" 
+                                                                selected={payfield.pay_date} 
+                                                                onChange={(date)=>{
+                                                                    handleChangeInputPayment(index, false, date, 'pay_date')
+                                                                    // set_app_pay_date(date)
+                                                                }} 
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div className='display-flex' style={{marginTop:'0px'}} >
+                                                            <div className="details-details-modal-body-input-box">
+                                                                <span>Change</span>
+                                                                <input
+                                                                style={payfield.pay_change>0? {color: 'green', fontWeight: '600', fontSize:'14px'} : {}} 
+                                                                disabled value={payfield.pay_change} 
+                                                                />
+                                                            </div>
+                                                            <div className="details-details-modal-body-input-box">
+                                                                <span>Balance</span>
+                                                                <input 
+                                                                style={payfield.pay_balance>0? {color: 'red', fontWeight: '600', fontSize:'14px'} : {}} 
+                                                                disabled value={payfield.pay_balance} 
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                            
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+
+                                </div>
+                                
+                                <div className='flex-end'> 
+
+                                <button onClick={()=>{setIsPaymentOpen(false)}} className='button-w20'>Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
             </div>
         </>
         
