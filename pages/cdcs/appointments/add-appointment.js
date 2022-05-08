@@ -17,9 +17,9 @@ const AppointmentDetails = () => {
     date:'',patient_id: '',doctor_id: '',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0,
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, app_parent: ''
       },],
-    payment: [{amount: '', date: ''}]
+    payment: [{amount: '', date: '', }]
   });
   const [app2, setApp2]=useState({
     date_end:'',
@@ -200,7 +200,7 @@ const AppointmentDetails = () => {
                         <button className='add-payment-button height-80p' onClick={()=>{
                             // addPaymentFieldFunction()
                             set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
-                            }}>Add Payment
+                            }}>Appointment Links
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
                         <button className='add-payment-button height-80p' onClick={()=>{

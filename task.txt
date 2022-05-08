@@ -1,2 +1,5 @@
-token for registration
-Patient Dashboard
+procedure
+ name min cost app_parent
+payment
+    amount date
+    -- payment just insert to parent
