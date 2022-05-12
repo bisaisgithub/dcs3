@@ -21,7 +21,7 @@ const AddUser = ({user}) => {
     console.log("user:", userInput);
     const response = await axios.post(
       "/api/cdcs/users",
-      {...userInput, created_by:user.id}
+      {...userInput, created_by:user.id, post:30}
     );
     // console.log("user:", response);
     if (response.data.success) {

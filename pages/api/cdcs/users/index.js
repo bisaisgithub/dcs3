@@ -21,6 +21,7 @@ export default async (req, res) => {
       }
       // res.json({ success: false, message: "no-token" });
     } else {
+      // console.log('token ok')
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
@@ -155,6 +156,7 @@ export default async (req, res) => {
             }
           }
           else if(req.body.post === 30){
+            // console.log('post 30')
             // console.log("post is not 1:", req.body);
             try {
               const hash = bcrypt.hashSync(req.body.password, 10);
