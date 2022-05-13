@@ -1,5 +1,1 @@
-procedure
- name min cost app_parent
-payment
-    amount date
-    -- payment just insert to parent
+link to Parent

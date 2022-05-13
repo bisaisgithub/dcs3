@@ -1,0 +1,41 @@
+table
+
+
+link to parent (button)
+no, patient,doctor, date, time, status, select, option
+ once select was has been clicked
+
+
+appointment fields:
+patient_id,
+doctor_id,
+date,
+status,
+type,
+proc_fields (array objects)
+	proc_name, proc_duration_minutes, proc_cost
+parent_appointments (object)
+	id appointment (update)
+child_appointments (object)
+ 	id appoinment (create)
+inventories (object)
+	name, code, qty
+app_pay_fields(array object)
+ pay_amount:,  pay_date:
+
+
+
+
+inventory module (menu in navbar)
+table list of inventory
+no, name, code, qty (calculate adds and deduct from appointments)
+
+add procedure
+name, code, qty
+
+
+deduct procedure via appoinments
+
+
+
+

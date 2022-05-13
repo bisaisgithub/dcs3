@@ -17,14 +17,15 @@ const AppointmentDetails = () => {
     date:'',patient_id: '',doctor_id: '',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, app_parent: ''
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0,
       },],
-    payment: [{amount: '', date: '', }]
+      app_pay_fields: [{amount: '', date: '', }]
   });
   const [app2, setApp2]=useState({
     date_end:'',
   });
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
   const [usersList, setUserList] = useState([]);
   const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
       proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
@@ -187,28 +188,28 @@ const AppointmentDetails = () => {
                     <div className='details-details-modal-body-button margin-bottom-20'> 
                         <button className='add-payment-button height-80p' onClick={()=>{
                             setIsPaymentOpen(true);
-                            console.log('isPaymentOpen', isPaymentOpen)
                             }}>Add Payment
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
                         <button className='add-payment-button height-80p' onClick={()=>{
                             // addPaymentFieldFunction()
-                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
+                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
                             }}>Add Payment
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
                         <button className='add-payment-button height-80p' onClick={()=>{
-                            // addPaymentFieldFunction()
-                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
-                            }}>Appointment Links
+                            if (app.patient_id === '') {
+                                alert('Please select patient first');
+                            } else {
+                                setIsAppointmentLinkOpen(true);
+                            }
+                            }}>{false? 'Appointment Links' : 'Link to Parent'}
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
-                        <button className='add-payment-button height-80p' onClick={()=>{
-                            // addPaymentFieldFunction()
+                        {/* <button className='add-payment-button height-80p' onClick={()=>{
                             set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
                             }}>{`isPaymentOpen: ${isPaymentOpen}`}
-                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
-                        </button>
+                        </button> */}
                     </div>
                     
                     <div className='details-details-modal-body-container'>
@@ -660,6 +661,75 @@ const AppointmentDetails = () => {
                                 <div className='flex-end'> 
 
                                 <button onClick={()=>{setIsPaymentOpen(false)}} className='button-w20'>Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
+                {
+                    isAppontLinkOpen && (
+                        <div className='details-details-container'>
+                            <div className='details-details-modal-container'>
+                                <div className='details-details-modal-body-button margin-bottom-20'> 
+                                </div>
+                                
+                                <div className='details-details-modal-body-container'>
+                                    <div>
+                                        {
+                                           <div className='table-table2-container'>
+                                           <table className="table-table2-table">
+                                             <thead className='table-table2-table-thead-search2'>
+                                               {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                 <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                 <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                   <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                 </th>
+                                                 <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                 <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                 <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                               </tr> */}
+                                             </thead>
+                                             <thead className='table-table2-table-thead'>
+                                               <tr className='table-table2-table-thead-tr'>
+                                                 <th>No</th>
+                                                 <th>Patient</th>
+                                                 <th>Doctor</th>
+                                                 <th>Date</th>
+                                                 <th>Time</th>
+                                                 <th>Status</th>
+                                                 <th>Option</th>
+                                               </tr>
+                                             </thead>
+                                             <tbody className='table-table2-table-tbody'>
+                                               { 
+                                               // console.log('usersData:',usersData)
+                                            //    usersData && usersData.map((user, index)=>{
+                                            //      return (
+                                            //        <tr key={index} className='table-table2-table-tbody-tr'>
+                                            //          <td>{index+1}</td>
+                                            //          <td>{user.name}</td>
+                                            //          <td>
+                                            //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                            //          </td>
+                                            //          <td>{user.type}</td>
+                                            //          <td className='table-table2-table-body-tr-td'>
+                                            //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                            //          </td>
+                                            //      </tr>
+                                            //        );
+                                            //    })
+                                               }
+                                             </tbody>
+                                           </table>
+                                         </div>
+                                        }
+                                    </div>
+
+                                </div>
+                                
+                                <div className='flex-end'> 
+
+                                <button onClick={()=>{setIsAppointmentLinkOpen(false)}} className='button-w20'>Close</button>
                                 </div>
                             </div>
                         </div>
