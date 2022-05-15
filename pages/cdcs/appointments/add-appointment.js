@@ -17,9 +17,11 @@ const AppointmentDetails = () => {
     date:'',patient_id: '',doctor_id: '',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0,
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
       },],
-      app_pay_fields: [{amount: '', date: '', }]
+      app_pay_fields: [
+        //   {amount: '', date: '', }
+        ]
   });
   const [app2, setApp2]=useState({
     date_end:'',
@@ -259,6 +261,7 @@ const AppointmentDetails = () => {
                                 <div className='details-details-modal-body-input-box'>
                                     <span>Date</span>
                                     <DatePicker 
+                                    disabled={app.patient_id === ''}
                                     showTimeSelect
                                     minDate={new Date()} 
                                     // minTime={setHours(setMinutes(new Date(), 0), 0)}
@@ -381,7 +384,7 @@ const AppointmentDetails = () => {
                                                             handleChangeInput(index, event)
                                                         }}
                                                     />
-                                                    <select name="in_package" defaultValue={'No'} value={app_proc_field.in_package} onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                    <select name="in_package"  value={app_proc_field.in_package} onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value='No'>No</option>
                                                         <option value='Yes'>Yes</option>
                                                     </select>
@@ -437,7 +440,32 @@ const AppointmentDetails = () => {
                                 <div className='details-details-modal-body-button-proc_name'>                                               
                                     <button className='add-remove-button height-80p' onClick={()=>{
                                         // set_app_proc_fields((prev)=>{return [...prev, {proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0}]})
-                                        setApp((prev)=>{return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0}] } })
+                                        
+                                        let checkProcNotSelected = true;
+                                            if (app.proc_fields) {
+                                                app.proc_fields.map((proc)=>{
+                                                    if(proc.proc_name === ''){
+                                                        console.log('true')
+                                                        
+                                                        checkProcNotSelected = false;
+                                                        // return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
+                                                        // // proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0
+                                                        // }] } 
+                                                    }
+                                                    console.log('checkProcNotSelected:', checkProcNotSelected)
+                                                })
+                                            }
+                                            if (checkProcNotSelected) {
+                                                setApp((prev)=>{
+                                                    return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
+                                                                proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+                                                                }] } 
+                                                })
+                                            }else{
+                                                alert('Select Procedure first')
+                                                console.log('app.proc_fieds:', app.proc_fields)
+                                            }
+                                        
                                         }}>+</button>
                                 </div>
                                 {/* <div className="details-details-modal-body-input-box">
@@ -458,14 +486,14 @@ const AppointmentDetails = () => {
                                 </div> */}
                                 <div className="details-details-modal-body-input-box">
                                     <span>Status</span>
-                                    <select name="status" value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
+                                    <select disabled={app.date === ''}  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
                                         <option value="">-Select Status-</option>
                                         <option value="On Schedule">On Schedule</option>
                                     </select>       
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Type</span>
-                                    <select name="status" value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
+                                    <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
                                         <option value="">-Select Type-</option>
                                         <option value="Scheduled">Scheduled</option>
                                         <option value="Walk-in">Walk-in</option>
@@ -570,16 +598,25 @@ const AppointmentDetails = () => {
                     
                     <div className='details-details-modal-body-button'> 
                         
-                        <button className='button-w70' 
+                        <button className='button-w70' disabled={app.type === ''} id={'add_appointment'}
                             onClick={()=>{
-                                if (!is_exam_open) {
-                                    app_id? 
-                                    updateAppointmentFunction()
-                                    : 
-                                    addAppointmentFunction() 
-                                } else {
-                                    alert('Hide exam first');
-                                }
+                                let checkProcEmpty = true;
+                                app.proc_fields.map((fields)=>{
+                                    if(fields.proc_name === ''){
+                                        console.log('proc_fields empty')
+                                        checkProcEmpty = false;
+                                    }
+                                })
+                                // setApp((prev)=>{
+                                //     return {...prev, app_pay_fields: payfields}
+                                    
+                                //     })
+                                // console.log('payfields:', payfields)
+                                
+                                // setTimeout(()=>{
+                                //     console.log('app: ', app)
+                                // },10000)
+                                
                             
                             }}>Add Appointment</button>     
 
