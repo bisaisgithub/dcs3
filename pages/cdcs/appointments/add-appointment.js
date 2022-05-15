@@ -118,29 +118,51 @@ const AppointmentDetails = () => {
             values[index][event.target.name] = event.target.value;
             let totalMinutes = 0;
             let totalCost = 0;
-            values.map((value)=>{
-                if (!value.proc_name == '') {                    
-                    if (parseInt(value.proc_duration_minutes)>0) {
-                        totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
-                    }else{
-                        if (value.proc_name === 'Extraction') {
-                            value.proc_duration_minutes = 30;
-                            value.proc_cost = 500;
-                        }else if(value.proc_name === 'Cleaning'){
-                            value.proc_duration_minutes = 60;
-                            value.proc_cost = 800;
-                        }else if(value.proc_name === 'Consultation'){
-                            value.proc_duration_minutes = 15;
-                            value.proc_cost = 300;
-                        }
-    
-                        totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
-                    }
-                }else{
-                    alert('Please Select Procedure First')
+            values.map((value, i)=>{
+                // console.log('i', i);
+                // console.log('index', index);
+                // console.log('event.target.name', event.target.name)
+                // console.log('value.proc_name:', value.proc_name)
+                if (value.proc_name == ''  && i === index) {
+                    alert('Please Select Procedure first')
                     value.proc_duration_minutes = 0;
                     value.proc_cost = 0;
+                }else{
+                    if (event.target.name == 'proc_name' && !value.proc_name == '' && i === index) {       
+                        // console.log('ifs')
+                        // console.log('value.proc_name ifs:', value.proc_name)             
+                        // if (
+                        //     parseInt(value.proc_duration_minutes)>0
+                        //     // true
+                        //     ) 
+                        // {
+                        //     totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
+                        // }else
+                        // {
+                            if (value.proc_name === 'Extraction') {
+                                value.proc_duration_minutes = 30;
+                                value.proc_cost = 500;
+                            }else if(value.proc_name === 'Cleaning'){
+                                value.proc_duration_minutes = 60;
+                                value.proc_cost = 800;
+                            }else if(value.proc_name === 'Consultation'){
+                                value.proc_duration_minutes = 15;
+                                value.proc_cost = 300;
+                            }
+        
+                            totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
+                        // }
+                    }
+                    else{
+                        // console.log('else')
+                        // console.log('value.proc_name:', value.proc_name) 
+                        totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
+                        // alert('Please Select Procedure First')
+                        // value.proc_duration_minutes = 0;
+                        // value.proc_cost = 0;
+                    }
                 }
+                
                 
 
                 if (parseFloat(value.proc_cost)>0) {
@@ -166,7 +188,7 @@ const AppointmentDetails = () => {
                     )});
             
         } else {
-            alert('please select start time first')
+            alert('please select date with time first')
         }
     }
     let patients = [{value: '', label: 'Select Patient'}];
@@ -188,13 +210,13 @@ const AppointmentDetails = () => {
                     <div className='details-details-modal-body-button margin-bottom-20'> 
                         <button className='add-payment-button height-80p' onClick={()=>{
                             setIsPaymentOpen(true);
-                            }}>Add Payment
+                            }}>Payments
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
                         <button className='add-payment-button height-80p' onClick={()=>{
                             // addPaymentFieldFunction()
                             set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                            }}>Add Payment
+                            }}>Inventories
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
                         <button className='add-payment-button height-80p' onClick={()=>{
@@ -203,8 +225,7 @@ const AppointmentDetails = () => {
                             } else {
                                 setIsAppointmentLinkOpen(true);
                             }
-                            }}>{false? 'Appointment Links' : 'Link to Parent'}
-                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            }}>Appointment Links
                         </button>
                         {/* <button className='add-payment-button height-80p' onClick={()=>{
                             set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
@@ -348,14 +369,22 @@ const AppointmentDetails = () => {
                                                     </select>
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
-                                                <span style={index? {display: 'none'}:{}}>Cost</span>
+                                                <div className="display-flex">
+                                                    <span style={index? {display: 'none'}:{}}>Cost</span>
+                                                    <span style={index? {display: 'none'}:{}}>In Package</span>
+                                                    <span style={index? {display: 'none'}:{}}>Delete</span>
+                                                </div>
+                                                
                                                 <div className='duration-minutes-container'>
                                                     <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
                                                         onChange={(event)=>{
-                                                            // handleChangeInput(index, event)
-                                                            console.log('index: ', index)
+                                                            handleChangeInput(index, event)
                                                         }}
-                                                        />
+                                                    />
+                                                    <select name="in_package" defaultValue={'No'} value={app_proc_field.in_package} onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                        <option value='No'>No</option>
+                                                        <option value='Yes'>Yes</option>
+                                                    </select>
                                                     <button className='add-remove-button' 
                                                     onClick={async ()=>{
                                                         if(app.date){
