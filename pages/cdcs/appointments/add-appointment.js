@@ -24,14 +24,14 @@ const AppointmentDetails = () => {
       app_pay_fields: []
   });
   const [app2, setApp2]=useState({
-    date_end:'',
+    date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
   const [usersList, setUserList] = useState([]);
-  const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
-      proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
-    },]});
+//   const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
+//       proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
+//     },]});
   const [app_pay_change, set_app_pay_change] = useState('');
   const [app_total_proc_cost, set_app_total_proc_cost] = useState(0);
   const [app_pay_amount, set_app_pay_amount] = useState('');
@@ -73,42 +73,54 @@ const AppointmentDetails = () => {
     
     const handleChangeInputPayment = async (index, event, date, ename)=>{
         if (event) {
-            const values = [...app_pay_fields];
+            const values = [...app.app_pay_fields];
             values[index][event.target.name] = event.target.value;
 
-            set_app_pay_fields(values);
+            // set_app_pay_fields(values);
+            setApp({...app, app_pay_fields: values})
+            let totalPayment = 0;
             values.map(async (field, index)=>{
-                let totalPayment = 0;
-                for(let i = 0; i<= index; i++){
-                    let pay_amount = 0;
-                    if (app_pay_fields[i].pay_amount>0) {
-                        pay_amount = app_pay_fields[i].pay_amount
-                    }
-                    totalPayment = totalPayment + parseFloat(pay_amount);
-                }
-                if (app_total_proc_cost-totalPayment>-1) {
-                //    await set_app_pay_balance(parseFloat(app_total_proc_cost-totalPayment));
-                //    await set_app_pay_change(0);
-                    const values2 = [...app_pay_fields];
-                    values[index]['pay_change'] = 0;
-                    values[index]['pay_balance'] = parseFloat(app_total_proc_cost-totalPayment);
-                    set_app_pay_fields(values2);
-                } else {
-                    // await set_app_pay_balance(0);
-                    // await set_app_pay_change(parseFloat(totalPayment-app_total_proc_cost));
-                    const values2 = [...app_pay_fields];
-                    values[index]['pay_change'] = parseFloat(totalPayment-app_total_proc_cost);
-                    values[index]['pay_balance'] = 0;
-                    set_app_pay_fields(values2);
-                }
+                totalPayment = totalPayment + parseFloat(field.pay_amount);
+                console.log('totalPayment: ', totalPayment)
+                
+                // for(let i = 0; i<= index; i++){
+                //     let pay_amount = 0;
+                //     if (app_pay_fields[i].pay_amount>0) {
+                //         pay_amount = app_pay_fields[i].pay_amount
+                //     }
+                //     totalPayment = totalPayment + parseFloat(pay_amount);
+                // }
+                // if (app_total_proc_cost-totalPayment>-1) {
+                // //    await set_app_pay_balance(parseFloat(app_total_proc_cost-totalPayment));
+                // //    await set_app_pay_change(0);
+                //     const values2 = [...app_pay_fields];
+                //     values[index]['pay_change'] = 0;
+                //     values[index]['pay_balance'] = parseFloat(app_total_proc_cost-totalPayment);
+                //     set_app_pay_fields(values2);
+                // } else {
+                //     // await set_app_pay_balance(0);
+                //     // await set_app_pay_change(parseFloat(totalPayment-app_total_proc_cost));
+                //     const values2 = [...app_pay_fields];
+                //     values[index]['pay_change'] = parseFloat(totalPayment-app_total_proc_cost);
+                //     values[index]['pay_balance'] = 0;
+                //     set_app_pay_fields(values2);
+                // }
             })
-
+            let change = 0;
+            let balance = 0;
+            if (parseFloat(app2.payments.totalCost) - totalPayment < 0) {
+                change = totalPayment - parseFloat(app2.payments.totalCost)
+            } else {
+                balance = parseFloat(app2.payments.totalCost) - totalPayment
+            }
+            setApp2({...app2, payments: {...app2.payments, totalPayment :totalPayment.toFixed(2), change, balance}})
             
         }else{
-            const values = [...app_pay_fields];
+            const values = [...app.app_pay_fields];
             values[index][ename] = date;
             console.log('values: ', values);
-            set_app_pay_fields(values);
+            // set_app_pay_fields(values);
+            setApp({...app, app_pay_fields: values})
         }
     }
 
@@ -164,8 +176,6 @@ const AppointmentDetails = () => {
                         // value.proc_cost = 0;
                     }
                 }
-                
-                
 
                 if (parseFloat(value.proc_cost)>0) {
                     totalCost = parseFloat(totalCost + parseFloat(value.proc_cost));
@@ -174,7 +184,13 @@ const AppointmentDetails = () => {
                 } 
                 return null;
             })
-            set_app_total_proc_cost(parseFloat(totalCost).toFixed(2));
+            // setApp2({...app2, payments: {
+            //     // ...app2.payments, 
+            //     totalCost : 
+            //     // parseFloat(totalCost).toFixed(2)
+            //     3
+            // }})
+            // set_app_total_proc_cost(parseFloat(totalCost).toFixed(2));
             
             if (parseFloat(totalCost-app_pay_amount)>-1) {
                 set_app_pay_change(0);
@@ -187,8 +203,9 @@ const AppointmentDetails = () => {
 
             setApp2({...app2, date_end: new Date(
                 new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                    )});
-            
+                    ), payments:{...app2.payments, totalCost : parseFloat(totalCost).toFixed(2)}
+                });
+                
         } else {
             alert('please select date with time first')
         }
@@ -326,19 +343,19 @@ const AppointmentDetails = () => {
                             <div style={{display: 'flex', width: '100%'}}>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Total Cost</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
+                                    <input type='number' value={app2.payments.totalCost} disabled />
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Total Payment</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
+                                    <input type='number' value={app2.payments.totalPayment} disabled />
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Balance</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
+                                    <input type='number' value={app2.payments.balance} disabled />
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Change</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
+                                    <input type='number' value={app2.payments.change} disabled />
                                 </div>
                             </div>
                             
@@ -346,13 +363,15 @@ const AppointmentDetails = () => {
 
                         <div>
                             {
+                              app.proc_fields &&
                               app.proc_fields.map((app_proc_field, index)=>{
                                     return (
                                         
                                         <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
                                             <div className="details-details-modal-body-input-box3">
                                                 <span style={index? {display: 'none'}:{}}>Procedure</span>
-                                                <select name="proc_name" value={app_proc_field.proc_name} onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                <select name="proc_name" value={app_proc_field.proc_name} disabled={app.date === ''}
+                                                onChange={(event)=>{handleChangeInput(index, event)}}>
                                                     <option value="">-Select Procedure-</option>
                                                     <option value="Consultation">Consultation</option>
                                                     <option value="Extraction">Extraction</option>
@@ -361,7 +380,8 @@ const AppointmentDetails = () => {
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
                                                 <span style={index? {display: 'none'}:{}}>Duration Minutes</span>
-                                                    <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                    <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
+                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value={0}>-Select Minutes-</option>
                                                         <option value={15}>15</option>
                                                         <option value={30}>30</option>
@@ -380,54 +400,63 @@ const AppointmentDetails = () => {
                                                 </div>
                                                 
                                                 <div className='duration-minutes-container'>
-                                                    <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
+                                                    <input type='number' name="proc_cost" value={app_proc_field.proc_cost} disabled={app_proc_field.proc_name === ''}
                                                         onChange={(event)=>{
                                                             handleChangeInput(index, event)
                                                         }}
                                                     />
-                                                    <select name="in_package"  value={app_proc_field.in_package} onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                    <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value='No'>No</option>
                                                         <option value='Yes'>Yes</option>
                                                     </select>
                                                     <button className='add-remove-button' 
                                                     onClick={async ()=>{
-                                                        if(app.date){
-                                                            let input = confirm('Do you want to delete the procedure?')
-                                                            if (input) {
-                                                                let totalCost = 0;
-                                                                let totalMinutes = 0;
-                                                                const values = [...app.proc_fields];
-                                                                values.splice(index, 1);
-                                                                values.map((value)=>{
-                                                                    if (value.proc_cost > -1) {
-                                                                    totalCost = totalCost+parseFloat(value.proc_cost); 
-                                                                    }
-                                                                    if (value.proc_duration_minutes> -1) {
-                                                                        totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
-                                                                    }
-                                                                    return null;
-                                                                });
-                                                                setApp2({...app2, date_end: new Date(
-                                                                    new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                                                                    )
-                                                                }); 
-                                                                set_app_total_proc_cost(totalCost);
-                                                                if (app_pay_amount) {
-                                                                    if (parseFloat(totalCost-app_pay_amount)>0) {
-                                                                    set_app_pay_change(0);
-                                                                    set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
+                                                        // console.log('app: ', app)
+                                                        if (app.proc_fields.length < 2) {
+                                                            alert('Cannot delete remaining last procedure')
+                                                        } else {
+                                                            // console.log('false: ', app.proc_fields.length)
+                                                            if(app.date){
+                                                                let input = confirm('Do you want to delete the procedure?')
+                                                                if (input) {
+                                                                    let totalCost = 0;
+                                                                    let totalMinutes = 0;
+                                                                    const values = [...app.proc_fields];
+                                                                    values.splice(index, 1);
+                                                                    values.map((value)=>{
+                                                                        if (value.proc_cost > -1) {
+                                                                        totalCost = totalCost+parseFloat(value.proc_cost); 
+                                                                        }
+                                                                        if (value.proc_duration_minutes> -1) {
+                                                                            totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
+                                                                        }
+                                                                        return null;
+                                                                    });
+                                                                    setApp2({...app2, date_end: new Date(
+                                                                        new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
+                                                                        ), payments: {...app2.payments, totalCost}
+                                                                    }); 
+                                                                    // set_app_total_proc_cost(totalCost);
+                                                                    // setApp2({...app2, payments: {...app.payments, totalCost}})
+                                                                    if (app_pay_amount) {
+                                                                        if (parseFloat(totalCost-app_pay_amount)>0) {
+                                                                        set_app_pay_change(0);
+                                                                        set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
+                                                                        }else{
+                                                                            set_app_pay_change(parseFloat(app_pay_amount-totalCost));
+                                                                            set_app_pay_balance(0)
+                                                                        }
                                                                     }else{
-                                                                        set_app_pay_change(parseFloat(app_pay_amount-totalCost));
-                                                                        set_app_pay_balance(0)
+                                                                        set_app_pay_balance(totalCost);
                                                                     }
-                                                                }else{
-                                                                    set_app_pay_balance(totalCost);
+                                                                    setApp({...app, proc_fields: values})
                                                                 }
-                                                                setApp({...app, proc_fields: values})
+                                                            }else{
+                                                                alert('Enter Date First')
                                                             }
-                                                        }else{
-                                                            alert('Enter Date First')
                                                         }
+                                                        
                                                     }}
                                                     >-</button>
                                                 </div>                                    
@@ -446,14 +475,14 @@ const AppointmentDetails = () => {
                                             if (app.proc_fields) {
                                                 app.proc_fields.map((proc)=>{
                                                     if(proc.proc_name === ''){
-                                                        console.log('true')
+                                                        // console.log('true')
                                                         
                                                         checkProcNotSelected = false;
                                                         // return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
                                                         // // proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0
                                                         // }] } 
                                                     }
-                                                    console.log('checkProcNotSelected:', checkProcNotSelected)
+                                                    // console.log('checkProcNotSelected:', checkProcNotSelected)
                                                 })
                                             }
                                             if (checkProcNotSelected) {
@@ -464,27 +493,11 @@ const AppointmentDetails = () => {
                                                 })
                                             }else{
                                                 alert('Select Procedure first')
-                                                console.log('app.proc_fieds:', app.proc_fields)
+                                                // console.log('app.proc_fieds:', app.proc_fields)
                                             }
                                         
                                         }}>+</button>
                                 </div>
-                                {/* <div className="details-details-modal-body-input-box">
-                                    <span>Total Cost</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Total Payment</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Balance</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Change</span>
-                                    <input type='number' value={app_total_proc_cost} disabled />
-                                </div> */}
                                 <div className="details-details-modal-body-input-box">
                                     <span>Status</span>
                                     <select disabled={app.date === ''}  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
@@ -519,7 +532,7 @@ const AppointmentDetails = () => {
                                     </select>       
                                 </div>
                             </div> */}
-                            {
+                            {/* {
                                 app_pay_fields.map((payfield, index)=>{
                                     return (
                                         <div key={index}>
@@ -588,7 +601,7 @@ const AppointmentDetails = () => {
                                         </div>
                                     );
                                 })
-                            }
+                            } */}
                             {/* <button className='add-payment-button height-80p' onClick={()=>{
                                 set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
                                 }}>Add Payment
@@ -599,34 +612,39 @@ const AppointmentDetails = () => {
                     
                     <div className='details-details-modal-body-button'> 
                         
-                        <button className='button-w70' disabled={app.type === ''} id={'add_appointment'}
+                        <button className='button-w70' 
+                        disabled={
+                            // app.type === ''
+                            false
+                        } id={'add_appointment'}
                             onClick={async()=>{
-                                let checkProcEmpty = true;
-                                app.proc_fields.map((fields)=>{
-                                    if(fields.proc_name === ''){
-                                        console.log('proc_fields empty')
-                                        checkProcEmpty = false;
-                                    }
-                                })
-                                if (!checkProcEmpty) {
-                                    alert('Please select procedure')
-                                }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status){
-                                    alert('Empty Field/s')
-                                    console.log('app: ', app)
-                                }
-                                else{
-                                    console.log('app: ', app)
-                                    const response = await axios.post(
-                                        "/api/cdcs/appointments",
-                                        {app});
-                                    console.log('response add appointment', response)
-                                    if (response.data.message === 'tkn_e') {
-                                        alert('token empty')
-                                        router.push("/cdcs/login");
-                                    } else {
-                                        alert('token ok')
-                                    }
-                                }
+                                console.log('app2', app2)
+                                // let checkProcEmpty = true;
+                                // app.proc_fields.map((fields)=>{
+                                //     if(fields.proc_name === ''){
+                                //         console.log('proc_fields empty')
+                                //         checkProcEmpty = false;
+                                //     }
+                                // })
+                                // if (!checkProcEmpty) {
+                                //     alert('Please select procedure')
+                                // }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status){
+                                //     alert('Empty Field/s')
+                                //     console.log('app: ', app)
+                                // }
+                                // else{
+                                //     console.log('app: ', app)
+                                //     const response = await axios.post(
+                                //         "/api/cdcs/appointments",
+                                //         {app});
+                                //     console.log('response add appointment', response)
+                                //     if (response.data.message === 'tkn_e') {
+                                //         alert('token empty')
+                                //         router.push("/cdcs/login");
+                                //     } else {
+                                //         alert('token ok')
+                                //     }
+                                // }
                             
                             }}>Add Appointment</button>     
 
@@ -644,51 +662,54 @@ const AppointmentDetails = () => {
                                     <div style={{display: 'flex', width: '100%'}}>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Total Cost</span>
-                                            <input type='number' value={app_total_proc_cost} disabled />
+                                            <input type='number' value={
+                                                // app_total_proc_cost
+                                                app2.payments.totalCost
+                                                } disabled />
                                         </div>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Total Payment</span>
-                                            <input type='number' value={app_total_proc_cost} disabled />
+                                            <input type='number' value={app2.payments.totalPayment} disabled />
                                         </div>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Balance</span>
-                                            <input type='number' value={app_total_proc_cost} disabled />
+                                            <input type='number' value={app2.payments.balance} disabled />
                                         </div>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Change</span>
-                                            <input type='number' value={app_total_proc_cost} disabled />
+                                            <input type='number' value={app2.payments.change} disabled />
                                         </div>
                                     </div>
                                     <div>
                                         {
-                                            app_pay_fields.map((payfield, index)=>{
+                                            app.app_pay_fields &&
+                                            app.app_pay_fields.map((payfield, index)=>{
                                                 return (
                                                     <div key={index}>
                                                         <div className='display-flex' style={{marginTop:'0px'}} >
                                                             <div className='details-details-modal-body-input-box'>
-                                                                <span style={false? {display: 'none'}:{}} >Payment</span>
+                                                                <span style={index > 0? {display: 'none'}:{}} >Payment</span>
                                                                 <div className='display-flex'>
                                                                     
                                                                     <input type='number' name='pay_amount' value={payfield.pay_amount}
                                                                     onChange={(e)=>{
                                                                         handleChangeInputPayment(index, e)
                                                                     }} />
-                                                                    <button disabled={index !== app_pay_fields.length -1} className='add-remove-button height-80p' onClick={()=>{
-                                                                        const values = [...app_pay_fields];
+                                                                    <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                    onClick={()=>{
+                                                                        const values = [...app.app_pay_fields];
                                                                         values.splice(index, 1);
-                                                                        set_app_pay_fields(values);
-                                                                        if (parseFloat(payfield.pay_amount)>0) {
-                                                                            set_app_pay_balance(parseFloat(app_pay_balance + parseFloat(payfield.pay_amount))); 
-                                                                        }else{
-                                                                            console.log(' else proc_cost:', payfield.pay_amount)
-                                                                        }
+                                                                        setApp({...app, app_pay_fields: values});
+                                                                        // if (parseFloat(payfield.pay_amount)>0) {
+                                                                        //     set_app_pay_balance(parseFloat(app_pay_balance + parseFloat(payfield.pay_amount))); 
+                                                                        // }else{
+                                                                        //     console.log(' else proc_cost:', payfield.pay_amount)
+                                                                        // }
                                                                         }}>-</button>
                                                                 </div>
                                                             </div>
-                                                                
-                                                                
                                                             <div className='details-details-modal-body-input-box'>
-                                                                <span style={false? {display: 'none'}:{}}>Date of Payment</span>
+                                                                <span style={index > 0? {display: 'none'}:{}}>Date of Payment</span>
                                                                     
                                                                 <DatePicker 
                                                                 name='pay_date'
@@ -708,29 +729,22 @@ const AppointmentDetails = () => {
                                                                 />
                                                             </div>
                                                         </div>
-                                                        
-                                                        <div className='display-flex' style={{marginTop:'0px'}} >
-                                                            <div className="details-details-modal-body-input-box">
-                                                                <span>Change</span>
-                                                                <input
-                                                                style={payfield.pay_change>0? {color: 'green', fontWeight: '600', fontSize:'14px'} : {}} 
-                                                                disabled value={payfield.pay_change} 
-                                                                />
-                                                            </div>
-                                                            <div className="details-details-modal-body-input-box">
-                                                                <span>Balance</span>
-                                                                <input 
-                                                                style={payfield.pay_balance>0? {color: 'red', fontWeight: '600', fontSize:'14px'} : {}} 
-                                                                disabled value={payfield.pay_balance} 
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                            
                                                     </div>
                                                 );
                                             })
                                         }
+                                        <button className='add-payment-button height-80p' onClick={()=>{
+                                            setApp({...app, app_pay_fields: 
+                                                [
+                                                    ...app.app_pay_fields, 
+                                                    {pay_amount: '', pay_date: new Date()}
+                                                ]
+                                            })
+                                            // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                            }}>Add Payment
+                                        </button>
                                     </div>
+                                    
 
                                 </div>
                                 
