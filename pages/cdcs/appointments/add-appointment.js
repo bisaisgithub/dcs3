@@ -81,7 +81,6 @@ const AppointmentDetails = () => {
             let totalPayment = 0;
             values.map(async (field, index)=>{
                 totalPayment = totalPayment + parseFloat(field.pay_amount);
-                console.log('totalPayment: ', totalPayment)
                 
                 // for(let i = 0; i<= index; i++){
                 //     let pay_amount = 0;
@@ -191,19 +190,18 @@ const AppointmentDetails = () => {
             //     3
             // }})
             // set_app_total_proc_cost(parseFloat(totalCost).toFixed(2));
-            
-            if (parseFloat(totalCost-app_pay_amount)>-1) {
-                set_app_pay_change(0);
-                set_app_pay_balance(parseFloat(totalCost-app_pay_amount));
+            let change = 0;
+            let balance = 0;
+            if (parseFloat(totalCost-app2.payments.totalPayment)<0) {
+                change = parseFloat(app2.payments.totalPayment)-totalCost;
             }else{
-                set_app_pay_balance(0);
-                set_app_pay_change(parseFloat(app_pay_amount - totalCost));
+                balance = totalCost - parseFloat(app2.payments.totalPayment);
             }
             setApp({...app, proc_fields: values});
 
             setApp2({...app2, date_end: new Date(
                 new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                    ), payments:{...app2.payments, totalCost : parseFloat(totalCost).toFixed(2)}
+                    ), payments:{...app2.payments, totalCost : parseFloat(totalCost).toFixed(2), change, balance}
                 });
                 
         } else {
@@ -433,23 +431,31 @@ const AppointmentDetails = () => {
                                                                         }
                                                                         return null;
                                                                     });
+                                                                    let change = 0;
+                                                                    let balance = 0;
+                                                                    if (totalCost - parseFloat(app2.payments.totalPayment)<0) {
+                                                                        change = parseFloat(app2.payments.totalPayment) - totalCost;
+                                                                    } else {
+                                                                        balance = totalCost - parseFloat(app2.payments.totalPayment);
+                                                                    }
+
                                                                     setApp2({...app2, date_end: new Date(
                                                                         new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                                                                        ), payments: {...app2.payments, totalCost}
+                                                                        ), payments: {...app2.payments, totalCost, change, balance}
                                                                     }); 
                                                                     // set_app_total_proc_cost(totalCost);
                                                                     // setApp2({...app2, payments: {...app.payments, totalCost}})
-                                                                    if (app_pay_amount) {
-                                                                        if (parseFloat(totalCost-app_pay_amount)>0) {
-                                                                        set_app_pay_change(0);
-                                                                        set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
-                                                                        }else{
-                                                                            set_app_pay_change(parseFloat(app_pay_amount-totalCost));
-                                                                            set_app_pay_balance(0)
-                                                                        }
-                                                                    }else{
-                                                                        set_app_pay_balance(totalCost);
-                                                                    }
+                                                                    // if (app_pay_amount) {
+                                                                    //     if (parseFloat(totalCost-app_pay_amount)>0) {
+                                                                    //     set_app_pay_change(0);
+                                                                    //     set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
+                                                                    //     }else{
+                                                                    //         set_app_pay_change(parseFloat(app_pay_amount-totalCost));
+                                                                    //         set_app_pay_balance(0)
+                                                                    //     }
+                                                                    // }else{
+                                                                    //     set_app_pay_balance(totalCost);
+                                                                    // }
                                                                     setApp({...app, proc_fields: values})
                                                                 }
                                                             }else{
@@ -700,11 +706,18 @@ const AppointmentDetails = () => {
                                                                         const values = [...app.app_pay_fields];
                                                                         values.splice(index, 1);
                                                                         setApp({...app, app_pay_fields: values});
-                                                                        // if (parseFloat(payfield.pay_amount)>0) {
-                                                                        //     set_app_pay_balance(parseFloat(app_pay_balance + parseFloat(payfield.pay_amount))); 
-                                                                        // }else{
-                                                                        //     console.log(' else proc_cost:', payfield.pay_amount)
-                                                                        // }
+                                                                        let totalPayment = 0;
+                                                                        values.map((field)=>{
+                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                        })
+                                                                        let change = 0;
+                                                                        let balance = 0;
+                                                                        if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                            change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                        } else {
+                                                                            balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                        }
+                                                                        setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
                                                                         }}>-</button>
                                                                 </div>
                                                             </div>
