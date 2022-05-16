@@ -1,27 +1,27 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/router";
 // import ReactDOM from 'react-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import setHours from 'date-fns/setHours';
 import setMinutes from 'date-fns/setMinutes';
 import Select from 'react-select';
-import Exam from '../../../components/cdcs/Exam/Exam';
+// import Exam from '../../../components/cdcs/Exam/Exam';
 import Link from 'next/link'
 // import DatePicker, { registerLocale } from "react-datepicker";
 // import el from "date-fns/locale/"; // the locale you want
 // registerLocale("el", el); // register it with the name you want
 
 const AppointmentDetails = () => {
+  const router = useRouter();
   const [app, setApp] = useState({
-    date:'',patient_id: '',doctor_id: '',
+    date:'',patient_id: '',doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
       },],
-      app_pay_fields: [
-        //   {amount: '', date: '', }
-        ]
+      app_pay_fields: []
   });
   const [app2, setApp2]=useState({
     date_end:'',
@@ -194,14 +194,14 @@ const AppointmentDetails = () => {
         }
     }
     let patients = [{value: '', label: 'Select Patient'}];
-    let doctors = [{value: '', label: 'Select Doctor'}];
+    let doctors = [{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}];
     usersList.map((user)=>{
         if(user.type === '_Patient'){
         patients = [...patients, {value: user._id, label: user.name}]
         }
-        if(user.type === 'Dentist'){
-        doctors = [...doctors, {value: user._id, label: user.name}]
-        }
+        // if(user.type === 'Dentist'){
+        // doctors = [...doctors, {value: user._id, label: user.name}]
+        // }
         return null;
     });
 
@@ -250,11 +250,12 @@ const AppointmentDetails = () => {
                             </div>
                             <div className="details-details-modal-body-input-box">
                                 <span>Doctor</span>
-                                <Select options={doctors} defaultValue={{value: '', label: 'Select Doctor'}} 
+                                {/* <Select options={doctors} defaultValue={{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}} disabled={true}
                                 instanceId="long-value-select-doctor"
                                 onChange={(value)=>{
                                     setApp({...app, doctor_id: value.value})
-                                    }}/>
+                                    }}/> */}
+                                <input type="text" disabled value={'Dentist 1'} />
                             </div>
                             
                             <div style={{display: 'flex', width: '100%'}}>
@@ -599,7 +600,7 @@ const AppointmentDetails = () => {
                     <div className='details-details-modal-body-button'> 
                         
                         <button className='button-w70' disabled={app.type === ''} id={'add_appointment'}
-                            onClick={()=>{
+                            onClick={async()=>{
                                 let checkProcEmpty = true;
                                 app.proc_fields.map((fields)=>{
                                     if(fields.proc_name === ''){
@@ -607,16 +608,25 @@ const AppointmentDetails = () => {
                                         checkProcEmpty = false;
                                     }
                                 })
-                                // setApp((prev)=>{
-                                //     return {...prev, app_pay_fields: payfields}
-                                    
-                                //     })
-                                // console.log('payfields:', payfields)
-                                
-                                // setTimeout(()=>{
-                                //     console.log('app: ', app)
-                                // },10000)
-                                
+                                if (!checkProcEmpty) {
+                                    alert('Please select procedure')
+                                }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status){
+                                    alert('Empty Field/s')
+                                    console.log('app: ', app)
+                                }
+                                else{
+                                    console.log('app: ', app)
+                                    const response = await axios.post(
+                                        "/api/cdcs/appointments",
+                                        {app});
+                                    console.log('response add appointment', response)
+                                    if (response.data.message === 'tkn_e') {
+                                        alert('token empty')
+                                        router.push("/cdcs/login");
+                                    } else {
+                                        alert('token ok')
+                                    }
+                                }
                             
                             }}>Add Appointment</button>     
 

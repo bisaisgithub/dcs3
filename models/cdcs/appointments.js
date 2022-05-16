@@ -3,6 +3,12 @@ const mongoose = require("mongoose");
 
 const AppointmentSchema = new mongoose.Schema(
   {
+    created_by: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
+    },
+    updated_by: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
+    },
     patient: {
         type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
     },
