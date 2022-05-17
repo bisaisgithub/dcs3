@@ -9,10 +9,10 @@ const AppointmentSchema = new mongoose.Schema(
     updated_by: {
       type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
     },
-    patient: {
+    patient_id: {
         type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
     },
-    doctor: {
+    doctor_id: {
         type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
     },
     date: Date,
@@ -34,9 +34,9 @@ const AppointmentSchema = new mongoose.Schema(
 let Appointments;
 
 try {
-  Appointments = mongoose.model("Appointments");
+  Appointments = mongoose.model("Appointments2");
 }catch(err){
-  Appointments = mongoose.model('Appointments', AppointmentSchema);
+  Appointments = mongoose.model('Appointments2', AppointmentSchema);
 }
 
 module.exports =

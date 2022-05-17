@@ -210,15 +210,20 @@ const AppointmentDetails = () => {
     }
     let patients = [{value: '', label: 'Select Patient'}];
     let doctors = [{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}];
-    usersList.map((user)=>{
-        if(user.type === '_Patient'){
-        patients = [...patients, {value: user._id, label: user.name}]
-        }
-        // if(user.type === 'Dentist'){
-        // doctors = [...doctors, {value: user._id, label: user.name}]
-        // }
-        return null;
-    });
+    if (usersList) {
+        usersList.map((user)=>{
+            if(user.type === '_Patient'){
+            patients = [...patients, {value: user._id, label: user.name}]
+            }
+            // if(user.type === 'Dentist'){
+            // doctors = [...doctors, {value: user._id, label: user.name}]
+            // }
+            return null;
+        });
+    }else{
+        router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
+    }
+    
 
     return(
         <>
@@ -520,98 +525,6 @@ const AppointmentDetails = () => {
                                     </select>       
                                 </div>
                             </div>
-
-                            {/* <div className='display-flex'>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Status</span>
-                                    <select name="status" value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
-                                        <option value="">-Select Status-</option>
-                                        <option value="On Schedule">On Schedule</option>
-                                    </select>       
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Type</span>
-                                    <select name="status" value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
-                                        <option value="">-Select Type-</option>
-                                        <option value="Scheduled">Scheduled</option>
-                                        <option value="Walk-in">Walk-in</option>
-                                    </select>       
-                                </div>
-                            </div> */}
-                            {/* {
-                                app_pay_fields.map((payfield, index)=>{
-                                    return (
-                                        <div key={index}>
-                                            <div className='display-flex' style={{marginTop:'0px'}} >
-                                                <div className='details-details-modal-body-input-box'>
-                                                    <span style={false? {display: 'none'}:{}} >Payment</span>
-                                                    <div className='display-flex'>
-                                                        
-                                                        <input type='number' name='pay_amount' value={payfield.pay_amount}
-                                                        onChange={(e)=>{
-                                                            handleChangeInputPayment(index, e)
-                                                        }} />
-                                                        <button disabled={index !== app_pay_fields.length -1} className='add-remove-button height-80p' onClick={()=>{
-                                                            const values = [...app_pay_fields];
-                                                            values.splice(index, 1);
-                                                            set_app_pay_fields(values);
-                                                            if (parseFloat(payfield.pay_amount)>0) {
-                                                                set_app_pay_balance(parseFloat(app_pay_balance + parseFloat(payfield.pay_amount))); 
-                                                            }else{
-                                                                console.log(' else proc_cost:', payfield.pay_amount)
-                                                            }
-                                                            }}>-</button>
-                                                    </div>
-                                                </div>
-                                                    
-                                                    
-                                                <div className='details-details-modal-body-input-box'>
-                                                    <span style={false? {display: 'none'}:{}}>Date of Payment</span>
-                                                        
-                                                    <DatePicker 
-                                                    name='pay_date'
-                                                    maxDate={new Date()} 
-                                                    yearDropdownItemNumber={90}
-                                                    showTimeSelect
-                                                    showYearDropdown 
-                                                    scrollableYearDropdown={true} 
-                                                    dateFormat='MMMM d, yyyy h:mm aa' 
-                                                    className='date-picker' 
-                                                    placeholderText="Select Date" 
-                                                    selected={payfield.pay_date} 
-                                                    onChange={(date)=>{
-                                                        handleChangeInputPayment(index, false, date, 'pay_date')
-                                                        // set_app_pay_date(date)
-                                                    }} 
-                                                    />
-                                                </div>
-                                            </div>
-                                            
-                                            <div className='display-flex' style={{marginTop:'0px'}} >
-                                                <div className="details-details-modal-body-input-box">
-                                                    <span>Change</span>
-                                                    <input
-                                                    style={payfield.pay_change>0? {color: 'green', fontWeight: '600', fontSize:'14px'} : {}} 
-                                                    disabled value={payfield.pay_change} 
-                                                    />
-                                                </div>
-                                                <div className="details-details-modal-body-input-box">
-                                                    <span>Balance</span>
-                                                    <input 
-                                                    style={payfield.pay_balance>0? {color: 'red', fontWeight: '600', fontSize:'14px'} : {}} 
-                                                    disabled value={payfield.pay_balance} 
-                                                    />
-                                                </div>
-                                            </div>
-                                                
-                                        </div>
-                                    );
-                                })
-                            } */}
-                            {/* <button className='add-payment-button height-80p' onClick={()=>{
-                                set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
-                                }}>Add Payment
-                            </button> */}
                         </div>
 
                     </div>
@@ -624,33 +537,36 @@ const AppointmentDetails = () => {
                             false
                         } id={'add_appointment'}
                             onClick={async()=>{
-                                console.log('app2', app2)
-                                // let checkProcEmpty = true;
-                                // app.proc_fields.map((fields)=>{
-                                //     if(fields.proc_name === ''){
-                                //         console.log('proc_fields empty')
-                                //         checkProcEmpty = false;
-                                //     }
-                                // })
-                                // if (!checkProcEmpty) {
-                                //     alert('Please select procedure')
-                                // }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status){
-                                //     alert('Empty Field/s')
-                                //     console.log('app: ', app)
-                                // }
-                                // else{
-                                //     console.log('app: ', app)
-                                //     const response = await axios.post(
-                                //         "/api/cdcs/appointments",
-                                //         {app});
-                                //     console.log('response add appointment', response)
-                                //     if (response.data.message === 'tkn_e') {
-                                //         alert('token empty')
-                                //         router.push("/cdcs/login");
-                                //     } else {
-                                //         alert('token ok')
-                                //     }
-                                // }
+                                // console.log('app2', app2)
+                                let checkProcEmpty = true;
+                                app.proc_fields.map((fields)=>{
+                                    if(fields.proc_name === ''){
+                                        console.log('proc_fields empty')
+                                        checkProcEmpty = false;
+                                    }
+                                })
+                                if (!checkProcEmpty) {
+                                    alert('Please select procedure')
+                                }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
+                                    alert('Empty Field/s')
+                                    console.log('app: ', app)
+                                }
+                                else{
+                                    console.log('app: ', app)
+                                    const response = await axios.post(
+                                        "/api/cdcs/appointments",
+                                        {app});
+                                    console.log('response add appointment', response)
+                                    if (response.data.message === 'tkn_e') {
+                                        alert('token empty')
+                                        router.push("/cdcs/login");
+                                    } else if(response.data.success === true){
+                                        alert('Appointment Succesffuly Added')
+                                    }else {
+                                        // alert('token ok')
+                                        alert('Failed Adding Apppointment')
+                                    }
+                                }
                             
                             }}>Add Appointment</button>     
 

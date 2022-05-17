@@ -72,12 +72,14 @@ const AppointmentTable = ({user}) => {
 
     useEffect(()=>{
         
-        // getAppointments();
+        getAppointments();
         // if(tooth_remark.t55 !== ''){
         //     set_is_baby_teeth(true);
         // }
 
-    }, [render,is_baby_teeth]);
+    }, [
+        // render,is_baby_teeth
+    ]);
 
     const saveExam = async (id)=>{
         if (id) {
@@ -114,60 +116,6 @@ const AppointmentTable = ({user}) => {
             }
         }
         
-    }
-
-    const addAppointmentFunction = async ()=>{
-        function validateEmptyObjectProcField(array){
-            for (var i=0; i < array.length; i++) {
-                if (array[i].proc_name === "") {
-                    return false;
-                }
-            }
-            return true;
-        }
-        function validateEmptyObjectPayfield(array){
-            for (var i=0; i < array.length; i++) {
-                if (array[i].pay_amount === "") {
-                    return false;
-                }
-            }
-            return true;
-        }
-        if (!app_patient_id || !app_user_doctor_id || !app_date ||
-            // !app_start_time || 
-            !app_status || !app_type) {
-            alert('Empty field/s')
-        }else{
-
-            if (!validateEmptyObjectProcField(app_proc_fields) || !app_proc_fields.length || !validateEmptyObjectPayfield(app_pay_fields)) {
-
-                alert("Empty Procedure/s or Payment/s")
-            } else {
-                const response = await axios.post(`${process.env.REACT_APP_BE_LINK}appointment`, {
-                    app_patient_id: app_patient_id,
-                    app_user_doctor_id: app_user_doctor_id,
-                    app_date: formatDateYYYYMMDD(app_date),
-                    app_start_time: app_start_time,
-                    app_end_time: app_end_time,
-                    app_status: app_status,
-                    app_type: app_type,
-                    app_proc_fields: app_proc_fields,
-                    app_pay_fields: app_pay_fields
-                 });   
-                
-                console.log('app_date: ', app_date);
-                console.log('pay_date: ', app_pay_fields);
-
-                if (response.data.appointmentInsertOk) { 
-                    alert('Appointment Added');
-                    await set_render(prev=>prev+1);
-                    console.log(render);
-                    set_app_details_is_open(false);
-                }else{
-                    alert('Failed Adding Appointment');
-                }
-            }
-        }  
     }
 
     const updateAppointmentFunction = async ()=>{
@@ -234,10 +182,10 @@ const AppointmentTable = ({user}) => {
                 setAppointmentsData(response.data)
             }
         } else {
-            const response = await axios.get(`${process.env.REACT_APP_BE_LINK}appointments`);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
             if (response.data) {
-                // console.log(response.data);
-                setAppointmentsData(response.data)
+                console.log(response.data);
+                // setAppointmentsData(response.data)
             }
         }    
     };
