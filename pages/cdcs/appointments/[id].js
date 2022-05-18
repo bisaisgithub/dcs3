@@ -69,9 +69,9 @@ const AppointmentDetails = () => {
     const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`,
       // {post:2,id:router.query.id,}
     );
+    
     if (response.data) {
         console.log(response.data);
-      setApp({...response.data.data, date: new Date(response.data.data.date)});
       let totalMinutes = 0;
       let totalCost = 0
       response.data.data.proc_fields.map((f)=>{
@@ -81,14 +81,20 @@ const AppointmentDetails = () => {
       let totalPayment = 0;
       let change = 0;
       let balance = 0
-      response.data.data.app_pay_fields.map((f)=>{
+      const app_pay_fields = response.data.data.app_pay_fields.map((f)=>{
         totalPayment = totalPayment + parseFloat(f.pay_amount);
+        f.pay_date = new Date(f.pay_date)
+        return f;
       })
       if (totalCost - totalPayment < 0) {
           change = totalPayment - totalCost;
       } else {
           balance = totalCost - totalPayment;
       }
+      setApp({
+          ...response.data.data, date: new Date(response.data.data.date),
+          app_pay_fields
+        });
       setApp2({
           ...app2,
           date_end: new Date(response.data.data.date).setMinutes(new Date(response.data.data.date).getMinutes()+totalMinutes),
