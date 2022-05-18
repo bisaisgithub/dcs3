@@ -184,53 +184,53 @@ const AppointmentTable = ({user}) => {
         } else {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
             if (response.data) {
-                console.log(response.data);
-                // setAppointmentsData(response.data)
+                // console.log(response.data);
+                setAppointmentsData(response.data.data)
             }
         }    
     };
 
-    const getPatientList = async (id)=>{
-        const resPatientList = await axios.get(`${process.env.REACT_APP_BE_LINK}patient-list`);
-        if (!resPatientList.data) {
-            alert('Failed getting patient list')
-        }else{
-            set_app_patient_list(resPatientList.data);
-        }
+    // const getPatientList = async (id)=>{
+    //     const resPatientList = await axios.get(`${process.env.REACT_APP_BE_LINK}patient-list`);
+    //     if (!resPatientList.data) {
+    //         alert('Failed getting patient list')
+    //     }else{
+    //         set_app_patient_list(resPatientList.data);
+    //     }
         
-    }
+    // }
 
-    const getUserDoctorList = async ()=>{
-        const resUserDoctorList = await axios.get(`${process.env.REACT_APP_BE_LINK}user-doctor-list`);
-        if (!resUserDoctorList.data) {
-            alert('Failed getting patient list')
-        } 
-        set_app_user_doctor_list(resUserDoctorList.data);
-    }
+    // const getUserDoctorList = async ()=>{
+    //     const resUserDoctorList = await axios.get(`${process.env.REACT_APP_BE_LINK}user-doctor-list`);
+    //     if (!resUserDoctorList.data) {
+    //         alert('Failed getting patient list')
+    //     } 
+    //     set_app_user_doctor_list(resUserDoctorList.data);
+    // }
 
-    const newAppointment = ()=>{
-        console.log('app_patient_name_id: ', app_patient_name_id);
-        set_app_proc_fields_delete([]);
-        set_app_pay_fields_delete([]);
-        set_app_id(null);
-        getUserDoctorList();
-        getPatientList();
-        set_app_patient_name_id({value: null, label: null});
-        set_app_user_doctor_id('');
-        set_app_date(null);
-        set_app_start_time(null);
-        set_app_end_time(null);
-        set_app_proc_fields([{
-            proc_name: '', proc_duration_minutes: 0, proc_cost: 0,
-            proc_id: null, isDeleted: false
-            },
-        ]);
-        set_app_total_proc_cost(0);
-        set_app_status('');
-        set_app_type('');
-        set_app_pay_fields([]);
-        set_app_details_is_open(true); 
-    };
+    // const newAppointment = ()=>{
+    //     console.log('app_patient_name_id: ', app_patient_name_id);
+    //     set_app_proc_fields_delete([]);
+    //     set_app_pay_fields_delete([]);
+    //     set_app_id(null);
+    //     getUserDoctorList();
+    //     getPatientList();
+    //     set_app_patient_name_id({value: null, label: null});
+    //     set_app_user_doctor_id('');
+    //     set_app_date(null);
+    //     set_app_start_time(null);
+    //     set_app_end_time(null);
+    //     set_app_proc_fields([{
+    //         proc_name: '', proc_duration_minutes: 0, proc_cost: 0,
+    //         proc_id: null, isDeleted: false
+    //         },
+    //     ]);
+    //     set_app_total_proc_cost(0);
+    //     set_app_status('');
+    //     set_app_type('');
+    //     set_app_pay_fields([]);
+    //     set_app_details_is_open(true); 
+    // };
     
     const formatDate = (app_date)=>{
         let d = new Date(app_date);
@@ -255,96 +255,95 @@ const AppointmentTable = ({user}) => {
         hour12: true
     }
 
-    const AppointmentDetailsFunction = async (app_id, patient_name)=>{
-        set_app_pay_fields_delete([]);
-        set_app_proc_fields_delete([]);
-        set_app_proc_fields([]);
-        set_app_pay_fields([]);
-        set_app_id(app_id);
-        set_app_patient_name_id({value: app_id, label: patient_name});
-        const resAppointment = await axios.get(`${process.env.REACT_APP_BE_LINK}appointment/${app_id}`);
-        console.log('resAppointment: ', resAppointment);
-        console.log('exam response lenght: ',resAppointment.data.examByIdResponse.length)
-        if (resAppointment.data.app_patient_id) {
-            getPatientList(resAppointment.data.app_patient_id);
-            set_app_details_is_open(true);
-            set_app_patient_id(resAppointment.data.app_patient_id);
-            set_app_user_doctor_id(resAppointment.data.app_user_doctor_id);
-            set_app_date(new Date(new Date(resAppointment.data.app_date).toString()+' UTC'));
-            set_app_start_time(new Date(new Date(resAppointment.data.app_start_time).toString()+' UTC'));
-            set_app_status(resAppointment.data.app_status);
-            set_app_type(resAppointment.data.app_type);
-            set_app_proc_fields(resAppointment.data.resProceduresById);
-            set_app_pay_fields(()=>{
-                let field2 = [];
-                resAppointment.data.resPaymentsById.map((field)=>{
-                   field2 = [...field2, {
-                    is_deleted: field.is_deleted,
-                    pay_amount: field.pay_amount,
-                    pay_appointment_id: field.pay_appointment_id,
-                    pay_balance: field.pay_balance,
-                    pay_change: field.pay_change,
-                    pay_id: field.pay_id,
-                    pay_date: new Date(new Date(field.pay_date).toString()+' UTC')
-                   }];
-                    return null;
-                });
-                return field2;
-            });
+    // const AppointmentDetailsFunction = async (app_id, patient_name)=>{
+    //     set_app_pay_fields_delete([]);
+    //     set_app_proc_fields_delete([]);
+    //     set_app_proc_fields([]);
+    //     set_app_pay_fields([]);
+    //     set_app_id(app_id);
+    //     set_app_patient_name_id({value: app_id, label: patient_name});
+    //     const resAppointment = await axios.get(`${process.env.REACT_APP_BE_LINK}appointment/${app_id}`);
+    //     console.log('resAppointment: ', resAppointment);
+    //     console.log('exam response lenght: ',resAppointment.data.examByIdResponse.length)
+    //     if (resAppointment.data.app_patient_id) {
+    //         getPatientList(resAppointment.data.app_patient_id);
+    //         set_app_details_is_open(true);
+    //         set_app_patient_id(resAppointment.data.app_patient_id);
+    //         set_app_user_doctor_id(resAppointment.data.app_user_doctor_id);
+    //         set_app_date(new Date(new Date(resAppointment.data.app_date).toString()+' UTC'));
+    //         set_app_start_time(new Date(new Date(resAppointment.data.app_start_time).toString()+' UTC'));
+    //         set_app_status(resAppointment.data.app_status);
+    //         set_app_type(resAppointment.data.app_type);
+    //         set_app_proc_fields(resAppointment.data.resProceduresById);
+    //         set_app_pay_fields(()=>{
+    //             let field2 = [];
+    //             resAppointment.data.resPaymentsById.map((field)=>{
+    //                field2 = [...field2, {
+    //                 is_deleted: field.is_deleted,
+    //                 pay_amount: field.pay_amount,
+    //                 pay_appointment_id: field.pay_appointment_id,
+    //                 pay_balance: field.pay_balance,
+    //                 pay_change: field.pay_change,
+    //                 pay_id: field.pay_id,
+    //                 pay_date: new Date(new Date(field.pay_date).toString()+' UTC')
+    //                }];
+    //                 return null;
+    //             });
+    //             return field2;
+    //         });
 
-            let totalMinutes = 0;
-            let totalCost = 0;
-            resAppointment.data.resProceduresById.map((app_proc_field)=>{
+    //         let totalMinutes = 0;
+    //         let totalCost = 0;
+    //         resAppointment.data.resProceduresById.map((app_proc_field)=>{
                 
-                if (app_proc_field.proc_duration_minutes > 0) {
-                    totalMinutes = totalMinutes + app_proc_field.proc_duration_minutes
-                }
-                if (app_proc_field.proc_cost > 0) {
-                    totalCost = totalCost + app_proc_field.proc_cost
-                }
-                return null;
-            });
+    //             if (app_proc_field.proc_duration_minutes > 0) {
+    //                 totalMinutes = totalMinutes + app_proc_field.proc_duration_minutes
+    //             }
+    //             if (app_proc_field.proc_cost > 0) {
+    //                 totalCost = totalCost + app_proc_field.proc_cost
+    //             }
+    //             return null;
+    //         });
 
-            set_app_end_time(
-                new Date(
-                    new Date(new Date(new Date(resAppointment.data.app_start_time).toString()+' UTC').setMinutes(new Date(new Date(resAppointment.data.app_start_time).toString()+' UTC').getMinutes()+totalMinutes))
-                        ));
-            set_app_total_proc_cost(totalCost);
+    //         set_app_end_time(
+    //             new Date(
+    //                 new Date(new Date(new Date(resAppointment.data.app_start_time).toString()+' UTC').setMinutes(new Date(new Date(resAppointment.data.app_start_time).toString()+' UTC').getMinutes()+totalMinutes))
+    //                     ));
+    //         set_app_total_proc_cost(totalCost);
 
-            getUserDoctorList();
-            if (resAppointment.data.examByIdResponse.length) {
-                set_tooth_check_box(resAppointment.data.examByIdResponse[0].exam_check_box);
-                set_tooth_remark(resAppointment.data.examByIdResponse[0].exam_remark);
-                set_exam_id(resAppointment.data.examByIdResponse[0].exam_id);
-            }else{
-                set_tooth_check_box({
-                    t18: false, t17: false, t16: false, t15: false, t14: false, t13: false, t12: false, t11: false,
-                    t28: false, t27: false, t26: false, t25: false, t24: false, t23: false, t22: false, t21: false,
-                    t38: false, t37: false, t36: false, t35: false, t34: false, t33: false, t32: false, t31: false,
-                    t48: false, t47: false, t46: false, t45: false, t44: false, t43: false, t42: false, t41: false,
-                    t55: false, t54: false, t53: false, t52: false, t51: false,
-                    t65: false, t64: false, t63: false, t62: false, t61: false,
-                    t75: false, t74: false, t73: false, t72: false, t71: false,
-                    t85: false, t84: false, t83: false, t82: false, t81: false,
-                });
-                set_tooth_remark({
-                    t18: '', t17: '', t16: '', t15: '', t14: '', t13: '', t12: '', t11: '',
-                    t28: '', t27: '', t26: '', t25: '', t24: '', t23: '', t22: '', t21: '',
-                    t38: '', t37: '', t36: '', t35: '', t34: '', t33: '', t32: '', t31: '',
-                    t48: '', t47: '', t46: '', t45: '', t44: '', t43: '', t42: '', t41: '',
-                    t55: '', t54: '', t53: '', t52: '', t51: '',
-                    t65: '', t64: '', t63: '', t62: '', t61: '',
-                    t75: '', t74: '', t73: '', t72: '', t71: '',
-                    t85: '', t84: '', t83: '', t82: '', t81: '',
-                });
-                set_exam_id(null);
-            }
+    //         getUserDoctorList();
+    //         if (resAppointment.data.examByIdResponse.length) {
+    //             set_tooth_check_box(resAppointment.data.examByIdResponse[0].exam_check_box);
+    //             set_tooth_remark(resAppointment.data.examByIdResponse[0].exam_remark);
+    //             set_exam_id(resAppointment.data.examByIdResponse[0].exam_id);
+    //         }else{
+    //             set_tooth_check_box({
+    //                 t18: false, t17: false, t16: false, t15: false, t14: false, t13: false, t12: false, t11: false,
+    //                 t28: false, t27: false, t26: false, t25: false, t24: false, t23: false, t22: false, t21: false,
+    //                 t38: false, t37: false, t36: false, t35: false, t34: false, t33: false, t32: false, t31: false,
+    //                 t48: false, t47: false, t46: false, t45: false, t44: false, t43: false, t42: false, t41: false,
+    //                 t55: false, t54: false, t53: false, t52: false, t51: false,
+    //                 t65: false, t64: false, t63: false, t62: false, t61: false,
+    //                 t75: false, t74: false, t73: false, t72: false, t71: false,
+    //                 t85: false, t84: false, t83: false, t82: false, t81: false,
+    //             });
+    //             set_tooth_remark({
+    //                 t18: '', t17: '', t16: '', t15: '', t14: '', t13: '', t12: '', t11: '',
+    //                 t28: '', t27: '', t26: '', t25: '', t24: '', t23: '', t22: '', t21: '',
+    //                 t38: '', t37: '', t36: '', t35: '', t34: '', t33: '', t32: '', t31: '',
+    //                 t48: '', t47: '', t46: '', t45: '', t44: '', t43: '', t42: '', t41: '',
+    //                 t55: '', t54: '', t53: '', t52: '', t51: '',
+    //                 t65: '', t64: '', t63: '', t62: '', t61: '',
+    //                 t75: '', t74: '', t73: '', t72: '', t71: '',
+    //                 t85: '', t84: '', t83: '', t82: '', t81: '',
+    //             });
+    //             set_exam_id(null);
+    //         }
             
-        } else {
-            alert('patient ID not Found');
-        }
-    }
-
+    //     } else {
+    //         alert('patient ID not Found');
+    //     }
+    // }
     return (
         <div className='blackbg'>
             <Navbarcdcs user={user}/>
@@ -353,8 +352,8 @@ const AppointmentTable = ({user}) => {
                 <thead className='table-table2-table-thead-search2'>
                     <tr className='table-table2-table-thead-tr-search2'>
                       
-                        <th><input placeholder='Name' value={app_search_patient_name} onChange={(e)=>{set_app_search_patient_name(e.target.value)}}/></th>
-                        <th><input placeholder='Doctor' value={app_search_user_doctor_name} 
+                        <th><input placeholder='Doctor Name' value={app_search_patient_name} onChange={(e)=>{set_app_search_patient_name(e.target.value)}}/></th>
+                        <th><input placeholder='Patient Name' value={app_search_user_doctor_name} 
                                 onChange={(e)=>{set_app_search_user_doctor_name(e.target.value)}}/>
                             <button onClick={()=>{
                                 set_app_search_patient_name('');set_app_search_user_doctor_name('')
@@ -391,8 +390,8 @@ const AppointmentTable = ({user}) => {
                 </thead>
                 <thead className='table-table2-table-thead'>
                     <tr className='table-table2-table-thead-tr'>
-                        <th>Patient</th>
                         <th>Doctor</th>
+                        <th>Patient</th>
                         <th>Date</th>
                         <th>Time</th>
                         <th>Status</th>
@@ -401,23 +400,38 @@ const AppointmentTable = ({user}) => {
                 </thead>
                 <tbody className='table-table2-table-tbody'>
                     {appointmentsData && appointmentsData.map((appointment, index)=>{
+                        let totalMinutes = 0;
+                        appointment.proc_fields.map((f)=>{
+                            totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
+                        })
+                        let endTime = new Date(new Date(appointment.date).setMinutes(new Date(appointment.date).getMinutes()+totalMinutes))
                         return (
                             <tr key={index} className='table-table2-table-tbody-tr'>
-                                <td>{appointment.patient_name}</td>
-                                <td>{appointment.user_name}</td>
-                                <td className='maxW50px'>{formatDate(appointment.app_date)}</td>
+                                <td>{appointment.doctor_id.name}</td>
+                                <td>{appointment.patient_id.name}</td>
+                                <td className='maxW50px'>{
+                                formatDate(appointment.date)
+                                }</td>
                                 <td className='table-table2-table-body-tr-td '>
                                     <button className='minW50px' style={{background:'#3c3f44'}} onClick={()=>{}}>{
-                                    new Date(new Date(appointment.app_start_time).toString()+' UTC').toLocaleString('en-PH', timeOptions)
+                                    // new Date(new Date(appointment.date).toString()+' UTC').toLocaleString('en-PH', timeOptions)
+                                    new Date(appointment.date).toLocaleString('en-PH', timeOptions)
                                     }</button>
                                 </td>
                                 <td className='table-table2-table-body-tr-td'>
                                     <button className='minW50px' onClick={()=>{}}>{
-                                        new Date(new Date(appointment.app_end_time).toString()+ ' UTC').toLocaleString('en-PH', timeOptions)
+                                        new Date(endTime).toLocaleString('en-PH', timeOptions)
                                     }</button>
                                 </td>
-                                <td>{appointment.app_status}</td>
-                                <td><button style={{background:'#e9115bf0'}} onClick={()=>{AppointmentDetailsFunction(appointment.app_id, appointment.patient_name)}}>{index+1}</button></td>
+                                <td>{appointment.status}</td>
+                                <td>
+                                    <Link href={`/cdcs/appointments/${appointment._id}`} passHref>
+                                        <button style={{background:'#e9115bf0'}} 
+                                        // onClick={()=>{AppointmentDetailsFunction(appointment.app_id, appointment.patient_name)}}
+                                        >{index+1}
+                                        </button>
+                                    </Link>
+                                </td>
                             </tr>
                         );
                     })}

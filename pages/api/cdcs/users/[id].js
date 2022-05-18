@@ -5,7 +5,7 @@ import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 
 export default async (req, res) => {
-  console.log('api dynamic req.query', req.query);
+  // console.log('api dynamic req.query', req.query);
   if (req.method === "GET") {
     try {
       const user = await CDCSUsers7.findOne(
@@ -28,7 +28,7 @@ export default async (req, res) => {
       // const username = await CDCSUsers7.findOne({_id: })
       res.json({ sucess: true, data: user });
     } catch (error) {
-      console.log("cath error admin", error);
+      console.log("catch error admin", error);
       res.json({ success: false, error: `get error: ${error}` });
     }
   }else if (req.method === "POST") {

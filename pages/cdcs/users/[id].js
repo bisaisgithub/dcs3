@@ -10,7 +10,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const UserDetails = () => {
-  const router = useRouter();
+  const router1 = useRouter();
   const [isLoading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [userInput, setUserInput] = useState({
@@ -25,7 +25,7 @@ const UserDetails = () => {
     return <p>Loading...</p>
   }
   const getUserDetails = async ()=>{
-    const response = await axios.get(`/api/cdcs/users/${router.query.id}`,
+    const response = await axios.get(`/api/cdcs/users/${router1.query.id}`,
       // {post:2,id:router.query.id,}
     );
     if (response.data) {
