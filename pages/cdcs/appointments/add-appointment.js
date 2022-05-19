@@ -16,7 +16,7 @@ import Link from 'next/link'
 const AppointmentDetails = () => {
   const router = useRouter();
   const [app, setApp] = useState({
-    date:'',patient_id: '',doctor_id: '6256d9a47011cbc6fb99a15b',
+    date:'',patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
@@ -32,10 +32,11 @@ const AppointmentDetails = () => {
 //   const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
 //       proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
 //     },]});
-  const [app_pay_change, set_app_pay_change] = useState('');
-  const [app_total_proc_cost, set_app_total_proc_cost] = useState(0);
-  const [app_pay_amount, set_app_pay_amount] = useState('');
-  const [app_pay_balance, set_app_pay_balance] = useState('');
+//   const [app_pay_change, set_app_pay_change] = useState('');
+//   const [app_total_proc_cost, set_app_total_proc_cost] = useState(0);
+//   const [app_pay_amount, set_app_pay_amount] = useState('');
+//   const [app_pay_balance, set_app_pay_balance] = useState('');
+  const [selectedOption, setSelectedOption] = useState(null);
   const [app_pay_fields, set_app_pay_fields] = useState([]);
   const [app_id, set_app_id] = useState(null);
   const [tooth_check_box, set_tooth_check_box] = useState({
@@ -260,12 +261,13 @@ const AppointmentDetails = () => {
                             <div className="details-details-modal-body-input-box">
                                 <span>Patient</span>
                                 <Select options={patients} 
-                                defaultValue={{value: '', label: 'Select Patient'}}
+                                defaultValue={app.patient_id}
+                                // value={app.patient_id}
                                 instanceId="long-value-select-patient"
                                 // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
                                 onChange={(value)=>{
-                                    setApp({...app, patient_id: value.value})
-                                    // set_app_patient_id(value.value);
+                                    setApp({...app, patient_id:  value.value})
+                                    // selectedOption
                                     }}/>
                             </div>
                             <div className="details-details-modal-body-input-box">

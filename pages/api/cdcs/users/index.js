@@ -10,16 +10,16 @@ export default async (req, res) => {
     await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
     if (!token) {
-      try {
-        const hash = bcrypt.hashSync(req.body.password, 10);
-        req.body.password = hash;
-        const note = await CDCSUsers7.create(req.body);
+      // try {
+      //   const hash = bcrypt.hashSync(req.body.password, 10);
+      //   req.body.password = hash;
+      //   const note = await CDCSUsers7.create(req.body);
 
-        res.status(201).json({ success: true, data: note });
-      } catch (error) {
-        res.json({ success: false, error: `post error: ${error}` });
-      }
-      // res.json({ success: false, message: "no-token" });
+      //   res.status(201).json({ success: true, data: note });
+      // } catch (error) {
+      //   res.json({ success: false, error: `post error: ${error}` });
+      // }
+      res.json({ success: false, message: "no-token" });
     } else {
       // console.log('token ok')
       const verified = await jwt.verify(token, process.env.JWT_SECRET);

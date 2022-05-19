@@ -16,7 +16,10 @@ import Link from 'next/link'
 const AppointmentDetails = () => {
   const router = useRouter();
   const [app, setApp] = useState({
-    date:'',patient_id: '',doctor_id: '6256d9a47011cbc6fb99a15b',
+    date:'',patient_id: 
+    // {value: '626e8f79bf17b8d0569c9c38', label: 'test'}
+    ''
+    ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
@@ -93,8 +96,13 @@ const AppointmentDetails = () => {
       }
       setApp({
           ...response.data.data, date: new Date(response.data.data.date),
+          patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
           app_pay_fields
         });
+        let responseCheck = {...response.data.data, date: new Date(response.data.data.date),
+            // patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
+            app_pay_fields}
+        console.log('rescheck', responseCheck)
       setApp2({
           ...app2,
           date_end: new Date(response.data.data.date).setMinutes(new Date(response.data.data.date).getMinutes()+totalMinutes),
@@ -254,6 +262,7 @@ const AppointmentDetails = () => {
         usersList.map((user)=>{
             if(user.type === '_Patient'){
             patients = [...patients, {value: user._id, label: user.name}]
+            // patients = [...patients, {_id: user._id, name: user.name}]
             }
             // if(user.type === 'Dentist'){
             // doctors = [...doctors, {value: user._id, label: user.name}]
@@ -299,14 +308,34 @@ const AppointmentDetails = () => {
                         <div className='details-details-modal-body'>
                             <div className="details-details-modal-body-input-box">
                                 <span>Patient</span>
-                                <Select options={patients} 
-                                defaultValue={{value: '', label: 'Select Patient'}}
-                                instanceId="long-value-select-patient"
-                                // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
-                                onChange={(value)=>{
-                                    setApp({...app, patient_id: value.value})
-                                    // set_app_patient_id(value.value);
-                                    }}/>
+                                {app.patient_id.value? 
+                                    <Select 
+                                    options={patients} 
+                                    // getOptionLabel  = {(option)=>option.name}
+                                    // getOptionValue = {(option)=>option._id}
+                                    defaultValue={app.patient_id}
+                                    value={app.patient_id}
+                                    instanceId="long-value-select-patient"
+                                    // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
+                                    onChange={(value)=>{
+                                        setApp({...app, patient_id: value.value})
+                                        // set_app_patient_id(value.value);
+                                        }}/>
+                                    :
+                                    <Select 
+                                    options={patients} 
+                                    // getOptionLabel  = {(option)=>option.name}
+                                    // getOptionValue = {(option)=>option._id}
+                                    defaultValue={app.patient_id}
+                                    // value={app.patient_id}
+                                    instanceId="long-value-select-patient"
+                                    // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
+                                    onChange={(value)=>{
+                                        setApp({...app, patient_id: value.value})
+                                        // set_app_patient_id(value.value);
+                                        }}/>
+                                }
+                                
                             </div>
                             <div className="details-details-modal-body-input-box">
                                 <span>Doctor</span>
@@ -316,6 +345,7 @@ const AppointmentDetails = () => {
                                     setApp({...app, doctor_id: value.value})
                                     }}/> */}
                                 <input type="text" disabled value={'Dentist 1'} />
+                                
                             </div>
                             
                             <div style={{display: 'flex', width: '100%'}}>
@@ -577,38 +607,46 @@ const AppointmentDetails = () => {
                             false
                         } id={'add_appointment'}
                             onClick={async()=>{
-                                // console.log('app2', app2)
-                                let checkProcEmpty = true;
-                                app.proc_fields.map((fields)=>{
-                                    if(fields.proc_name === ''){
-                                        console.log('proc_fields empty')
-                                        checkProcEmpty = false;
-                                    }
-                                })
-                                if (!checkProcEmpty) {
-                                    alert('Please select procedure')
-                                }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
-                                    alert('Empty Field/s')
-                                    console.log('app: ', app)
-                                }
-                                else{
-                                    console.log('app: ', app)
-                                    const response = await axios.post(
-                                        "/api/cdcs/appointments",
-                                        {app});
-                                    console.log('response add appointment', response)
-                                    if (response.data.message === 'tkn_e') {
-                                        alert('token empty')
-                                        router.push("/cdcs/login");
-                                    } else if(response.data.success === true){
-                                        alert('Appointment Succesffuly Added')
-                                    }else {
-                                        // alert('token ok')
-                                        alert('Failed Adding Apppointment')
-                                    }
-                                }
+                                // console.log('app', app)
+                                if (app.patient_id.value) {
+                                    setApp((prev)=>{
+                                        let app = {...prev, patient_id: prev.patient_id.value}
+                                        console.log('app inside setApp', app);
+                                        return app;
+                                    })
+
+                                }  
+                                // let checkProcEmpty = true;
+                                // app.proc_fields.map((fields)=>{
+                                //     if(fields.proc_name === ''){
+                                //         console.log('proc_fields empty')
+                                //         checkProcEmpty = false;
+                                //     }
+                                // })
+                                // if (!checkProcEmpty) {
+                                //     alert('Please select procedure')
+                                // }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
+                                //     alert('Empty Field/s')
+                                //     console.log('app: ', app)
+                                // }
+                                // else{
+                                //     console.log('app: ', app)
+                                //     const response = await axios.post(
+                                //         "/api/cdcs/appointments",
+                                //         {app});
+                                //     console.log('response add appointment', response)
+                                //     if (response.data.message === 'tkn_e') {
+                                //         alert('token empty')
+                                //         router.push("/cdcs/login");
+                                //     } else if(response.data.success === true){
+                                //         alert('Appointment Succesffuly Added')
+                                //     }else {
+                                //         // alert('token ok')
+                                //         alert('Failed Adding Apppointment')
+                                //     }
+                                // }
                             
-                            }}>Add Appointment</button>     
+                            }}>Update Appointment</button>     
 
                       <Link href="/cdcs/appointments" passHref><button className='button-w20'>Close</button></Link>
                     </div>

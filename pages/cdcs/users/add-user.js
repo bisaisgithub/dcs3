@@ -45,7 +45,7 @@ const AddUser = ({user}) => {
           <div className='details-details-modal-body-input-box'>
               <span>Date of Birth</span>
               <DatePicker maxDate={new Date()} yearDropdownItemNumber={90} showYearDropdown scrollableYearDropdown={true} 
-              dateFormat='yyyy/MM/dd' className='date-picker' placeholderText="Click to select" selected={userInput.dob} 
+              dateFormat='MMMM d, yyyy' className='date-picker' placeholderText="Click to select" selected={userInput.dob} 
               onChange={date=>setUserInput(prev=>({...prev,dob:date}))} />
           </div>
           <div className='details-details-modal-body-input-box'>

@@ -10,9 +10,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const UserDetails = () => {
-  const router1 = useRouter();
+  const router = useRouter();
   const [isLoading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [userInputOld, setUserInputOld] = useState({
+    name: "",email: "",password: "",dob: "",type: "",
+    allergen: "",mobile:"",status:'',gender:"",
+  });
   const [userInput, setUserInput] = useState({
     name: "",email: "",password: "",dob: "",type: "",
     allergen: "",mobile:"",status:'',gender:"",
@@ -25,11 +29,12 @@ const UserDetails = () => {
     return <p>Loading...</p>
   }
   const getUserDetails = async ()=>{
-    const response = await axios.get(`/api/cdcs/users/${router1.query.id}`,
+    const response = await axios.get(`/api/cdcs/users/${router.query.id}`,
       // {post:2,id:router.query.id,}
     );
     if (response.data) {
-      setUserInput(response.data.data);
+      setUserInput({...response.data.data, dob: new Date(response.data.data.dob)});
+      setUserInputOld(response.data.data);
         console.log(response.data);
         setLoading(false);
     }else{
@@ -38,8 +43,8 @@ const UserDetails = () => {
   }
   const updateUser = async ()=>{
     // console.log('userInput: ', userInput)
-    const response = await axios.post(`/api/cdcs/users/${router.query.id}`, userInput);
-    console.log('update response: ', response);
+    const response = await axios.post(`/api/cdcs/users/${router.query.id}`, {new: userInput, old: userInputOld});
+    // console.log('update response: ', response);
     if (response.data.success) {
       alert('Updating User Successful');
       router.push('/cdcs/users');
@@ -63,10 +68,9 @@ const UserDetails = () => {
           <div className='details-details-modal-body-input-box'>
               <span>Date of Birth</span>
               <DatePicker maxDate={new Date()} yearDropdownItemNumber={90} showYearDropdown scrollableYearDropdown={true} 
-              dateFormat='yyyy/MM/dd' className='date-picker' placeholderText="Click to select" 
+              dateFormat='MMMM d, yyyy' className='date-picker' placeholderText="Click to select" 
               selected={
-                // userInput.dob
-                ''
+                userInput.dob
               } 
               onChange={date=>setUserInput(prev=>({...prev,dob:date}))} />
           </div>

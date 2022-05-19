@@ -37,7 +37,7 @@ const Users = ({ user }) => {
       const response = await axios.get(`/api/cdcs/users`);
         if (response.data) {
           setUsersData(response.data.data);
-            console.log(response.data);
+            // console.log(response.data);
         }else{
           console.log('Failed getting users without filter')
         }
