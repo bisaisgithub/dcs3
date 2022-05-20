@@ -1,4 +1,7 @@
 import Appointments from '../../../../models/cdcs/appointments';
+import { getCookie, removeCookies } from "cookies-next";
+import jwt from "jsonwebtoken";
+import CDCSUsers7 from "../../../../models/cdcs/Users";
 
 export default async (req, res) => {
   try {
@@ -25,7 +28,7 @@ export default async (req, res) => {
     
   } catch (error) {
     console.log('catch error appointment details', error);
-    res.json({success: false, message: 'check admin error'})
+    res.json({success: false, message: 'catch appointment [id] error'})
   }
   
 }

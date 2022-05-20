@@ -12,6 +12,9 @@ import Link from 'next/link'
 // import DatePicker, { registerLocale } from "react-datepicker";
 // import el from "date-fns/locale/"; // the locale you want
 // registerLocale("el", el); // register it with the name you want
+import { getCookie, removeCookies } from "cookies-next";
+import jwt from "jsonwebtoken";
+import CDCSUsers7 from "../../../models/cdcs/Users";
 
 const AppointmentDetails = () => {
   const router = useRouter();
@@ -74,7 +77,7 @@ const AppointmentDetails = () => {
     );
     
     if (response.data) {
-        console.log(response.data);
+        // console.log(response.data);
       let totalMinutes = 0;
       let totalCost = 0
       response.data.data.proc_fields.map((f)=>{
@@ -102,7 +105,7 @@ const AppointmentDetails = () => {
         let responseCheck = {...response.data.data, date: new Date(response.data.data.date),
             // patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
             app_pay_fields}
-        console.log('rescheck', responseCheck)
+        // console.log('rescheck', responseCheck)
       setApp2({
           ...app2,
           date_end: new Date(response.data.data.date).setMinutes(new Date(response.data.data.date).getMinutes()+totalMinutes),
@@ -114,9 +117,13 @@ const AppointmentDetails = () => {
   }
   const getPatientDoctorList = async()=>{
     const response = await axios.post(`/api/cdcs/users`,{
-      post:20
-      });
-      setUserList(response.data.users)
+    post:20
+    });
+    setUserList(response.data.users)
+    if (!response) {
+        alert('Failed to get Patient List from API') 
+    }
+    
   }
     
     const handleChangeInputPayment = async (index, event, date, ename)=>{
@@ -270,6 +277,7 @@ const AppointmentDetails = () => {
             return null;
         });
     }else{
+        alert('Failed to get Patient List')
         router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
     }
     
@@ -839,11 +847,41 @@ const AppointmentDetails = () => {
 };
 
 export async function getServerSideProps({ req, res }) {
-    return {
-        props: {
-          ok: { ok: 'lang' },
-        },
-      };
-}
+    try {
+    //   await dbConnect();
+      const token = getCookie("cdcsjwt", { req, res });
+      if (!token) {
+        return { redirect: { destination: "/cdcs/login" } };
+      } else {
+        const verified = await jwt.verify(token, process.env.JWT_SECRET);
+        // console.log("verified.id:", verified);
+        const obj = await CDCSUsers7.findOne(
+          { _id: verified.id },
+          { type: 1, name: 1 }
+        );
+        // console.log("user obj:", obj);
+        // console.log("user obj.type:", obj.type);
+        if (
+          obj
+          // true
+        ) {
+        //   console.log('before return')
+          return {
+            props: {
+              user: { type: obj.type, name: obj.name },
+            },
+          };
+        } else {
+          console.log("user obj false:", obj);
+          removeCookies("cdcsjwt", { req, res });
+          return { redirect: { destination: "/cdcs/login" } };
+        }
+      }
+    } catch (error) {
+      console.log("catch appointment [id] error:", error);
+      removeCookies("cdcsjwt", { req, res });
+      return { redirect: { destination: "/cdcs/login" } };
+    }
+  }
 
 export default AppointmentDetails;
