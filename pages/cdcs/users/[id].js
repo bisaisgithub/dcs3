@@ -35,7 +35,7 @@ const UserDetails = () => {
     if (response.data) {
       setUserInput({...response.data.data, dob: new Date(response.data.data.dob)});
       setUserInputOld(response.data.data);
-        console.log(response.data);
+        // console.log(response.data);
         setLoading(false);
     }else{
       console.log('Failed getting users without filter')

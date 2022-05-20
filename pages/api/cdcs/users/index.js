@@ -52,7 +52,9 @@ export default async (req, res) => {
               break;
             case "Receptionist":
                 const user = await CDCSUsers7.find(
-                  { type: { $ne: "Admin" } },
+                  { 
+                    // type: { $ne: "Admin" } 
+                  },
                   {
                     name: 1,
                     email: 1,
@@ -60,8 +62,10 @@ export default async (req, res) => {
                     dob: 1,
                     allergen: 1,
                     created_by: 1,
+                    status: 1,
                   }
-                );
+                )
+                .sort({ type: -1 });
                 res.json({ sucess: true, data: user });
               break;
             default:
