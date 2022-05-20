@@ -26,17 +26,13 @@ export default async (req, res) => {
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       // console.log("obj:", obj);
-      if (
-        obj
-        // true
-        ) {
+      if (obj.type === 'Admn' || obj.type === 'Receptionist') {
         const { method } = req;
         if (method === "GET") {
           // console.log('req.method', req.method)
           switch (obj.type) {
             case "Admin":
-              try {
-                const user = await CDCSUsers7.find(
+                const userGetAdmin = await CDCSUsers7.find(
                   {},
                   {
                     name: 1,
@@ -52,14 +48,9 @@ export default async (req, res) => {
                   .sort({ type: -1 });
                 // console.log('user:', user);
                 // const username = await CDCSUsers7.findOne({_id: })
-                res.json({ sucess: true, data: user });
-              } catch (error) {
-                console.log("cath error admin", error);
-                res.json({ success: false, error: `get error: ${error}` });
-              }
+                res.json({ sucess: true, data: userGetAdmin });
               break;
             case "Receptionist":
-              try {
                 const user = await CDCSUsers7.find(
                   { type: { $ne: "Admin" } },
                   {
@@ -72,10 +63,6 @@ export default async (req, res) => {
                   }
                 );
                 res.json({ sucess: true, data: user });
-              } catch (error) {
-                console.log("catch error receptionist", error);
-                res.json({ success: false, error: `get error: ${error}` });
-              }
               break;
             default:
               console.log("user get default not admin or receptionist");
@@ -86,8 +73,7 @@ export default async (req, res) => {
             // console.log('req.body.data', req.body.data.name)
             switch (obj.type) {
               case "Admin":
-                try {
-                  const user = await CDCSUsers7.find(
+                  const userAdmin = await CDCSUsers7.find(
                     {name: new RegExp(`.*${req.body.data.name}.*`,'i'), type: new RegExp(`.*${req.body.data.type}.*`,'i'),
                     //  status: /.*.*/i,
                     },
@@ -104,14 +90,9 @@ export default async (req, res) => {
                     .sort({ type: -1 });
                   // console.log('user:', user);
                   // const username = await CDCSUsers7.findOne({_id: })
-                  res.json({ sucess: true, data: user });
-                } catch (error) {
-                  console.log("cath error admin", error);
-                  res.json({ success: false, error: `get error: ${error}` });
-                }
+                  res.json({ sucess: true, data: userAdmin });
                 break;
               case "Receptionist":
-                try {
                   const user = await CDCSUsers7.find(
                     { type: { $ne: "Admin" } },
                     {
@@ -124,17 +105,12 @@ export default async (req, res) => {
                     }
                   );
                   res.json({ sucess: true, data: user });
-                } catch (error) {
-                  console.log("catch error receptionist", error);
-                  res.json({ success: false, error: `get error: ${error}` });
-                }
                 break;
               default:
                 console.log("user get default not admin or receptionist");
                 res.json({ success: false, message: "no permission" });
             }
           } else if(req.body.post === 20){
-            try {
               const users = await CDCSUsers7.find(
                 {
                   $or:[{type: "_Patient"},{type:"Dentist"}]
@@ -150,36 +126,30 @@ export default async (req, res) => {
               // console.log('user:', user);
               // const username = await CDCSUsers7.findOne({_id: })
               res.json({ sucess: true, users });
-            } catch (error) {
-              console.log("cath error admin", error);
-              res.json({ success: false, error: `get error: ${error}` });
-            }
           }
           else if(req.body.post === 30){
             // console.log('post 30')
             // console.log("post is not 1:", req.body);
-            try {
+            
               const hash = bcrypt.hashSync(req.body.password, 10);
               req.body.password = hash;
               const note = await CDCSUsers7.create(req.body);
-
-              res.status(201).json({ success: true, data: note });
-            } catch (error) {
-              res.json({ success: false, error: `post error: ${error}` });
-              res.end();
-            }
+              res.json({ success: true, data: note });
+            // } else {
+            //   res.json({ success: false, message: 'u crte nt a/r' });
+            // }
+              
           }
         } else {
-          res.json({ success: false, message: "unauthorized method" });
+          res.json({ success: false, message: "mthd_x" });
           res.end();
         }
       } else {
-        console.log("if obj false");
-        return;
+        res.json({ success: false, message: 'obj t nt a/r' })
       }
     }
   } catch (error) {
-    console.log("api cdcs user error:", error);
+    console.log("catch users ind:", error);
     res.end();
     // removeCookies("cdcsjwt", { req, res });
     // return { redirect: { destination: "/cdcs/login" } };

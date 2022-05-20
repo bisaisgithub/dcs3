@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const ResetPassword = () => {
-  if (true) {
+  if (false) {
     return <h1>Reset Password Under Construction</h1>
   }
   const router = useRouter();

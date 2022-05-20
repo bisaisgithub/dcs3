@@ -67,9 +67,12 @@ const AppointmentDetails = () => {
   }, [])
   const getPatientDoctorList = async()=>{
     const response = await axios.post(`/api/cdcs/users`,{
-      post:20
-      });
-      setUserList(response.data.users)
+        post:20
+        });
+        setUserList(response.data.users)
+    if (!response) {
+        alert('Failed to get Patient List')
+    }
   }
     
     const handleChangeInputPayment = async (index, event, date, ename)=>{
@@ -535,8 +538,8 @@ const AppointmentDetails = () => {
                         
                         <button className='button-w70' 
                         disabled={
-                            // app.type === ''
-                            false
+                            app.type === ''
+                            // false
                         } id={'add_appointment'}
                             onClick={async()=>{
                                 // console.log('app2', app2)
@@ -564,6 +567,7 @@ const AppointmentDetails = () => {
                                         router.push("/cdcs/login");
                                     } else if(response.data.success === true){
                                         alert('Appointment Succesffuly Added')
+                                        router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
                                     }else {
                                         // alert('token ok')
                                         alert('Failed Adding Apppointment')

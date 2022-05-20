@@ -16,7 +16,8 @@ const AddUser = ({user}) => {
     name: "",email: "",password: "",dob: "",type: "",
     allergen: "",mobile:"",status:'',gender:"",
   });
-  const addUser = async () => {
+  const addUser = async (e) => {
+    e.preventDefault();
     // userInput.created_by = user.id;
     console.log("user:", userInput);
     const response = await axios.post(
@@ -33,7 +34,7 @@ const AddUser = ({user}) => {
   };
   return (
     <div className='details-details-container'>
-      <div className='details-details-modal-container'>
+      <form className='details-details-modal-container' onSubmit={addUser}>
         <div className='details-details-modal-title'>
           {/* {patient_id? `${patient_name} Details --  Age: ${patientAge}`: 'Patient Details'} */}
           </div>
@@ -50,7 +51,7 @@ const AddUser = ({user}) => {
           </div>
           <div className='details-details-modal-body-input-box'>
               <span>Email</span>
-              <input type="text" placeholder="Enter email" value={userInput.email} required onChange={e=>setUserInput(prev=>({...prev,email:e.target.value}))} />
+              <input type="email" placeholder="Enter email" value={userInput.email} required onChange={e=>setUserInput(prev=>({...prev,email:e.target.value}))} />
           </div>
           <div className='details-details-modal-body-input-box'>
               <span>Pasword</span>
@@ -101,11 +102,14 @@ const AddUser = ({user}) => {
           </div>
         </div>
         <div className='details-details-modal-body-button'>                    
-            <button onClick={addUser}>Add</button>                               
+            <button 
+            // onClick={addUser}
+            type='submit'
+            >Add</button>                               
             <button><Link href="/cdcs/users">Close</Link></button>
         </div>
           
-      </div>
+      </form>
     </div>
   );
 };

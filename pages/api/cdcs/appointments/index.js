@@ -17,28 +17,28 @@ export default async (req, res) => {
       const verified = await jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-      if (req.method === 'GET') {
-        const response = await Appointments.find()
-        .populate("created_by", "name")
-        .populate("patient_id", "name")
-        .populate("doctor_id", "name")
-        res.json({success: true, data: response})
-      } else if(req.method === 'POST'){
-        if (obj.type === 'Admin' || obj.type === 'Appointment Setter') {
-          let app = {...req.body.app, created_by: obj._id}
-          const response = await Appointments.create(app);
-          if (response) {
-            res.json({ success: true, data: response });
-          } else {
-            res.json({success: false, message: 'failed mdb'})
-          }
-        } else {
-          res.json({success: false, message: 'obj_t'})
+      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
+        if (req.method === 'GET') {
+          const response = await Appointments.find()
+          .populate("created_by", "name")
+          .populate("patient_id", "name")
+          .populate("doctor_id", "name")
+          res.json({success: true, data: response})
+        
+        } else if(req.method === 'POST'){
+            let app = {...req.body.app, created_by: obj._id}
+            const response = await Appointments.create(app);
+            if (response) {
+              res.json({ success: true, data: response });
+            } else {
+              res.json({success: false, message: 'failed mdb'})
+            }
+        }else {
+          res.json({success: false, message: `mthd ${req.method}`})
         }
-      }else {
-        res.json({success: false, message: `mthd ${req.method}`})
+      } else {
+        res.json({success: false, message: 'obj t nt a/r'})
       }
-      
     }
     // switch (req.method) {
     //   case 'POST':
