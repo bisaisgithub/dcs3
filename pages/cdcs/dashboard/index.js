@@ -14,7 +14,7 @@ const Dashboard = ({user}) => {
   return (
     <div>
       <Navbarcdcs user={user}/>
-      <h1 style={{color: 'white'}}>Dashboard</h1>
+      <h1 >Dashboard</h1>
     </div>
   );
 };
