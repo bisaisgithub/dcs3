@@ -26,7 +26,7 @@ export default async (req, res) => {
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       // console.log("obj:", obj);
-      if (obj.type === 'Admn' || obj.type === 'Receptionist') {
+      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         const { method } = req;
         if (method === "GET") {
           // console.log('req.method', req.method)
@@ -53,7 +53,7 @@ export default async (req, res) => {
             case "Receptionist":
                 const user = await CDCSUsers7.find(
                   { 
-                    // type: { $ne: "Admin" } 
+                    type: { $ne: "Admin" } 
                   },
                   {
                     name: 1,

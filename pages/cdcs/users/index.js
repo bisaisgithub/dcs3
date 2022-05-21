@@ -29,7 +29,7 @@ const Users = ({ user }) => {
         });
       if (response.data) {
         setUsersData(response.data.data);
-          // console.log(response.data);
+          // console.log('response',response.data);
       }else{
         console.log('Failed getting users with filter')
       }
@@ -38,6 +38,7 @@ const Users = ({ user }) => {
         if (response.data) {
           setUsersData(response.data.data);
             // console.log(response.data);
+            console.log('response',response.data);
         }else{
           console.log('Failed getting users without filter')
         }

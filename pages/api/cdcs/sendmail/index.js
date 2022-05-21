@@ -31,7 +31,7 @@ export default async function (req, res) {
     })
   } catch (error) {
     res.json({success: false})
-    console
+    console.log('catch email error:', error)
   }
   
 
