@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 export default async (req, res) => {
 
   try {
-    // await dbConnect();
+    await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
     if (!token) {
       // try {

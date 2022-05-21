@@ -2,9 +2,11 @@ import Appointments from '../../../../models/cdcs/appointments';
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../../models/cdcs/Users";
+import dbConnect from '../../../../utils/dbConnect';
 
 export default async (req, res) => {
   try {
+    await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
     if (!token) {
         // removeCookies("cdcsjwt", { req, res });
