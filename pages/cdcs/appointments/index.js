@@ -355,10 +355,7 @@ const AppointmentTable = ({user}) => {
                         <th><input placeholder='Doctor Name' value={app_search_patient_name} onChange={(e)=>{set_app_search_patient_name(e.target.value)}}/></th>
                         <th><input placeholder='Patient Name' value={app_search_user_doctor_name} 
                                 onChange={(e)=>{set_app_search_user_doctor_name(e.target.value)}}/>
-                            <button onClick={()=>{
-                                set_app_search_patient_name('');set_app_search_user_doctor_name('')
-                                set_app_search_date('');
-                                }}>X</button>
+                            
                         </th>
                         
                         <th>
@@ -376,7 +373,20 @@ const AppointmentTable = ({user}) => {
                                 selected={app_search_date} 
                                 onChange={date=>set_app_search_date(date)} />
                         </th>
-                        <th><p onClick={()=>{getAppointments({
+                        <th>
+                            {/* <p onClick={()=>{getAppointments({
+                            app_search_patient_name, 
+                            app_search_user_doctor_name, 
+                            app_search_date
+                            : app_search_date === ''? '' : formatDateYYYYMMDD(app_search_date)
+                            ,
+                            })}}>Find</p> */}
+                            <p onClick={()=>{
+                                set_app_search_patient_name('');set_app_search_user_doctor_name('')
+                                set_app_search_date('');
+                                }}>Clear</p>
+                        </th>
+                            <th><p onClick={()=>{getAppointments({
                             app_search_patient_name, 
                             app_search_user_doctor_name, 
                             app_search_date
@@ -393,7 +403,8 @@ const AppointmentTable = ({user}) => {
                         <th>Doctor</th>
                         <th>Patient</th>
                         <th>Date</th>
-                        <th>Time</th>
+                        <th>Start</th>
+                        <th>End</th>
                         <th>Status</th>
                         <th>No</th>
                     </tr>
@@ -412,17 +423,19 @@ const AppointmentTable = ({user}) => {
                                 <td className='maxW50px'>{
                                 formatDate(appointment.date)
                                 }</td>
-                                <td className='table-table2-table-body-tr-td '>
+                                <td>{new Date(appointment.date).toLocaleString('en-PH', timeOptions)}</td>
+                                <td>{new Date(endTime).toLocaleString('en-PH', timeOptions)}</td>
+                                {/* <td className='table-table2-table-body-tr-td '>
                                     <button className='minW50px' style={{background:'#3c3f44'}} onClick={()=>{}}>{
                                     // new Date(new Date(appointment.date).toString()+' UTC').toLocaleString('en-PH', timeOptions)
                                     new Date(appointment.date).toLocaleString('en-PH', timeOptions)
                                     }</button>
-                                </td>
-                                <td className='table-table2-table-body-tr-td'>
+                                </td> */}
+                                {/* <td className='table-table2-table-body-tr-td'>
                                     <button className='minW50px' onClick={()=>{}}>{
                                         new Date(endTime).toLocaleString('en-PH', timeOptions)
                                     }</button>
-                                </td>
+                                </td> */}
                                 <td>{appointment.status}</td>
                                 <td>
                                     <Link href={`/cdcs/appointments/${appointment._id}`} passHref>

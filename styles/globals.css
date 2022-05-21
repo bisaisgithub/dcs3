@@ -78,7 +78,10 @@ th, td{
   width: 2%;
 }
 .table-table2-table-thead-tr th:nth-child(1) {
-  width: 0.5%;
+  width: 0.7%;
+}
+.table-table2-table-thead-tr th:nth-child(2) {
+  width: 1%;
 }
 .table-table2-table-thead-tr th:nth-child(3) {
   width: 0.5%;
@@ -90,6 +93,9 @@ th, td{
   width: 0.5%;
 }
 .table-table2-table-thead-tr th:nth-child(6) {
+  width: 0.5%;
+}
+.table-table2-table-thead-tr th:nth-child(7) {
   width: 0.2%;
 }
 .table-table2-table-tbody-tr td {
@@ -193,7 +199,7 @@ th, td{
   line-height: 2;
 } */
 .table-table2-table-thead-tr-search2 th:nth-child(2) input {
-  width: 80%;
+  /* width: 80%; */
 }
 .table-table2-table-thead-tr-search2 th:nth-child(2) button {
   width: 15%;
