@@ -29,6 +29,17 @@ const AppointmentDetails = () => {
       },],
       app_pay_fields: []
   });
+  const [appOld, setAppOld] = useState({
+    date:'',patient_id: 
+    // {value: '626e8f79bf17b8d0569c9c38', label: 'test'}
+    ''
+    ,doctor_id: '6256d9a47011cbc6fb99a15b',
+    status: '',type:'',
+    proc_fields: [{
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+      },],
+      app_pay_fields: []
+  });
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
@@ -44,8 +55,8 @@ const AppointmentDetails = () => {
       // {post:2,id:router.query.id,}
     );
     
-    if (response.data) {
-        // console.log(response.data);
+    if (response.data.data && response.data.success) {
+        // console.log('response is true', response.data);
       let totalMinutes = 0;
       let totalCost = 0
       response.data.data.proc_fields.map((f)=>{
@@ -70,6 +81,11 @@ const AppointmentDetails = () => {
           patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
           app_pay_fields
         });
+        setAppOld({
+            ...response.data.data, date: new Date(response.data.data.date),
+            patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
+            app_pay_fields
+            });
         let responseCheck = {...response.data.data, date: new Date(response.data.data.date),
             // patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
             app_pay_fields}
@@ -80,7 +96,10 @@ const AppointmentDetails = () => {
           payments: {...app2.payments, totalCost, totalPayment, change, balance}
         });
     }else{
-      console.log('Failed getting appointments without filter')
+        console.log('response is false data', response.data);
+        console.log('response is false success', response.data.success);
+      alert('Failed getting the appointment')
+      router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
     }
   }
   const getPatientDoctorList = async()=>{
@@ -582,44 +601,61 @@ const AppointmentDetails = () => {
                             false
                         } id={'add_appointment'}
                             onClick={async()=>{
-                                // console.log('app', app)
-                                if (app.patient_id.value) {
-                                    setApp((prev)=>{
-                                        let app = {...prev, patient_id: prev.patient_id.value}
-                                        console.log('app inside setApp', app);
-                                        return app;
-                                    })
+                                // console.log('update appointment clicked')
+                                // if (app.patient_id.value) {
+                                //     setApp((prev)=>{
+                                //         let app = {...prev, patient_id: prev.patient_id.value, doctor_id: '6256d9a47011cbc6fb99a15b'}
+                                //         console.log('app inside setApp', app);
+                                //         return app;
+                                //     })
 
-                                }  
-                                // let checkProcEmpty = true;
-                                // app.proc_fields.map((fields)=>{
-                                //     if(fields.proc_name === ''){
-                                //         console.log('proc_fields empty')
-                                //         checkProcEmpty = false;
-                                //     }
-                                // })
-                                // if (!checkProcEmpty) {
-                                //     alert('Please select procedure')
-                                // }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
-                                //     alert('Empty Field/s')
-                                //     console.log('app: ', app)
-                                // }
+                                // }  
                                 // else{
-                                //     console.log('app: ', app)
-                                //     const response = await axios.post(
-                                //         "/api/cdcs/appointments",
-                                //         {app});
-                                //     console.log('response add appointment', response)
-                                //     if (response.data.message === 'tkn_e') {
-                                //         alert('token empty')
-                                //         router.push("/cdcs/login");
-                                //     } else if(response.data.success === true){
-                                //         alert('Appointment Succesffuly Added')
-                                //     }else {
-                                //         // alert('token ok')
-                                //         alert('Failed Adding Apppointment')
-                                //     }
+                                //     // console.log('appOld.patient_id', appOld.patient_id)
+                                //     // alert('Select Patient First')
+                                //     router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${appOld.patient_id.value}`);
+                                //     getAppointments();
                                 // }
+                                let checkProcEmpty = true;
+                                app.proc_fields.map((fields)=>{
+                                    if(fields.proc_name === ''){
+                                        console.log('proc_fields empty')
+                                        checkProcEmpty = false;
+                                    }
+                                })
+                                if (!checkProcEmpty) {
+                                    alert('Please select procedure')
+                                }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
+                                    alert('Empty Field/s')
+                                    console.log('app.patient_id: ', app.patient_id)
+                                    console.log('app.doctor_id: ', app.doctor_id)
+                                    console.log('app.status: ', app.status)
+                                    console.log('app.type: ', app.type)
+                                }
+                                else{
+                                    console.log('app: ', app)
+                                    console.log('appOld: ', appOld)
+                                    console.log('router_id: ', router.query.id);
+                                    let appUpdate = {...app, patient_id: app.patient_id.value}
+                                    delete appUpdate._id;
+                                    // let appUpdateCombined = {new: appUpdate, old: appOld}
+                                    // console.log('combined', appUpdateCombined)
+                                    const response = await axios.post(
+                                        `/api/cdcs/appointments/${router.query.id}`,
+                                        {new: appUpdate, old: appOld});
+                                    console.log('response add appointment', response)
+                                    if (response.data.message === 'tkn_e') {
+                                        alert('token empty')
+                                        router.push("/cdcs/login");
+                                    } else if(response.data.success === true){
+                                        console.log('response.data', response.data)
+                                        alert('Appointment Succesffuly Updated')
+                                        router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`)
+                                    }else {
+                                        // alert('token ok')
+                                        alert('Failed Updating Apppointment')
+                                    }
+                                }
                             
                             }}>Update Appointment</button>     
 
