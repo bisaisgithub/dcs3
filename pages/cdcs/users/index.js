@@ -23,7 +23,7 @@ const Users = ({ user }) => {
   // }
   const getUsers = async (data)=>{
     if (data) {
-      console.log('data is not empty', data);
+      // console.log('data is not empty', data);
       const response = await axios.post(`/api/cdcs/users`,{
         post:1,data
         });
@@ -38,7 +38,7 @@ const Users = ({ user }) => {
         if (response.data) {
           setUsersData(response.data.data);
             // console.log(response.data);
-            console.log('response',response.data);
+            // console.log('response',response.data);
         }else{
           console.log('Failed getting users without filter')
         }

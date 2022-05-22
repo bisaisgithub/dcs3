@@ -59,8 +59,9 @@ const Register = () => {
         setStep({one: false, two: false, three: true});
       }else{
         alert('Failed sending email, you try again');
-        setRender(prev=>prev + 1);
-        console.log('render: ', render)
+        setDisableButton({...disableButton, verify: false})
+        // setRender(prev=>prev + 1);
+        // console.log('render: ', render)
       }
     } else {
       alert('Your email is already registered')
