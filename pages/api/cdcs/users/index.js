@@ -26,7 +26,7 @@ export default async (req, res) => {
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       // console.log("obj:", obj);
-      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
+      if (obj.type === 'Admin' || obj.type === 'Receptionist' || obj.type === '_Patient') {
         const { method } = req;
         if (method === "GET") {
           // console.log('req.method', req.method)
@@ -136,36 +136,59 @@ export default async (req, res) => {
                 }
               )
                 .sort({ name: 1 });
-                
-                
               // console.log('user:', user);
               // const username = await CDCSUsers7.findOne({_id: })
               res.json({ sucess: true, users });
           }
           else if(req.body.post === 30){
             // console.log('post 30')
-            // console.log("post is not 1:", req.body);
-            
-              const hash = bcrypt.hashSync(req.body.password, 10);
-              req.body.password = hash;
-              const note = await CDCSUsers7.create(req.body);
-              res.json({ success: true, data: note });
+            // console.log("post is 30:", req.body);
+            const checkNameExist = await CDCSUsers7.find({
+              name: req.body.name, 
+              // email: req.body.email
+            }, {name: 1}
+            )
+            // console.log('checkNameExist', checkNameExist.length)
+            // res.json({success: true, data: checkUserExist})
+            if (checkNameExist.length > 0) {
+              res.json({success: false, message: 'exist_name'})
+            } else {
+              const checkEmailExist = await CDCSUsers7.find({
+                email: req.body.email, 
+                // email: req.body.email
+              }, {name: 1}
+              )
+              // console.log('checkEmailExist', checkEmailExist.length)
+              if (checkEmailExist.length > 0) {
+                res.json({success: false, message: 'exist_email'})
+              } else {
+                // res.json({success: true, message: 'not exist'})
+                const hash = bcrypt.hashSync(req.body.password, 10);
+                req.body.password = hash;
+                const note = await CDCSUsers7.create(req.body);
+                res.json({ success: true, data: note });
+              }
+            }
             // } else {
             //   res.json({ success: false, message: 'u crte nt a/r' });
             // }
               
+          }else{
+            res.json({ success: false, message: "post_x" });
           }
         } else {
           res.json({ success: false, message: "mthd_x" });
-          res.end();
+          // res.end();
         }
       } else {
-        res.json({ success: false, message: 'obj t nt a/r' })
+        res.json({ success: false, message: 'obj t nt a/r '+ obj.type })
+        // res.json({ success: false, message: 'obj t nt a/r' })
       }
     }
   } catch (error) {
-    console.log("catch users ind:", error);
-    res.end();
+    console.log("catch users index:", error);
+    res.json({success: false, message: 'check admin console'})
+    // res.end();
     // removeCookies("cdcsjwt", { req, res });
     // return { redirect: { destination: "/cdcs/login" } };
   }

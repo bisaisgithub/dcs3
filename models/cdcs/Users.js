@@ -12,6 +12,7 @@ const CDCSUsersSchema = new mongoose.Schema(
     },
     name: {
       type: String,
+      unique: true,
       required: [true, "Please add a name"],
       maxlength: [40, "Title cannot be more than 40 characters"],
     },

@@ -15,9 +15,9 @@ const Login = () => {
       "/api/cdcs/login",
       credentials
     );
-    console.log(user);
+    // console.log(user);
     if (user.data.success) {
-      console.log("router push should run after");
+      // console.log("router push should run after");
       router.push("/cdcs/dashboard");
     }else{
       alert('Invalid Email or Password');

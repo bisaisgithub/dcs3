@@ -19,17 +19,23 @@ const AddUser = ({user}) => {
   const addUser = async (e) => {
     e.preventDefault();
     // userInput.created_by = user.id;
-    console.log("user:", userInput);
+    // console.log("user:", userInput);
     const response = await axios.post(
       "/api/cdcs/users",
       {...userInput, created_by:user.id, post:30}
     );
-    // console.log("user:", response);
+    console.log("user:", response);
     if (response.data.success) {
       alert('Adding User Successful');
       router.push('/cdcs/users');
     } else {
-      alert('Failed Adding User')
+      if (response.data.message === 'exist_name') {
+        alert('Name Already Exist')
+      } else if (response.data.message === 'exist_email') {
+        alert('Email Already Exist')
+      }else {
+        alert('Failed Adding User')
+      }
     }
   };
   return (

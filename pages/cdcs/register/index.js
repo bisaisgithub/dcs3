@@ -90,14 +90,23 @@ const Register = () => {
     console.log("user:", userInput);
     const response = await axios.post(
       "/api/cdcs/users",
-      userInput
+      {...userInput, post: 30}
     );
-    // console.log("user:", response);
+    console.log("user:", response);
     if (response.data.success) {
       alert('Your are now registered and may login');
       router.push('/cdcs/login');
     } else {
-      alert('Failed Adding User')
+      if (response.data.message === 'exist_name') {
+        alert('Name Already Exist')
+        setDisableButton({...disableButton, register: false})
+      } else if (response.data.message === 'exist_email') {
+        alert('Email Already Exist')
+        setDisableButton({...disableButton, register: false})
+      }else {
+        alert('Failed Adding User')
+        setDisableButton({...disableButton, register: false})
+      }
     }
   };
  

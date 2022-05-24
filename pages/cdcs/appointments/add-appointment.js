@@ -557,10 +557,11 @@ const AppointmentDetails = () => {
                                     console.log('app: ', app)
                                 }
                                 else{
-                                    console.log('app: ', app)
+                                    let data = {...app, filterType: 'create'}
+                                    console.log('data: ', data)
                                     const response = await axios.post(
                                         "/api/cdcs/appointments",
-                                        {app});
+                                        {data});
                                     console.log('response add appointment', response)
                                     if (response.data.message === 'tkn_e') {
                                         alert('token empty')

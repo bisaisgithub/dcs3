@@ -20,19 +20,48 @@ export default async (req, res) => {
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
-          const response = await Appointments.find()
+          const response = await Appointments.find(
+            {
+            // $or:[
+            //   {
+                status: {$nin: ['Closed', 'Closed No Show', 'Closed w/ Balance']},
+                // status: {$ne: 'Closed No Show'},
+              // }]
+            }
+          )
           .populate("created_by", "name")
           .populate("patient_id", "name")
           .populate("doctor_id", "name")
           res.json({success: true, data: response})
         
         } else if(req.method === 'POST'){
-            let app = {...req.body.app, created_by: obj._id}
-            const response = await Appointments.create(app);
-            if (response) {
-              res.json({ success: true, data: response });
-            } else {
-              res.json({success: false, message: 'failed mdb'})
+            console.log('req.body', req.body)
+            if (req.body.data.filterType === 'filter') {
+              // console.log('filter')
+              const response = await Appointments.find(
+                {
+                  patient_id: 
+                //     // {$regex: `.*${req.body.data.type}.*`, $options: 'i' ,
+                    {$regex: `.*.*`, $options: 'i'}
+                    // {$regex: `.*${req.body.data.type}.*`, $options: 'i', $ne: "Admin"} ,
+                }
+              )
+              .populate("created_by", "name")
+              .populate("patient_id", "name")
+              .populate("doctor_id", "name")
+              res.json({success: true, data: response})
+            } else if(req.body.data.filterType === 'create'){
+              let data = {...req.body.data, created_by: obj._id}
+              const response = await Appointments.create(data);
+              if (response) {
+                res.json({ success: true, data: response });
+              } else {
+                res.json({success: false, message: 'failed mdb'})
+              }
+              res.json({success: true, data: 'create test'})
+            }else {
+              
+              res.json({success: false, message: 'filterType_x'})
             }
         }else {
           res.json({success: false, message: `mthd ${req.method}`})

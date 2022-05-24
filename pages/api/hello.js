@@ -7,27 +7,27 @@ import jwt from "jsonwebtoken";
 
 export default async function handler(req, res) {
   try {
-    const user = await CDCSUsers7.find(
-      {"name": "Patient Number4", "created_by": { $exists: true },},
-      {
-        name: 1,
-        email: 1,
-        type: 1,
-        dob: 1,
-        allergen: 1,
-        created_by: 1,
-        status: 1,
-      }
-    )
-      .populate("created_by", "name")
-      .sort({ type: -1 });
-    // console.log('user:', user);
-    // const username = await CDCSUsers7.findOne({_id: })
-    res.json({ sucess: true, data: user });
+    // const user = await CDCSUsers7.find(
+    //   {"name": "Patient Number4", "created_by": { $exists: true },},
+    //   {
+    //     name: 1,
+    //     email: 1,
+    //     type: 1,
+    //     dob: 1,
+    //     allergen: 1,
+    //     created_by: 1,
+    //     status: 1,
+    //   }
+    // )
+    //   .populate("created_by", "name")
+    //   .sort({ type: -1 });
+    // // console.log('user:', user);
+    // // const username = await CDCSUsers7.findOne({_id: })
+    res.json({ sucess: true, data: drop });
   } catch (error) {
     console.log("cath error admin", error);
     res.json({ success: false, error: `get error: ${error}` });
   }
 
-  res.status(200).json({ name: 'John Doe' })
+  // res.status(200).json({ name: 'John Doe' })
 }
