@@ -7,7 +7,11 @@ export default async function (req, res) {
   console.log('req.body: ', req.body)
   console.log(`${process.env.EMAIL_USER} + ${process.env.EMAIL_PASS}` )
   let mailTransporter = nodemailer.createTransport({
-    service:'gmail',
+    // service:'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    ignoreTLS: false,
+    secure: false,
     auth:{
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
