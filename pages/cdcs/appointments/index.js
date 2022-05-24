@@ -31,13 +31,49 @@ const AppointmentTable = ({user}) => {
                 console.log('filterNormal')
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
                 if (response.data.data) {
+                    data.date = formatDate(data.date)
                     const newArray = response.data.data.map((a)=>{
                         a.date = formatDate(a.date);
                         return a;
                     })
                     console.log('newArray', newArray)
-                    // setAppointmentsData(response.data.data)
-                    setAppointmentsData(newArray);
+                    let finalArray = [];
+                    if (data.date) {
+                        // console.log('data.date true')
+                        finalArray = newArray.filter((a)=>{
+                            // a.date = formatDate(a.date);
+                            // console.log('data.date', data.date)
+                            // console.log('a.date', a.date)
+                            // if (a.date === data.date) {
+                            //     return a;
+                            // }
+                            return a.date === data.date;
+                        })
+                        // finalArray = newArray2;
+                    }
+                    if ('status' in data) {
+                        finalArray = finalArray.filter((a)=>{
+                            return a.status.toLowerCase().includes(data.status.toLowerCase());
+                        })
+                    }
+                    if ('patient' in data) {
+                        finalArray = finalArray.filter((a)=>{
+                            // console.log('a.patient_id.name', a.patient_id.name)
+                            // console.log('data.patient', data.patient)
+                            return a.patient_id.name.toLowerCase().includes(data.patient.toLowerCase());
+                        })
+                    }
+                    if ('doctor' in data) {
+                        finalArray = finalArray.filter((a)=>{
+                            console.log('a.doctor_id.name', a.doctor_id.name)
+                            console.log('data.doctor', data.doctor)
+                            return a.doctor_id.name.toLowerCase().includes(data.doctor.toLowerCase());
+                        })
+                    }
+                    
+                    // console.log('finalArray', finalArray)
+                    setAppointmentsData(finalArray);
+                    
                     // console.log(response.data);
                     // setAppointmentsData(response.data.data)
                 }else{
