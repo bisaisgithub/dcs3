@@ -12,10 +12,10 @@ import "react-datepicker/dist/react-datepicker.css";
 import { verify } from "jsonwebtoken";
 
 const Register = () => {
-  const [render, setRender] = useState(0);
+  // const [render, setRender] = useState(0);
   useEffect(()=>{
-
-  }, [render])
+    getTkn();
+  }, [])
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [userInput, setUserInput] = useState({
@@ -27,6 +27,12 @@ const Register = () => {
   const [inputCode, setInputCode] = useState('');
   const [receivedCode, setReceivedCode] = useState('');
   const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
+
+  const getTkn = async ()=>{
+    const getTknRes = await axios.get(
+      "/api/cdcs/register"
+    );
+  }
  
   const verifyEmail = async (e) => {
     e.preventDefault();
@@ -92,7 +98,7 @@ const Register = () => {
       "/api/cdcs/users",
       {...userInput, post: 30}
     );
-    console.log("user:", response);
+    // console.log("user:", response);
     if (response.data.success) {
       alert('Your are now registered and may login');
       router.push('/cdcs/login');
@@ -103,6 +109,8 @@ const Register = () => {
       } else if (response.data.message === 'exist_email') {
         alert('Email Already Exist')
         setDisableButton({...disableButton, register: false})
+      }else if (response.data.message === 'no-token') {
+        router.push('/cdcs/');
       }else {
         alert('Failed Adding User')
         setDisableButton({...disableButton, register: false})

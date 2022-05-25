@@ -21,66 +21,48 @@ export default async (req, res) => {
       // }
       res.json({ success: false, message: "no-token" });
     } else {
-      // console.log('token ok')
-      const verified = await jwt.verify(token, process.env.JWT_SECRET);
-      // console.log("verified.id:", verified);
-      const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-      // console.log("obj:", obj);
-      if (obj.type === 'Admin' || obj.type === 'Receptionist' || obj.type === '_Patient') {
-        const { method } = req;
-        if (method === "GET") {
-          // console.log('req.method', req.method)
-          switch (obj.type) {
-            case "Admin":
-                const userGetAdmin = await CDCSUsers7.find(
-                  {},
-                  {
-                    name: 1,
-                    email: 1,
-                    type: 1,
-                    dob: 1,
-                    allergen: 1,
-                    created_by: 1,
-                    status: 1,
-                  }
-                )
-                  .populate("created_by", "name")
-                  .sort({ type: -1 });
-                // console.log('user:', user);
-                // const username = await CDCSUsers7.findOne({_id: })
-                res.json({ sucess: true, data: userGetAdmin });
-              break;
-            case "Receptionist":
-                const user = await CDCSUsers7.find(
-                  { 
-                    type: { $ne: "Admin" } 
-                  },
-                  {
-                    name: 1,
-                    email: 1,
-                    type: 1,
-                    dob: 1,
-                    allergen: 1,
-                    created_by: 1,
-                    status: 1,
-                  }
-                )
-                .sort({ type: -1 });
-                res.json({ sucess: true, data: user });
-              break;
-            default:
-              console.log("user get default not admin or receptionist");
-              res.json({ success: false, message: "no permission" });
-          }
-        } else if (method === "POST") {
-          if (req.body.post === 1) { 
-            // console.log('req.body.data', req.body.data.name)
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+      if (verified.id === 'registration') {
+        const checkNameExist = await CDCSUsers7.find({
+          name: req.body.name, 
+          // email: req.body.email
+        }, {name: 1}
+        )
+        // console.log('checkNameExist', checkNameExist.length)
+        // res.json({success: true, data: checkUserExist})
+        if (checkNameExist.length > 0) {
+          res.json({success: false, message: 'exist_name'})
+        } else {
+          // const checkEmailExist = await CDCSUsers7.find({
+          //   email: req.body.email, 
+          //   // email: req.body.email
+          // }, {name: 1}
+          // )
+          // // console.log('checkEmailExist', checkEmailExist.length)
+          // if (checkEmailExist.length > 0) {
+          //   res.json({success: false, message: 'exist_email'})
+          // } else {
+            // res.json({success: true, message: 'not exist'})
+            const hash = bcrypt.hashSync(req.body.password, 10);
+            req.body.password = hash;
+            const note = await CDCSUsers7.create(req.body);
+            res.json({ success: true, data: note });
+          // }
+        }
+      } else {
+        // console.log('token ok')
+        
+        // console.log("verified.id:", verified);
+        const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
+        // console.log("obj:", obj);
+        if (obj.type === 'Admin' || obj.type === 'Receptionist' || obj.type === '_Patient') {
+          const { method } = req;
+          if (method === "GET") {
+            // console.log('req.method', req.method)
             switch (obj.type) {
               case "Admin":
-                  const userAdmin = await CDCSUsers7.find(
-                    {name: new RegExp(`.*${req.body.data.name}.*`,'i'), type: new RegExp(`.*${req.body.data.type}.*`,'i'),
-                    //  status: /.*.*/i,
-                    },
+                  const userGetAdmin = await CDCSUsers7.find(
+                    {},
                     {
                       name: 1,
                       email: 1,
@@ -95,19 +77,12 @@ export default async (req, res) => {
                     .sort({ type: -1 });
                   // console.log('user:', user);
                   // const username = await CDCSUsers7.findOne({_id: })
-                  res.json({ sucess: true, data: userAdmin });
+                  res.json({ sucess: true, data: userGetAdmin });
                 break;
               case "Receptionist":
                   const user = await CDCSUsers7.find(
-                    // { type: { $ne: "Admin" } },
-                    {
-                      name: 
-                      // 'Benar Isais',
-                      new RegExp(`.*${req.body.data.name}.*`,'i'),
-                    type: 
-                    {$regex: `.*${req.body.data.type}.*`, $options: 'i', $ne: "Admin"} ,
-                    status: 
-                    {$regex: `.*${req.body.data.status}.*`, $options: 'i'} ,
+                    { 
+                      type: { $ne: "Admin" } 
                     },
                     {
                       name: 1,
@@ -118,71 +93,126 @@ export default async (req, res) => {
                       created_by: 1,
                       status: 1,
                     }
-                  );
+                  )
+                  .sort({ type: -1 });
                   res.json({ sucess: true, data: user });
                 break;
               default:
                 console.log("user get default not admin or receptionist");
                 res.json({ success: false, message: "no permission" });
             }
-          } else if(req.body.post === 20){
-              const users = await CDCSUsers7.find(
-                {
-                  $or:[{type: "_Patient"},{type:"Dentist"}]
-                },
-                {
-                  name: 1,
-                  type: 1,
-                }
-              )
-                .sort({ name: 1 });
-              // console.log('user:', user);
-              // const username = await CDCSUsers7.findOne({_id: })
-              res.json({ sucess: true, users });
-          }
-          else if(req.body.post === 30){
-            // console.log('post 30')
-            // console.log("post is 30:", req.body);
-            const checkNameExist = await CDCSUsers7.find({
-              name: req.body.name, 
-              // email: req.body.email
-            }, {name: 1}
-            )
-            // console.log('checkNameExist', checkNameExist.length)
-            // res.json({success: true, data: checkUserExist})
-            if (checkNameExist.length > 0) {
-              res.json({success: false, message: 'exist_name'})
-            } else {
-              const checkEmailExist = await CDCSUsers7.find({
-                email: req.body.email, 
+          } else if (method === "POST") {
+            if (req.body.post === 1) { 
+              // console.log('req.body.data', req.body.data.name)
+              switch (obj.type) {
+                case "Admin":
+                    const userAdmin = await CDCSUsers7.find(
+                      {name: new RegExp(`.*${req.body.data.name}.*`,'i'), type: new RegExp(`.*${req.body.data.type}.*`,'i'),
+                      //  status: /.*.*/i,
+                      },
+                      {
+                        name: 1,
+                        email: 1,
+                        type: 1,
+                        dob: 1,
+                        allergen: 1,
+                        created_by: 1,
+                        status: 1,
+                      }
+                    )
+                      .populate("created_by", "name")
+                      .sort({ type: -1 });
+                    // console.log('user:', user);
+                    // const username = await CDCSUsers7.findOne({_id: })
+                    res.json({ sucess: true, data: userAdmin });
+                  break;
+                case "Receptionist":
+                    const user = await CDCSUsers7.find(
+                      // { type: { $ne: "Admin" } },
+                      {
+                        name: 
+                        // 'Benar Isais',
+                        new RegExp(`.*${req.body.data.name}.*`,'i'),
+                      type: 
+                      {$regex: `.*${req.body.data.type}.*`, $options: 'i', $ne: "Admin"} ,
+                      status: 
+                      {$regex: `.*${req.body.data.status}.*`, $options: 'i'} ,
+                      },
+                      {
+                        name: 1,
+                        email: 1,
+                        type: 1,
+                        dob: 1,
+                        allergen: 1,
+                        created_by: 1,
+                        status: 1,
+                      }
+                    );
+                    res.json({ sucess: true, data: user });
+                  break;
+                default:
+                  console.log("user get default not admin or receptionist");
+                  res.json({ success: false, message: "no permission" });
+              }
+            } else if(req.body.post === 20){
+                const users = await CDCSUsers7.find(
+                  {
+                    $or:[{type: "_Patient"},{type:"Dentist"}]
+                  },
+                  {
+                    name: 1,
+                    type: 1,
+                  }
+                )
+                  .sort({ name: 1 });
+                // console.log('user:', user);
+                // const username = await CDCSUsers7.findOne({_id: })
+                res.json({ sucess: true, users });
+            }
+            else if(req.body.post === 30){
+              // console.log('post 30')
+              // console.log("post is 30:", req.body);
+              const checkNameExist = await CDCSUsers7.find({
+                name: req.body.name, 
                 // email: req.body.email
               }, {name: 1}
               )
-              // console.log('checkEmailExist', checkEmailExist.length)
-              if (checkEmailExist.length > 0) {
-                res.json({success: false, message: 'exist_email'})
+              // console.log('checkNameExist', checkNameExist.length)
+              // res.json({success: true, data: checkUserExist})
+              if (checkNameExist.length > 0) {
+                res.json({success: false, message: 'exist_name'})
               } else {
-                // res.json({success: true, message: 'not exist'})
-                const hash = bcrypt.hashSync(req.body.password, 10);
-                req.body.password = hash;
-                const note = await CDCSUsers7.create(req.body);
-                res.json({ success: true, data: note });
+                const checkEmailExist = await CDCSUsers7.find({
+                  email: req.body.email, 
+                  // email: req.body.email
+                }, {name: 1}
+                )
+                // console.log('checkEmailExist', checkEmailExist.length)
+                if (checkEmailExist.length > 0) {
+                  res.json({success: false, message: 'exist_email'})
+                } else {
+                  // res.json({success: true, message: 'not exist'})
+                  const hash = bcrypt.hashSync(req.body.password, 10);
+                  req.body.password = hash;
+                  const note = await CDCSUsers7.create(req.body);
+                  res.json({ success: true, data: note });
+                }
               }
+              // } else {
+              //   res.json({ success: false, message: 'u crte nt a/r' });
+              // }
+                
+            }else{
+              res.json({ success: false, message: "post_x" });
             }
-            // } else {
-            //   res.json({ success: false, message: 'u crte nt a/r' });
-            // }
-              
-          }else{
-            res.json({ success: false, message: "post_x" });
+          } else {
+            res.json({ success: false, message: "mthd_x" });
+            // res.end();
           }
         } else {
-          res.json({ success: false, message: "mthd_x" });
-          // res.end();
+          res.json({ success: false, message: 'obj t nt a/r '+ obj.type })
+          // res.json({ success: false, message: 'obj t nt a/r' })
         }
-      } else {
-        res.json({ success: false, message: 'obj t nt a/r '+ obj.type })
-        // res.json({ success: false, message: 'obj t nt a/r' })
       }
     }
   } catch (error) {
