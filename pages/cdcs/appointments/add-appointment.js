@@ -519,6 +519,13 @@ const AppointmentDetails = () => {
                                     <select disabled={app.date === ''}  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
                                         <option value="">-Select Status-</option>
                                         <option value="On Schedule">On Schedule</option>
+                                        <option value="In Waiting Area">In Waiting Area</option>
+                                        <option value="In Procedure Room">In Procedure Room</option>
+                                        <option value="Next Appointment">Next Appointment</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="Closed No Show">Closed No Show</option>
+                                        <option value="Closed w/ Balance">Closed w/ Balance</option>
+                                        <option value="In Request">In Request</option>
                                     </select>       
                                 </div>
                                 <div className="details-details-modal-body-input-box">

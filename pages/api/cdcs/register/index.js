@@ -19,7 +19,7 @@ export default async function (req, res) {
       httpOnly: true,
       secure: false,
       sameSite: "strict",
-      maxAge: 60 * 60,
+      maxAge: 60 * 60 * 24,
       path: "/",
     });
     res.setHeader("Set-Cookie", serialised);
