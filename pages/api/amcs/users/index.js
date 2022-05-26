@@ -3,7 +3,6 @@ import AMCSUsers from "../../../../models/cdcs/Users";
 import bcrypt from "bcrypt";
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
-import AMCSUsers from "../../../../models/amcs/Users";
 
 export default async (req, res) => {
 
