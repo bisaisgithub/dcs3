@@ -1,5 +1,5 @@
 import dbConnect from "../../../../utils/dbConnect";
-import AMCSUsers from "../../../../models/cdcs/Users";
+import AMCSUsers from "../../../../models/amcs/Users";
 import bcrypt from "bcrypt";
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
@@ -29,9 +29,10 @@ export default async (req, res) => {
         }, {name: 1}
         )
         // console.log('checkNameExist', checkNameExist.length)
+        // console.log('checkNameExist', checkNameExist)
         // res.json({success: true, data: checkUserExist})
         if (checkNameExist.length > 0) {
-          res.json({success: false, message: 'exist_name'})
+          res.json({success: false, message: 'amcs exist_name'})
         } else {
           // const checkEmailExist = await AMCSUsers.find({
           //   email: req.body.email, 

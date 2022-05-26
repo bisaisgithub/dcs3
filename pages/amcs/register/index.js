@@ -95,7 +95,7 @@ const Register = () => {
     // userInput.created_by = user.id;
     console.log("user:", userInput);
     const response = await axios.post(
-      "/api/cdcs/users",
+      "/api/amcs/users",
       {...userInput, post: 30}
     );
     // console.log("user:", response);
