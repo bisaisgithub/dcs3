@@ -56,7 +56,7 @@ const Login = () => {
           <div className="details-details-modal-body-button">
             <button type="submit">Login</button>
           </div>
-          <p>You do not have an account? Register <Link href={`/cdcs/register`}>Here</Link></p>
+          <p>You do not have an account? Register <Link href={`/amcs/register`}>Here</Link></p>
         </div>
         
       </form>

@@ -269,6 +269,19 @@ const AppointmentDetails = () => {
         alert('Failed to get Patient List')
         router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
     }
+    const formatDate = (app_date)=>{
+        let d = new Date(app_date);
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+        // console.log(`${da}-${mo}-${ye}`);
+        return `${da}-${mo}-${ye}`
+    }
+    var timeOptions = {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }
 
     return(
         <>
@@ -824,22 +837,26 @@ const AppointmentDetails = () => {
                                                 </thead>
                                                 <tbody className='table-table2-table-tbody'>
                                                 { 
-                                                // console.log('usersData:',usersData)
-                                                //    usersData && usersData.map((user, index)=>{
-                                                //      return (
-                                                //        <tr key={index} className='table-table2-table-tbody-tr'>
-                                                //          <td>{index+1}</td>
-                                                //          <td>{user.name}</td>
-                                                //          <td>
-                                                //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                                //          </td>
-                                                //          <td>{user.type}</td>
-                                                //          <td className='table-table2-table-body-tr-td'>
-                                                //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                                //          </td>
-                                                //      </tr>
-                                                //        );
-                                                //    })
+                                                    appParent && appParent.map((f,i)=>{
+                                                        return (
+                                                            <tr key={i} className='table-table2-table-tbody-tr'>
+                                                            <td>{i+1}</td>
+                                                            <td>{f.patient_id.name}</td>
+                                                            <td>{f.doctor_id.name}</td>
+                                                            <td>{formatDate(f.date)}</td>
+                                                            <td>{new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                            <td>{f.status}</td>
+                                                            <td><button>Select</button></td>
+                                                            {/* <td>
+                                                                <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                            </td>
+                                                            <td>{user.type}</td>
+                                                            <td className='table-table2-table-body-tr-td'>
+                                                                <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                            </td> */}
+                                                        </tr>
+                                                        )
+                                                    })
                                                 }
                                                 </tbody>
                                             </table>
@@ -863,7 +880,7 @@ const AppointmentDetails = () => {
                                     <div className='details-details-modal-body-button margin-bottom-20'> 
                                     </div>
                                     <button onClick={ async ()=>{
-                                        console.log('app.parent_id', app.patient_id)
+                                        // console.log('app.parent_id', app.patient_id)
                                         const response = await axios.post(`/api/cdcs/appointments`,{                            
                                           data: {filterType: 'getParent', patient_id: app.patient_id.value}
                                         });
@@ -905,11 +922,21 @@ const AppointmentDetails = () => {
                                                 </thead>
                                                 <tbody className='table-table2-table-tbody'>
                                                 { 
-                                                appParent && appParent.map((f)=>{
+                                                appParent && appParent.map((f,i)=>{
                                                     return (
-                                                        <tr>
-                                                            
-                                                        </tr>
+                                                        <tr key={i} className='table-table2-table-tbody-tr'>
+                                                         {/* <td>{i+1}</td>
+                                                         <td>{f.patient_id.name}</td>
+                                                         <td>{f.doctor_id.name}</td>
+                                                         <td>{formatDate}</td> */}
+                                                         {/* <td>
+                                                             <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                         </td>
+                                                         <td>{user.type}</td>
+                                                         <td className='table-table2-table-body-tr-td'>
+                                                             <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                         </td> */}
+                                                     </tr>
                                                     )
                                                 })
                                                 // console.log('appParent',appParent)
@@ -924,17 +951,17 @@ const AppointmentDetails = () => {
                                                 // console.log('usersData:',usersData)
                                                 //    usersData && usersData.map((user, index)=>{
                                                 //      return (
-                                                //        <tr key={index} className='table-table2-table-tbody-tr'>
-                                                //          <td>{index+1}</td>
-                                                //          <td>{user.name}</td>
-                                                //          <td>
-                                                //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                                //          </td>
-                                                //          <td>{user.type}</td>
-                                                //          <td className='table-table2-table-body-tr-td'>
-                                                //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                                //          </td>
-                                                //      </tr>
+                                                    //    <tr key={index} className='table-table2-table-tbody-tr'>
+                                                    //      <td>{index+1}</td>
+                                                    //      <td>{user.name}</td>
+                                                    //      <td>
+                                                    //          <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                    //      </td>
+                                                    //      <td>{user.type}</td>
+                                                    //      <td className='table-table2-table-body-tr-td'>
+                                                    //          <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                    //      </td>
+                                                    //  </tr>
                                                 //        );
                                                 //    })
                                                 }
