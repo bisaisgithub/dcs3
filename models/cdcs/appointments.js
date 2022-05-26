@@ -18,7 +18,7 @@ const AppointmentSchema = new mongoose.Schema(
     date: Date,
     type: String,
     status: String,
-    proc_fields: Object,
+    proc_fields: [{}],
     parent_appointments: {
         type: mongoose.Schema.Types.ObjectId, ref: 'Appointments'
     },

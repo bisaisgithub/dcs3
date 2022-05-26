@@ -15,9 +15,9 @@ const AppointmentTable = ({user}) => {
     const [search, setSearch] = useState({
         doctor: '', patient: '', status: '', date:''
       });
-    const [app_search_patient_name, set_app_search_patient_name] = useState('');
-    const [app_search_user_doctor_name, set_app_search_user_doctor_name] = useState('');
-    const [app_search_date, set_app_search_date] = useState('');
+    // const [app_search_patient_name, set_app_search_patient_name] = useState('');
+    // const [app_search_user_doctor_name, set_app_search_user_doctor_name] = useState('');
+    // const [app_search_date, set_app_search_date] = useState('');
     useEffect(()=>{
         
         getAppointments();
@@ -26,31 +26,30 @@ const AppointmentTable = ({user}) => {
     
     const getAppointments = async (data)=>{
         if (data) {
-            console.log('search data not empty', data)
+            // console.log('search data not empty', data)
             if (data.filterType === 'filterNormal') {
-                console.log('filterNormal')
+                // console.log('filterNormal')
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
                 if (response.data.data) {
-                    data.date = formatDate(data.date)
-                    const newArray = response.data.data.map((a)=>{
+                    const finalArray = response.data.data.map((a)=>{
                         a.date = formatDate(a.date);
                         return a;
                     })
-                    console.log('newArray', newArray)
-                    let finalArray = [];
-                    if (data.date) {
+                    // console.log('newArray', newArray)
+                    // let finalArray = [];
+                    // if (data.date) {
                         // console.log('data.date true')
-                        finalArray = newArray.filter((a)=>{
+                        // finalArray = newArray.filter((a)=>{
                             // a.date = formatDate(a.date);
                             // console.log('data.date', data.date)
                             // console.log('a.date', a.date)
                             // if (a.date === data.date) {
                             //     return a;
                             // }
-                            return a.date === data.date;
-                        })
+                            // return a.date === data.date;
+                        // })
                         // finalArray = newArray2;
-                    }
+                    // }
                     if ('status' in data) {
                         finalArray = finalArray.filter((a)=>{
                             return a.status.toLowerCase().includes(data.status.toLowerCase());
@@ -65,12 +64,17 @@ const AppointmentTable = ({user}) => {
                     }
                     if ('doctor' in data) {
                         finalArray = finalArray.filter((a)=>{
-                            console.log('a.doctor_id.name', a.doctor_id.name)
-                            console.log('data.doctor', data.doctor)
+                            // console.log('a.doctor_id.name', a.doctor_id.name)
+                            // console.log('data.doctor', data.doctor)
                             return a.doctor_id.name.toLowerCase().includes(data.doctor.toLowerCase());
                         })
                     }
-                    
+                    if ('date' in data) {
+                        data.date = formatDate(data.date)
+                        finalArray = finalArray.filter((a)=>{
+                            return a.date === data.date;
+                        })
+                    }
                     // console.log('finalArray', finalArray)
                     setAppointmentsData(finalArray);
                     
@@ -93,15 +97,15 @@ const AppointmentTable = ({user}) => {
             //     alert('Falied getting appointments with filter')
             // }
         } else {
-            console.log('empty data', data)
+            // console.log('empty data', data)
             const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
             if (response.data.data) {
-                console.log(response.data.data);
+                // console.log(response.data.data);
                 const newArray = response.data.data.map((a)=>{
                     a.date = formatDate(a.date);
                     return a;
                 })
-                console.log('newArray', newArray)
+                // console.log('newArray', newArray)
                 // setAppointmentsData(response.data.data)
                 setAppointmentsData(newArray);
             }else{

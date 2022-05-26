@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 export default async (req, res) => {
   
   try {
+    console.log('appointment api index')
     await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
     if (!token) {
@@ -36,17 +37,14 @@ export default async (req, res) => {
         
         } else if(req.method === 'POST'){
             console.log('req.body', req.body)
-            if (req.body.data.filterType === 'filter') {
+            if (req.body.data.filterType === 'getParent') {
               // console.log('filter')
               const response = await Appointments.find(
                 {
-                  patient_id: 
-                //     // {$regex: `.*${req.body.data.type}.*`, $options: 'i' ,
-                    {$regex: `.*.*`, $options: 'i'}
-                    // {$regex: `.*${req.body.data.type}.*`, $options: 'i', $ne: "Admin"} ,
+                  patient_id: req.body.data.patient_id
                 }
               )
-              .populate("created_by", "name")
+              // .populate("created_by", "name")
               .populate("patient_id", "name")
               .populate("doctor_id", "name")
               res.json({success: true, data: response})

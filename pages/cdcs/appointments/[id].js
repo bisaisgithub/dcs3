@@ -40,11 +40,13 @@ const AppointmentDetails = () => {
       },],
       app_pay_fields: []
   });
+  const [appParent, setAppParent] = useState([]);
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState({
+      payment: false, appointment: false, appointmentSelectParent: false
+  })
   const [usersList, setUserList] = useState([]);
   useEffect(()=>{
     getAppointments();
@@ -274,7 +276,7 @@ const AppointmentDetails = () => {
                 <div className='details-details-modal-container'>
                     <div className='details-details-modal-body-button margin-bottom-20'> 
                         <button className='add-payment-button height-80p' onClick={()=>{
-                            setIsPaymentOpen(true);
+                            setIsOpen({...isOpen, payment: true});
                             }}>Payments
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
@@ -288,7 +290,7 @@ const AppointmentDetails = () => {
                             if (app.patient_id === '') {
                                 alert('Please select patient first');
                             } else {
-                                setIsAppointmentLinkOpen(true);
+                                setIsOpen({...isOpen, appointment: true});
                             }
                             }}>Appointment Links
                         </button>
@@ -670,7 +672,7 @@ const AppointmentDetails = () => {
                     </div>
                 </div>
                 {
-                    isPaymentOpen && (
+                    isOpen.payment && (
                         <div className='details-details-container'>
                             <div className='details-details-modal-container'>
                                 <div className='details-details-modal-body-button margin-bottom-20'> 
@@ -775,79 +777,184 @@ const AppointmentDetails = () => {
                                 
                                 <div className='flex-end'> 
 
-                                <button onClick={()=>{setIsPaymentOpen(false)}} className='button-w20'>Close</button>
+                                <button onClick={()=>{setIsOpen({...isOpen, payment: false})}} className='button-w20'>Close</button>
                                 </div>
                             </div>
                         </div>
                     )
                 }
                 {
-                    isAppontLinkOpen && (
-                        <div className='details-details-container'>
-                            <div className='details-details-modal-container'>
-                                <div className='details-details-modal-body-button margin-bottom-20'> 
-                                </div>
-                                
-                                <div className='details-details-modal-body-container'>
-                                    <div>
-                                        {
-                                           <div className='table-table2-container'>
-                                           <table className="table-table2-table">
-                                             <thead className='table-table2-table-thead-search2'>
-                                               {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                 <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                 <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                   <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                 </th>
-                                                 <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                 <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                 <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                               </tr> */}
-                                             </thead>
-                                             <thead className='table-table2-table-thead'>
-                                               <tr className='table-table2-table-thead-tr'>
-                                                 <th>No</th>
-                                                 <th>Patient</th>
-                                                 <th>Doctor</th>
-                                                 <th>Date</th>
-                                                 <th>Time</th>
-                                                 <th>Status</th>
-                                                 <th>Option</th>
-                                               </tr>
-                                             </thead>
-                                             <tbody className='table-table2-table-tbody'>
-                                               { 
-                                               // console.log('usersData:',usersData)
-                                            //    usersData && usersData.map((user, index)=>{
-                                            //      return (
-                                            //        <tr key={index} className='table-table2-table-tbody-tr'>
-                                            //          <td>{index+1}</td>
-                                            //          <td>{user.name}</td>
-                                            //          <td>
-                                            //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                            //          </td>
-                                            //          <td>{user.type}</td>
-                                            //          <td className='table-table2-table-body-tr-td'>
-                                            //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                            //          </td>
-                                            //      </tr>
-                                            //        );
-                                            //    })
-                                               }
-                                             </tbody>
-                                           </table>
-                                         </div>
-                                        }
+                    isOpen.appointment && 
+                    (
+                        isOpen.appointmentSelectParent? 
+                        (
+                            <div className='details-details-container'>
+                                <div className='details-details-modal-container'>
+                                    <div className='details-details-modal-body-button margin-bottom-20'> 
                                     </div>
+                                    <h1>Select Parent Appointment</h1>
+                                    <div className='details-details-modal-body-container'>
+                                    
+                                        <div>
+                                            {
+                                            <div className='table-table2-container'>
+                                            <table className="table-table2-table">
+                                                <thead className='table-table2-table-thead-search2'>
+                                                {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                    </th>
+                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                </tr> */}
+                                                </thead>
+                                                
+                                                <thead className='table-table2-table-thead'>
+                                                <tr className='table-table2-table-thead-tr'>
+                                                    <th>No</th>
+                                                    <th>Patient</th>
+                                                    <th>Doctor</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Status</th>
+                                                    <th>Option</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody className='table-table2-table-tbody'>
+                                                { 
+                                                // console.log('usersData:',usersData)
+                                                //    usersData && usersData.map((user, index)=>{
+                                                //      return (
+                                                //        <tr key={index} className='table-table2-table-tbody-tr'>
+                                                //          <td>{index+1}</td>
+                                                //          <td>{user.name}</td>
+                                                //          <td>
+                                                //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                //          </td>
+                                                //          <td>{user.type}</td>
+                                                //          <td className='table-table2-table-body-tr-td'>
+                                                //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                //          </td>
+                                                //      </tr>
+                                                //        );
+                                                //    })
+                                                }
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                            }
+                                        </div>
 
-                                </div>
-                                
-                                <div className='flex-end'> 
+                                    </div>
+                                    
+                                    <div className='flex-end'> 
 
-                                <button onClick={()=>{setIsAppointmentLinkOpen(false)}} className='button-w20'>Close</button>
+                                    <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Close</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )
+                        :
+                        (
+                            <div className='details-details-container'>
+                                <div className='details-details-modal-container'>
+                                    <div className='details-details-modal-body-button margin-bottom-20'> 
+                                    </div>
+                                    <button onClick={ async ()=>{
+                                        console.log('app.parent_id', app.patient_id)
+                                        const response = await axios.post(`/api/cdcs/appointments`,{                            
+                                          data: {filterType: 'getParent', patient_id: app.patient_id.value}
+                                        });
+                                          console.log('response',response.data);
+                                        if (response.data) {
+                                          console.log('response',response.data);
+                                          setAppParent(response.data.data);
+                                        }else{
+                                          console.log('Failed getting parents appointments')
+                                        }
+                                        setIsOpen({...isOpen, appointmentSelectParent: true})
+                                        }}>Select Parent</button> 
+                                    <div className='details-details-modal-body-container'>
+                                        <div>
+                                            {
+                                            <div className='table-table2-container'>
+                                            <table className="table-table2-table">
+                                                <thead className='table-table2-table-thead-search2'>
+                                                {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                    </th>
+                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                </tr> */}
+                                                </thead>
+                                                <thead className='table-table2-table-thead'>
+                                                <tr className='table-table2-table-thead-tr'>
+                                                    <th>No</th>
+                                                    <th>Patient</th>
+                                                    <th>Doctor</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Status</th>
+                                                    <th>Option</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody className='table-table2-table-tbody'>
+                                                { 
+                                                appParent && appParent.map((f)=>{
+                                                    return (
+                                                        <tr>
+                                                            
+                                                        </tr>
+                                                    )
+                                                })
+                                                // console.log('appParent',appParent)
+                                                // appParent && appParent.map()
+                                                // appParent && appParent.map((f, i)=>{
+                                                //     return (
+                                                //         <tr>
+                                                //             <td>{i+1}</td>
+                                                //         </tr>
+                                                //     )
+                                                // })
+                                                // console.log('usersData:',usersData)
+                                                //    usersData && usersData.map((user, index)=>{
+                                                //      return (
+                                                //        <tr key={index} className='table-table2-table-tbody-tr'>
+                                                //          <td>{index+1}</td>
+                                                //          <td>{user.name}</td>
+                                                //          <td>
+                                                //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                //          </td>
+                                                //          <td>{user.type}</td>
+                                                //          <td className='table-table2-table-body-tr-td'>
+                                                //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                //          </td>
+                                                //      </tr>
+                                                //        );
+                                                //    })
+                                                }
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                            }
+                                        </div>
+
+                                    </div>
+                                    
+                                    <div className='flex-end'> 
+
+                                    <button onClick={()=>{setIsOpen({...isOpen, appointment: false})}} className='button-w20'>Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        )
+                    
                     )
                 }
             </div>
