@@ -105,7 +105,7 @@ const AppointmentTable = ({user}) => {
                     a.date = formatDate(a.date);
                     return a;
                 })
-                console.log('newArray', newArray)
+                // console.log('newArray', newArray)
                 // setAppointmentsData(response.data.data)
                 setAppointmentsData(newArray);
             }else{

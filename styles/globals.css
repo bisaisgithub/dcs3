@@ -448,8 +448,13 @@ input[type="text"] {
 }
 /* details ends */
 /* add-appointment start */
-#add_appointment[disabled]
+/* #add_appointment[disabled]
 {
+  background: #afacac;
+  color: grey;
+  cursor: auto;
+} */
+.button-disabled[disabled]{
   background: #afacac;
   color: grey;
   cursor: auto;

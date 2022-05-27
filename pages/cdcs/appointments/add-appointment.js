@@ -23,9 +23,16 @@ const AppointmentDetails = () => {
       },],
       app_pay_fields: []
   });
+  const [appParentsSearched, setAppParentsSearched] = useState([]);
+  const [appParent, setAppParent] = useState({
+      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+  });
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
+  const [isOpen, setIsOpen] = useState({
+    payment: false, appointment: false, appointmentSelectParent: false
+  })
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
   const [usersList, setUserList] = useState([]);
@@ -227,29 +234,57 @@ const AppointmentDetails = () => {
     }else{
         router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
     }
-    
+    const formatDate = (app_date)=>{
+        let d = new Date(app_date);
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+        // console.log(`${da}-${mo}-${ye}`);
+        return `${da}-${mo}-${ye}`
+    }
+    var timeOptions = {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }
 
     return(
         <>
             <div className='details-details-container'>
                 <div className='details-details-modal-container'>
                     <div className='details-details-modal-body-button margin-bottom-20'> 
-                        <button className='add-payment-button height-80p' onClick={()=>{
-                            setIsPaymentOpen(true);
+                        <button className='add-payment-button height-80p button-disabled' 
+                            disabled={
+                                app.type === ''
+                                // false
+                            }
+                            onClick={()=>{
+                            setIsOpen({...isOpen, payment: true});
                             }}>Payments
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
-                        <button className='add-payment-button height-80p' onClick={()=>{
+                        <button className='add-payment-button height-80p button-disabled'
+                            disabled={
+                                app.type === ''
+                                // false
+                            }
+                            onClick={()=>{
                             // addPaymentFieldFunction()
                             set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
                             }}>Inventories
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
-                        <button className='add-payment-button height-80p' onClick={()=>{
-                            if (app.patient_id === '') {
+                        <button className='add-payment-button height-80p button-disabled' 
+                            disabled={
+                                app.type === ''
+                                // false
+                            }
+                            onClick={()=>{
+                            console.log('app.patient_id', app.patient_id)
+                            if (app.patient_id.value === '') {
                                 alert('Please select patient first');
                             } else {
-                                setIsAppointmentLinkOpen(true);
+                                setIsOpen({...isOpen, appointment: true});
                             }
                             }}>Appointment Links
                         </button>
@@ -269,7 +304,7 @@ const AppointmentDetails = () => {
                                 instanceId="long-value-select-patient"
                                 // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
                                 onChange={(value)=>{
-                                    setApp({...app, patient_id:  value.value})
+                                    setApp({...app, patient_id:  value}) //for testing
                                     // selectedOption
                                     }}/>
                             </div>
@@ -543,11 +578,11 @@ const AppointmentDetails = () => {
                     
                     <div className='details-details-modal-body-button'> 
                         
-                        <button className='button-w70' 
+                        <button className='button-w70 button-disabled' 
                         disabled={
                             app.type === ''
                             // false
-                        } id={'add_appointment'}
+                        } 
                             onClick={async()=>{
                                 // console.log('app2', app2)
                                 let checkProcEmpty = true;
@@ -559,13 +594,13 @@ const AppointmentDetails = () => {
                                 })
                                 if (!checkProcEmpty) {
                                     alert('Please select procedure')
-                                }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
+                                }else if(!app.patient_id.value||!app.doctor_id||!app.date||!app.status ||!app.type){
                                     alert('Empty Field/s')
                                     console.log('app: ', app)
                                 }
                                 else{
-                                    let data = {...app, filterType: 'create'}
-                                    console.log('data: ', data)
+                                    let data = {...app, filterType: 'create', patient_id: app.patient_id.value}
+                                    // console.log('data: ', data)
                                     const response = await axios.post(
                                         "/api/cdcs/appointments",
                                         {data});
@@ -588,184 +623,287 @@ const AppointmentDetails = () => {
                     </div>
                 </div>
                 {
-                    isPaymentOpen && (
-                        <div className='details-details-container'>
-                            <div className='details-details-modal-container'>
-                                <div className='details-details-modal-body-button margin-bottom-20'> 
-                                </div>
-                                
-                                <div className='details-details-modal-body-container'>
-                                    <div style={{display: 'flex', width: '100%'}}>
-                                        <div className="details-details-modal-body-input-box">
-                                            <span>Total Cost</span>
-                                            <input type='number' value={
-                                                // app_total_proc_cost
-                                                app2.payments.totalCost
-                                                } disabled />
-                                        </div>
-                                        <div className="details-details-modal-body-input-box">
-                                            <span>Total Payment</span>
-                                            <input type='number' value={app2.payments.totalPayment} disabled />
-                                        </div>
-                                        <div className="details-details-modal-body-input-box">
-                                            <span>Balance</span>
-                                            <input type='number' value={app2.payments.balance} disabled />
-                                        </div>
-                                        <div className="details-details-modal-body-input-box">
-                                            <span>Change</span>
-                                            <input type='number' value={app2.payments.change} disabled />
-                                        </div>
+                   isOpen.payment && (
+                    <div className='details-details-container'>
+                        <div className='details-details-modal-container'>
+                            <div className='details-details-modal-body-button margin-bottom-20'> 
+                            </div>
+                            
+                            <div className='details-details-modal-body-container'>
+                                <div style={{display: 'flex', width: '100%'}}>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Total Cost</span>
+                                        <input type='number' value={
+                                            // app_total_proc_cost
+                                            app2.payments.totalCost
+                                            } disabled />
                                     </div>
-                                    <div>
-                                        {
-                                            app.app_pay_fields &&
-                                            app.app_pay_fields.map((payfield, index)=>{
-                                                return (
-                                                    <div key={index}>
-                                                        <div className='display-flex' style={{marginTop:'0px'}} >
-                                                            <div className='details-details-modal-body-input-box'>
-                                                                <span style={index > 0? {display: 'none'}:{}} >Payment</span>
-                                                                <div className='display-flex'>
-                                                                    
-                                                                    <input type='number' name='pay_amount' value={payfield.pay_amount}
-                                                                    onChange={(e)=>{
-                                                                        handleChangeInputPayment(index, e)
-                                                                    }} />
-                                                                    <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
-                                                                    onClick={()=>{
-                                                                        const values = [...app.app_pay_fields];
-                                                                        values.splice(index, 1);
-                                                                        setApp({...app, app_pay_fields: values});
-                                                                        let totalPayment = 0;
-                                                                        values.map((field)=>{
-                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
-                                                                        })
-                                                                        let change = 0;
-                                                                        let balance = 0;
-                                                                        if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
-                                                                            change = totalPayment - parseFloat(app2.payments.totalCost);
-                                                                        } else {
-                                                                            balance = parseFloat(app2.payments.totalCost) - totalPayment
-                                                                        }
-                                                                        setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
-                                                                        }}>-</button>
-                                                                </div>
-                                                            </div>
-                                                            <div className='details-details-modal-body-input-box'>
-                                                                <span style={index > 0? {display: 'none'}:{}}>Date of Payment</span>
-                                                                    
-                                                                <DatePicker 
-                                                                name='pay_date'
-                                                                maxDate={new Date()} 
-                                                                yearDropdownItemNumber={90}
-                                                                showTimeSelect
-                                                                showYearDropdown 
-                                                                scrollableYearDropdown={true} 
-                                                                dateFormat='MMMM d, yyyy h:mm aa' 
-                                                                className='date-picker' 
-                                                                placeholderText="Select Date" 
-                                                                selected={payfield.pay_date} 
-                                                                onChange={(date)=>{
-                                                                    handleChangeInputPayment(index, false, date, 'pay_date')
-                                                                    // set_app_pay_date(date)
-                                                                }} 
-                                                                />
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Total Payment</span>
+                                        <input type='number' value={app2.payments.totalPayment} disabled />
+                                    </div>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Balance</span>
+                                        <input type='number' value={app2.payments.balance} disabled />
+                                    </div>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Change</span>
+                                        <input type='number' value={app2.payments.change} disabled />
+                                    </div>
+                                </div>
+                                <div>
+                                    {
+                                        app.app_pay_fields &&
+                                        app.app_pay_fields.map((payfield, index)=>{
+                                            return (
+                                                <div key={index}>
+                                                    <div className='display-flex' style={{marginTop:'0px'}} >
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}} >Payment</span>
+                                                            <div className='display-flex'>
+                                                                
+                                                                <input type='number' name='pay_amount' value={payfield.pay_amount}
+                                                                onChange={(e)=>{
+                                                                    handleChangeInputPayment(index, e)
+                                                                }} />
+                                                                <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                onClick={()=>{
+                                                                    const values = [...app.app_pay_fields];
+                                                                    values.splice(index, 1);
+                                                                    setApp({...app, app_pay_fields: values});
+                                                                    let totalPayment = 0;
+                                                                    values.map((field)=>{
+                                                                        totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                    })
+                                                                    let change = 0;
+                                                                    let balance = 0;
+                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                    } else {
+                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                    }
+                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                    }}>-</button>
                                                             </div>
                                                         </div>
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}}>Date of Payment</span>
+                                                                
+                                                            <DatePicker 
+                                                            name='pay_date'
+                                                            maxDate={new Date()} 
+                                                            yearDropdownItemNumber={90}
+                                                            showTimeSelect
+                                                            showYearDropdown 
+                                                            scrollableYearDropdown={true} 
+                                                            dateFormat='MMMM d, yyyy h:mm aa' 
+                                                            className='date-picker' 
+                                                            placeholderText="Select Date" 
+                                                            selected={payfield.pay_date} 
+                                                            onChange={(date)=>{
+                                                                handleChangeInputPayment(index, false, date, 'pay_date')
+                                                                // set_app_pay_date(date)
+                                                            }} 
+                                                            />
+                                                        </div>
                                                     </div>
-                                                );
-                                            })
-                                        }
-                                        <button className='add-payment-button height-80p' onClick={()=>{
-                                            setApp({...app, app_pay_fields: 
-                                                [
-                                                    ...app.app_pay_fields, 
-                                                    {pay_amount: '', pay_date: new Date()}
-                                                ]
-                                            })
-                                            // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                            }}>Add Payment
-                                        </button>
-                                    </div>
-                                    
-
+                                                </div>
+                                            );
+                                        })
+                                    }
+                                    <button className='add-payment-button height-80p' onClick={()=>{
+                                        setApp({...app, app_pay_fields: 
+                                            [
+                                                ...app.app_pay_fields, 
+                                                {pay_amount: '', pay_date: new Date()}
+                                            ]
+                                        })
+                                        // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                        }}>Add Payment
+                                    </button>
                                 </div>
                                 
-                                <div className='flex-end'> 
 
-                                <button onClick={()=>{setIsPaymentOpen(false)}} className='button-w20'>Close</button>
-                                </div>
+                            </div>
+                            
+                            <div className='flex-end'> 
+
+                            <button onClick={()=>{setIsOpen({...isOpen, payment: false})}} className='button-w20'>Close</button>
                             </div>
                         </div>
-                    )
+                    </div>
+                )
                 }
                 {
-                    isAppontLinkOpen && (
-                        <div className='details-details-container'>
-                            <div className='details-details-modal-container'>
-                                <div className='details-details-modal-body-button margin-bottom-20'> 
-                                </div>
-                                
-                                <div className='details-details-modal-body-container'>
-                                    <div>
-                                        {
-                                           <div className='table-table2-container'>
-                                           <table className="table-table2-table">
-                                             <thead className='table-table2-table-thead-search2'>
-                                               {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                 <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                 <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                   <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                 </th>
-                                                 <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                 <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                 <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                               </tr> */}
-                                             </thead>
-                                             <thead className='table-table2-table-thead'>
-                                               <tr className='table-table2-table-thead-tr'>
-                                                 <th>No</th>
-                                                 <th>Patient</th>
-                                                 <th>Doctor</th>
-                                                 <th>Date</th>
-                                                 <th>Time</th>
-                                                 <th>Status</th>
-                                                 <th>Option</th>
-                                               </tr>
-                                             </thead>
-                                             <tbody className='table-table2-table-tbody'>
-                                               { 
-                                               // console.log('usersData:',usersData)
-                                            //    usersData && usersData.map((user, index)=>{
-                                            //      return (
-                                            //        <tr key={index} className='table-table2-table-tbody-tr'>
-                                            //          <td>{index+1}</td>
-                                            //          <td>{user.name}</td>
-                                            //          <td>
-                                            //              <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                            //          </td>
-                                            //          <td>{user.type}</td>
-                                            //          <td className='table-table2-table-body-tr-td'>
-                                            //              <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                            //          </td>
-                                            //      </tr>
-                                            //        );
-                                            //    })
-                                               }
-                                             </tbody>
-                                           </table>
-                                         </div>
-                                        }
+                    isOpen.appointment && 
+                    (
+                        isOpen.appointmentSelectParent? 
+                        (
+                            <div className='details-details-container'>
+                                <div className='details-details-modal-container'>
+                                    <div className='details-details-modal-body-button margin-bottom-20'> 
                                     </div>
+                                    <h1>Select Parent Appointment</h1>
+                                    <div className='details-details-modal-body-container'>
+                                    
+                                        <div>
+                                            {
+                                            <div className='table-table2-container'>
+                                            <table className="table-table2-table">
+                                                <thead className='table-table2-table-thead-search2'>
+                                                {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                    </th>
+                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                </tr> */}
+                                                </thead>
+                                                
+                                                <thead className='table-table2-table-thead'>
+                                                <tr className='table-table2-table-thead-tr'>
+                                                    <th>Total Cost</th>
+                                                    <th>Patient</th>
+                                                    <th>Doctor</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Status</th>
+                                                    <th>Option</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody className='table-table2-table-tbody'>
+                                                { 
+                                                    appParentsSearched && appParentsSearched.map((f,i)=>{
+                                                        let totalCost= 0;
+                                                        f.proc_fields.map((f)=>{
+                                                            totalCost = totalCost + parseFloat(f.proc_cost)
+                                                        })
+                                                        return (
+                                                            <tr key={i} className='table-table2-table-tbody-tr'>
+                                                            <td>{totalCost}</td>
+                                                            <td>{f.patient_id.name}</td>
+                                                            <td>{f.doctor_id.name}</td>
+                                                            <td>{formatDate(f.date)}</td>
+                                                            <td>{new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                            <td>{f.status}</td>
+                                                            <td><button
+                                                            onClick={()=>{
+                                                                setApp({...app, parent_appointments:f._id});
+                                                                setAppParent({...f, totalCost});
+                                                                setIsOpen({...isOpen, appointmentSelectParent: false});
+                                                            }}
+                                                            >Select</button></td>
+                                                            {/* <td>
+                                                                <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                            </td>
+                                                            <td>{user.type}</td>
+                                                            <td className='table-table2-table-body-tr-td'>
+                                                                <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                            </td> */}
+                                                        </tr>
+                                                        )
+                                                    })
+                                                }
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                            }
+                                        </div>
 
-                                </div>
-                                
-                                <div className='flex-end'> 
+                                    </div>
+                                    
+                                    <div className='flex-end'> 
 
-                                <button onClick={()=>{setIsAppointmentLinkOpen(false)}} className='button-w20'>Close</button>
+                                    <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Close</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )
+                        :
+                        (
+                            <div className='details-details-container'>
+                                <div className='details-details-modal-container'>
+                                    <div className='details-details-modal-body-button margin-bottom-20'> 
+                                    </div>
+                                    <h1>Current Parent Appointment</h1>
+                                    <button onClick={ async ()=>{
+                                        console.log('app.patient_id', app.patient_id)
+                                        const response = await axios.post(`/api/cdcs/appointments`,{                            
+                                          data: {filterType: 'getParent', patient_id: app.patient_id.value}
+                                        });
+                                          console.log('response',response.data);
+                                        if (response.data) {
+                                          console.log('response',response.data);
+                                          setAppParentsSearched(response.data.data);
+                                        }else{
+                                          console.log('Failed getting parents appointments')
+                                        }
+                                        setIsOpen({...isOpen, appointmentSelectParent: true})
+                                        }}>Search Parent</button> 
+                                    <div className='details-details-modal-body-container'>
+                                        <div>
+                                            {
+                                            <div className='table-table2-container'>
+                                            <table className="table-table2-table">
+                                                <thead className='table-table2-table-thead-search2'>
+                                                {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                    </th>
+                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                </tr> */}
+                                                </thead>
+                                                <thead className='table-table2-table-thead'>
+                                                <tr className='table-table2-table-thead-tr'>
+                                                    <th>Total Cost</th>
+                                                    <th>Patient</th>
+                                                    <th>Doctor</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Status</th>
+                                                    <th>Option</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody className='table-table2-table-tbody'>
+                                                    <tr className='table-table2-table-tbody-tr'>
+                                                        <td>{appParent.totalCost}</td>
+                                                        <td>{appParent.patient_id.name}</td>
+                                                        <td>{appParent.doctor_id.name}</td>
+                                                        <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
+                                                        <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                        <td>{appParent.status}</td>
+                                                        <td>{appParent.status === ''? '' : 
+                                                        <button onClick={()=>{
+                                                            setAppParent({
+                                                            patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                            })
+                                                            setApp({...app, parent_appointments:''});
+                                                        }} 
+                                                        >Remove</button>
+                                                        }</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                            }
+                                        </div>
+
+                                    </div>
+                                    
+                                    <div className='flex-end'> 
+
+                                    <button onClick={()=>{setIsOpen({...isOpen, appointment: false})}} className='button-w20'>Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        )
+                    
                     )
                 }
             </div>

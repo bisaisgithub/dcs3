@@ -24,6 +24,8 @@ export default async (req, res) => {
           const response = await Appointments.findOne({_id: req.query.id})
           // .select('-doctor_id')
           .populate("patient_id", "name")
+          .populate("doctor_id", "name");
+          // console.log('get appointment response', response);
           // const response = await Appointments.find();
           res.json({ success: true, data: response});
         } else if (req.method === 'POST') {
