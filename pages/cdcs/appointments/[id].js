@@ -62,7 +62,7 @@ const AppointmentDetails = () => {
     );
     
     if (response.data.data && response.data.success) {
-        // console.log('response is true', response.data);
+        console.log('response is true', response.data);
       let totalMinutes = 0;
       let totalCost = 0
       response.data.data.proc_fields.map((f)=>{

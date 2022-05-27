@@ -15,19 +15,34 @@ export default async (req, res) => {
         res.json({success: false, message: 'tkn_e'})
     } else {
       
-      const verified = await jwt.verify(token, process.env.JWT_SECRET);
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
           // console.log('id: ', req.query)
-          const response = await Appointments.findOne({_id: req.query.id})
+          const response = await Appointments.findOne({_id: 
+            req.query.id
+            // '6256b7af49b7867a85bc47d7'
+          })
           // .select('-doctor_id')
           .populate("patient_id", "name")
           .populate("doctor_id", "name");
           // console.log('get appointment response', response);
           // const response = await Appointments.find();
-          res.json({ success: true, data: response});
+          if (response) {
+            // console.log('not empty')
+            const response2 = await Appointments.find({parent_appointments: 
+              req.query.id
+              // '6256b7af49b7867a85bc47d7'
+            })
+            // console.log('response2', response2)
+            res.json({ success: true, data: response, childAppointments: response2});
+          } else {
+            // console.log('empty')
+            res.json({ success: true, data: response, childAppointments: []});
+          }
+          
         } else if (req.method === 'POST') {
           // console.log('req.body.new: ', req.body)
 

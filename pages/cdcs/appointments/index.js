@@ -97,7 +97,7 @@ const AppointmentTable = ({user}) => {
             //     alert('Falied getting appointments with filter')
             // }
         } else {
-            console.log('empty data', data)
+            // console.log('empty data', data)
             const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
             if (response.data.data) {
                 // console.log(response.data.data);
