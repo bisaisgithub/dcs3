@@ -21,8 +21,8 @@ export default async function (req, res) {
   let details = {
     from: process.env.EMAIL_USER,
     to: `${req.body.email}`,
-    subject: 'Iloilo Condominium Clinic Registration Code',
-    text: `Iloilo Condominium Clinic Registration code: ${code}`
+    subject: 'Pedia Clinic Registration Code',
+    text: `Pedia Clinic Registration code: ${code}`
   }
   
     mailTransporter.sendMail(details, (err)=>{

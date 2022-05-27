@@ -69,7 +69,7 @@ export default async (req, res) => {
                       email: 1,
                       type: 1,
                       dob: 1,
-                      allergen: 1,
+                      guardian: 1,
                       created_by: 1,
                       status: 1,
                     }
@@ -90,7 +90,7 @@ export default async (req, res) => {
                       email: 1,
                       type: 1,
                       dob: 1,
-                      allergen: 1,
+                      guardian: 1,
                       created_by: 1,
                       status: 1,
                     }
