@@ -408,6 +408,12 @@ const AppointmentDetails = () => {
                             {
                               app.proc_fields &&
                               app.proc_fields.map((app_proc_field, index)=>{
+                                    let proc_duration_minutes = [
+                                        {value: 15, label: '15'},
+                                        {value: 30, label: '30'},
+                                        {value: 45, label: '45'},
+                                        {value: 60, label: '60'},
+                                    ]
                                     return (
                                         
                                         <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
@@ -426,13 +432,20 @@ const AppointmentDetails = () => {
                                                     <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
                                                     onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value={0}>-Select Minutes-</option>
-                                                        <option value={15}>15</option>
+                                                        {
+                                                            proc_duration_minutes.map((f, k)=>{
+                                                                return (
+                                                                    <option key={k} value={f.value}>{f.label}</option>
+                                                                )
+                                                            })
+                                                        }
+                                                        {/* <option value={15}>15</option>
                                                         <option value={30}>30</option>
                                                         <option value={45}>45</option>
                                                         <option value={60}>60</option>
                                                         <option value={75}>75</option>
                                                         <option value={90}>90</option>
-                                                        <option value={120}>120</option>
+                                                        <option value={120}>120</option> */}
                                                     </select>
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
