@@ -1,93 +1,34 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
+import Link from 'next/link'
 
 const SettingsCDCS = () => {
+    const router = useRouter();
     const [app, setApp] = useState({
-        // date:'',patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
-        // status: '',type:'',
         proc_fields: [{
-            proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+            proc_name: '', proc_duration_minutes: '', proc_cost: '',
           },],
-        //   app_pay_fields: []
       });
+    useEffect(()=>{
+        getFields();
+    }, [])
+    const getFields = async ()=>{
+        const getFields = await axios.get('/api/cdcs/fields')
+        // console.log('getFields', getFields.data.data.fields.app)
+        if (getFields.data.success) {
+            // console.log('getFields Ok')
+            setApp(getFields.data.data.fields.app)
+        }else{
+            console.log('getFields Empty')
+        }
+    }
     const handleChangeInput =(index, event)=>{
         // console.log('app_proc_fields: ',app_proc_fields)
             // const values = [...app_proc_fields];
             const values = [...app.proc_fields];
             values[index][event.target.name] = event.target.value;
-            // let totalMinutes = 0;
-            // let totalCost = 0;
-            // values.map((value, i)=>{
-            //     // console.log('i', i);
-            //     // console.log('index', index);
-            //     // console.log('event.target.name', event.target.name)
-            //     // console.log('value.proc_name:', value.proc_name)
-            //     if (value.proc_name == ''  && i === index) {
-            //         alert('Please Select Procedure first')
-            //         value.proc_duration_minutes = 0;
-            //         value.proc_cost = 0;
-            //     }else{
-            //         if (event.target.name == 'proc_name' && !value.proc_name == '' && i === index) {       
-            //             // console.log('ifs')
-            //             // console.log('value.proc_name ifs:', value.proc_name)             
-            //             // if (
-            //             //     parseInt(value.proc_duration_minutes)>0
-            //             //     // true
-            //             //     ) 
-            //             // {
-            //             //     totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
-            //             // }else
-            //             // {
-            //                 if (value.proc_name === 'Extraction') {
-            //                     value.proc_duration_minutes = 30;
-            //                     value.proc_cost = 500;
-            //                 }else if(value.proc_name === 'Cleaning'){
-            //                     value.proc_duration_minutes = 60;
-            //                     value.proc_cost = 800;
-            //                 }else if(value.proc_name === 'Consultation'){
-            //                     value.proc_duration_minutes = 15;
-            //                     value.proc_cost = 300;
-            //                 }
-        
-            //                 totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
-            //             // }
-            //         }
-            //         else{
-            //             // console.log('else')
-            //             // console.log('value.proc_name:', value.proc_name) 
-            //             totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
-            //             // alert('Please Select Procedure First')
-            //             // value.proc_duration_minutes = 0;
-            //             // value.proc_cost = 0;
-            //         }
-            //     }
-
-            //     if (parseFloat(value.proc_cost)>0) {
-            //         totalCost = parseFloat(totalCost + parseFloat(value.proc_cost));
-            //         value.proc_cost = parseFloat(value.proc_cost);
-            //     }else{
-            //     } 
-            //     return null;
-            // })
-            // setApp2({...app2, payments: {
-            //     // ...app2.payments, 
-            //     totalCost : 
-            //     // parseFloat(totalCost).toFixed(2)
-            //     3
-            // }})
-            // set_app_total_proc_cost(parseFloat(totalCost).toFixed(2));
-            // let change = 0;
-            // let balance = 0;
-            // if (parseFloat(totalCost-app2.payments.totalPayment)<0) {
-            //     change = parseFloat(app2.payments.totalPayment)-totalCost;
-            // }else{
-            //     balance = totalCost - parseFloat(app2.payments.totalPayment);
-            // }
             setApp({...app, proc_fields: values});
-
-            // setApp2({...app2, date_end: new Date(
-            //     new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-            //         ), payments:{...app2.payments, totalCost : parseFloat(totalCost).toFixed(2), change, balance}
-            //     });
     }
     return (
         <div>
@@ -95,12 +36,6 @@ const SettingsCDCS = () => {
             {
                 app.proc_fields &&
                 app.proc_fields.map((app_proc_field, index)=>{
-                    // let proc_duration_minutes = [
-                    //     {value: 15, label: '15'},
-                    //     {value: 30, label: '30'},
-                    //     {value: 45, label: '45'},
-                    //     {value: 60, label: '60'},
-                    // ]
                     return (
                         
                         <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
@@ -169,7 +104,7 @@ const SettingsCDCS = () => {
                         if (checkProcNotSelected) {
                             setApp((prev)=>{
                                 return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                            proc_duration_minutes: 0, proc_cost: 0,
+                                            proc_duration_minutes: '', proc_cost: '',
                                             }] } 
                             })
                         }else{
@@ -178,6 +113,34 @@ const SettingsCDCS = () => {
                         }
                     
                     }}>+</button>
+            </div>
+            <div className='details-details-modal-body-button'> 
+                        
+                <button className='button-w70 button-disabled' 
+                    onClick={async()=>{
+                            const response = await axios.post(
+                                "/api/cdcs/fields",
+                                {app});
+                            console.log('app', app)
+                            console.log('response add/update Fields', response)
+                            if (response.data.message === 'tkn_e') {
+                                alert('token empty')
+                                router.push("/cdcs/login");
+                            } else if(response.data.success === true){
+                                alert('Procedure Fields Succesffuly Updated')
+                                // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/dashboard`);
+                            }else {
+                                // alert('token ok')
+                                alert('Failed Updating Procedure Fields')
+                            }
+                        
+                    
+                    }}>Update Procedure Fields</button>
+                {/* <button  className='button-w20'>
+                    Cancel
+                </button> */}
+
+                <Link href="/cdcs/dashboard" passHref><button className='button-w20'>Close</button></Link>
             </div>
         </div>
     );

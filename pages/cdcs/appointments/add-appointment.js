@@ -15,6 +15,11 @@ import Link from 'next/link'
 
 const AppointmentDetails = () => {
   const router = useRouter();
+  const [fields, setFields] = useState({
+      app: {
+          proc_fields: []
+      }
+  });
   const [app, setApp] = useState({
     date:'',patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
@@ -33,8 +38,8 @@ const AppointmentDetails = () => {
   const [isOpen, setIsOpen] = useState({
     payment: false, appointment: false, appointmentSelectParent: false
   })
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
+//   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+//   const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
   const [usersList, setUserList] = useState([]);
 //   const [app_proc_fields, set_app_proc_fields] = useState(()=>{return [{
 //       proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0,
@@ -43,35 +48,46 @@ const AppointmentDetails = () => {
 //   const [app_total_proc_cost, set_app_total_proc_cost] = useState(0);
 //   const [app_pay_amount, set_app_pay_amount] = useState('');
 //   const [app_pay_balance, set_app_pay_balance] = useState('');
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [app_pay_fields, set_app_pay_fields] = useState([]);
-  const [app_id, set_app_id] = useState(null);
-  const [tooth_check_box, set_tooth_check_box] = useState({
-      t18: false, t17: false, t16: false, t15: false, t14: false, t13: false, t12: false, t11: false,
-      t28: false, t27: false, t26: false, t25: false, t24: false, t23: false, t22: false, t21: false,
-      t38: false, t37: false, t36: false, t35: false, t34: false, t33: false, t32: false, t31: false,
-      t48: false, t47: false, t46: false, t45: false, t44: false, t43: false, t42: false, t41: false,
-      t55: false, t54: false, t53: false, t52: false, t51: false,
-      t65: false, t64: false, t63: false, t62: false, t61: false,
-      t75: false, t74: false, t73: false, t72: false, t71: false,
-      t85: false, t84: false, t83: false, t82: false, t81: false,
-  });
-  const [tooth_select, set_tooth_select] = useState([
-      'C','M','F','I','RF','MO','Im','J','A','AB','P','In','Fx','S','Rm','X','XO','Cm','Sp'
-  ]);
-  const [tooth_remark, set_tooth_remark] = useState({
-      t18: '', t17: '', t16: '', t15: '', t14: '', t13: '', t12: '', t11: '',
-      t28: '', t27: '', t26: '', t25: '', t24: '', t23: '', t22: '', t21: '',
-      t38: '', t37: '', t36: '', t35: '', t34: '', t33: '', t32: '', t31: '',
-      t48: '', t47: '', t46: '', t45: '', t44: '', t43: '', t42: '', t41: '',
-      t55: '', t54: '', t53: '', t52: '', t51: '',
-      t65: '', t64: '', t63: '', t62: '', t61: '',
-      t75: '', t74: '', t73: '', t72: '', t71: '',
-      t85: '', t84: '', t83: '', t82: '', t81: '',
-  });
+//   const [selectedOption, setSelectedOption] = useState(null);
+//   const [app_pay_fields, set_app_pay_fields] = useState([]);
+//   const [app_id, set_app_id] = useState(null);
+//   const [tooth_check_box, set_tooth_check_box] = useState({
+//       t18: false, t17: false, t16: false, t15: false, t14: false, t13: false, t12: false, t11: false,
+//       t28: false, t27: false, t26: false, t25: false, t24: false, t23: false, t22: false, t21: false,
+//       t38: false, t37: false, t36: false, t35: false, t34: false, t33: false, t32: false, t31: false,
+//       t48: false, t47: false, t46: false, t45: false, t44: false, t43: false, t42: false, t41: false,
+//       t55: false, t54: false, t53: false, t52: false, t51: false,
+//       t65: false, t64: false, t63: false, t62: false, t61: false,
+//       t75: false, t74: false, t73: false, t72: false, t71: false,
+//       t85: false, t84: false, t83: false, t82: false, t81: false,
+//   });
+//   const [tooth_select, set_tooth_select] = useState([
+//       'C','M','F','I','RF','MO','Im','J','A','AB','P','In','Fx','S','Rm','X','XO','Cm','Sp'
+//   ]);
+//   const [tooth_remark, set_tooth_remark] = useState({
+//       t18: '', t17: '', t16: '', t15: '', t14: '', t13: '', t12: '', t11: '',
+//       t28: '', t27: '', t26: '', t25: '', t24: '', t23: '', t22: '', t21: '',
+//       t38: '', t37: '', t36: '', t35: '', t34: '', t33: '', t32: '', t31: '',
+//       t48: '', t47: '', t46: '', t45: '', t44: '', t43: '', t42: '', t41: '',
+//       t55: '', t54: '', t53: '', t52: '', t51: '',
+//       t65: '', t64: '', t63: '', t62: '', t61: '',
+//       t75: '', t74: '', t73: '', t72: '', t71: '',
+//       t85: '', t84: '', t83: '', t82: '', t81: '',
+//   });
   useEffect(()=>{
     getPatientDoctorList();
+    getFields();
   }, [])
+  const getFields = async ()=>{
+    const getFields = await axios.get('/api/cdcs/fields')
+    // console.log('getFields', getFields.data.data.fields)
+    if (getFields.data.success) {
+        // console.log('getFields Ok')
+        setFields(getFields.data.data.fields)
+    }else{
+        console.log('getFields Empty')
+    }
+}
   const getPatientDoctorList = async()=>{
     const response = await axios.post(`/api/cdcs/users`,{
         post:20
@@ -408,12 +424,12 @@ const AppointmentDetails = () => {
                             {
                               app.proc_fields &&
                               app.proc_fields.map((app_proc_field, index)=>{
-                                    let proc_duration_minutes = [
-                                        {value: 15, label: '15'},
-                                        {value: 30, label: '30'},
-                                        {value: 45, label: '45'},
-                                        {value: 60, label: '60'},
-                                    ]
+                                    // let proc_duration_minutes = [
+                                    //     {value: 15, label: '15'},
+                                    //     {value: 30, label: '30'},
+                                    //     {value: 45, label: '45'},
+                                    //     {value: 60, label: '60'},
+                                    // ]
                                     return (
                                         
                                         <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
@@ -422,9 +438,17 @@ const AppointmentDetails = () => {
                                                 <select name="proc_name" value={app_proc_field.proc_name} disabled={app.date === ''}
                                                 onChange={(event)=>{handleChangeInput(index, event)}}>
                                                     <option value="">-Select Procedure-</option>
-                                                    <option value="Consultation">Consultation</option>
+                                                    {
+                                                            fields.app.proc_fields.map((f, k)=>{
+                                                                // console.log('f', f)
+                                                                return (
+                                                                    <option key={k} value={f.proc_name}>{f.proc_name}</option>
+                                                                )
+                                                            })
+                                                        }
+                                                    {/* <option value="Consultation">Consultation</option>
                                                     <option value="Extraction">Extraction</option>
-                                                    <option value="Cleaning">Cleaning</option>
+                                                    <option value="Cleaning">Cleaning</option> */}
                                                 </select>       
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
@@ -433,9 +457,10 @@ const AppointmentDetails = () => {
                                                     onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value={0}>-Select Minutes-</option>
                                                         {
-                                                            proc_duration_minutes.map((f, k)=>{
+                                                            fields.app.proc_fields.map((f, k)=>{
+                                                                // console.log('f', f)
                                                                 return (
-                                                                    <option key={k} value={f.value}>{f.label}</option>
+                                                                    <option key={k} value={f.proc_duration_minutes}>{f.proc_duration_minutes}</option>
                                                                 )
                                                             })
                                                         }
