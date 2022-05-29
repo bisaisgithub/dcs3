@@ -179,16 +179,22 @@ const AppointmentDetails = () => {
                         //     totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
                         // }else
                         // {
-                            if (value.proc_name === 'Extraction') {
-                                value.proc_duration_minutes = 30;
-                                value.proc_cost = 500;
-                            }else if(value.proc_name === 'Cleaning'){
-                                value.proc_duration_minutes = 60;
-                                value.proc_cost = 800;
-                            }else if(value.proc_name === 'Consultation'){
-                                value.proc_duration_minutes = 15;
-                                value.proc_cost = 300;
-                            }
+                            // if (value.proc_name === 'Extraction') {
+                            //     value.proc_duration_minutes = 30;
+                            //     value.proc_cost = 500;
+                            // }else if(value.proc_name === 'Cleaning'){
+                            //     value.proc_duration_minutes = 60;
+                            //     value.proc_cost = 800;
+                            // }else if(value.proc_name === 'Consultation'){
+                            //     value.proc_duration_minutes = 15;
+                            //     value.proc_cost = 300;
+                            // }
+                            fields.app.proc_fields.forEach((f)=>{
+                                if (f.proc_name === value.proc_name) {
+                                    value.proc_duration_minutes = parseInt(f.proc_duration_minutes);
+                                    value.proc_cost = parseFloat(f.proc_cost);
+                                }
+                            })
         
                             totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
                         // }
