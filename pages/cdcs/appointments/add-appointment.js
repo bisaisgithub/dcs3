@@ -14,6 +14,7 @@ import Link from 'next/link'
 // registerLocale("el", el); // register it with the name you want
 
 const AppointmentDetails = () => {
+  const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const [fields, setFields] = useState({
       app: {
@@ -75,17 +76,22 @@ const AppointmentDetails = () => {
 //       t85: '', t84: '', t83: '', t82: '', t81: '',
 //   });
   useEffect(()=>{
+    setLoading(true);
     getPatientDoctorList();
     getFields();
   }, [])
+  if (isLoading){
+    return <p>Loading...</p>
+  }
   const getFields = async ()=>{
     const getFields = await axios.get('/api/cdcs/fields')
     // console.log('getFields', getFields.data.data.fields)
     if (getFields.data.success) {
         // console.log('getFields Ok')
+        setLoading(false);
         setFields(getFields.data.data.fields)
     }else{
-        console.log('getFields Empty')
+        alert('Failed Getting Procedures')
     }
 }
   const getPatientDoctorList = async()=>{
@@ -430,12 +436,6 @@ const AppointmentDetails = () => {
                             {
                               app.proc_fields &&
                               app.proc_fields.map((app_proc_field, index)=>{
-                                    // let proc_duration_minutes = [
-                                    //     {value: 15, label: '15'},
-                                    //     {value: 30, label: '30'},
-                                    //     {value: 45, label: '45'},
-                                    //     {value: 60, label: '60'},
-                                    // ]
                                     return (
                                         
                                         <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
@@ -445,13 +445,13 @@ const AppointmentDetails = () => {
                                                 onChange={(event)=>{handleChangeInput(index, event)}}>
                                                     <option value="">-Select Procedure-</option>
                                                     {
-                                                           fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
-                                                                // console.log('f', f)
-                                                                return (
-                                                                    <option key={k} value={f.proc_name}>{f.proc_name}</option>
-                                                                )
-                                                            })
-                                                        }
+                                                        fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
+                                                            // console.log('f', f)
+                                                            return (
+                                                                <option key={k} value={f.proc_name}>{f.proc_name}</option>
+                                                            )
+                                                        })
+                                                    }
                                                     {/* <option value="Consultation">Consultation</option>
                                                     <option value="Extraction">Extraction</option>
                                                     <option value="Cleaning">Cleaning</option> */}

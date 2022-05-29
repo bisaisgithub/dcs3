@@ -18,6 +18,11 @@ import CDCSUsers7 from "../../../models/cdcs/Users";
 
 const AppointmentDetails = () => {
   const router = useRouter();
+  const [fields, setFields] = useState({
+    app: {
+        proc_fields: []
+    }
+});
   const [app, setApp] = useState({
     date:'',patient_id: 
     // {value: '626e8f79bf17b8d0569c9c38', label: 'test'}
@@ -55,7 +60,18 @@ const AppointmentDetails = () => {
   useEffect(()=>{
     getAppointments();
     getPatientDoctorList();
+    getFields();
   }, [])
+  const getFields = async ()=>{
+    const getFields = await axios.get('/api/cdcs/fields')
+    // console.log('getFields', getFields.data.data.fields)
+    if (getFields.data.success) {
+        // console.log('getFields Ok')
+        setFields(getFields.data.data.fields)
+    }else{
+        console.log('getFields Empty')
+    }
+  }
   const getAppointments = async ()=>{
     const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`,
       // {post:2,id:router.query.id,}
@@ -201,16 +217,22 @@ const AppointmentDetails = () => {
                         //     totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
                         // }else
                         // {
-                            if (value.proc_name === 'Extraction') {
-                                value.proc_duration_minutes = 30;
-                                value.proc_cost = 500;
-                            }else if(value.proc_name === 'Cleaning'){
-                                value.proc_duration_minutes = 60;
-                                value.proc_cost = 800;
-                            }else if(value.proc_name === 'Consultation'){
-                                value.proc_duration_minutes = 15;
-                                value.proc_cost = 300;
-                            }
+                            // if (value.proc_name === 'Extraction') {
+                            //     value.proc_duration_minutes = 30;
+                            //     value.proc_cost = 500;
+                            // }else if(value.proc_name === 'Cleaning'){
+                            //     value.proc_duration_minutes = 60;
+                            //     value.proc_cost = 800;
+                            // }else if(value.proc_name === 'Consultation'){
+                            //     value.proc_duration_minutes = 15;
+                            //     value.proc_cost = 300;
+                            // }
+                            fields.app.proc_fields.forEach((f)=>{
+                                if (f.proc_name === value.proc_name) {
+                                    value.proc_duration_minutes = parseInt(f.proc_duration_minutes);
+                                    value.proc_cost = parseFloat(f.proc_cost);
+                                }
+                            })
         
                             totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
                         // }
@@ -474,9 +496,17 @@ const AppointmentDetails = () => {
                                                 <select name="proc_name" value={app_proc_field.proc_name} disabled={app.date === ''}
                                                 onChange={(event)=>{handleChangeInput(index, event)}}>
                                                     <option value="">-Select Procedure-</option>
-                                                    <option value="Consultation">Consultation</option>
+                                                    {
+                                                        fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
+                                                            // console.log('f', f)
+                                                            return (
+                                                                <option key={k} value={f.proc_name}>{f.proc_name}</option>
+                                                            )
+                                                        })
+                                                    }
+                                                    {/* <option value="Consultation">Consultation</option>
                                                     <option value="Extraction">Extraction</option>
-                                                    <option value="Cleaning">Cleaning</option>
+                                                    <option value="Cleaning">Cleaning</option> */}
                                                 </select>       
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
@@ -484,13 +514,21 @@ const AppointmentDetails = () => {
                                                     <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
                                                     onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value={0}>-Select Minutes-</option>
-                                                        <option value={15}>15</option>
+                                                        {
+                                                            fields.app.proc_fields.map((f, k)=>{
+                                                                // console.log('f', f)
+                                                                return (
+                                                                    <option key={k} value={f.proc_duration_minutes}>{f.proc_duration_minutes}</option>
+                                                                )
+                                                            })
+                                                        }
+                                                        {/* <option value={15}>15</option>
                                                         <option value={30}>30</option>
                                                         <option value={45}>45</option>
                                                         <option value={60}>60</option>
                                                         <option value={75}>75</option>
                                                         <option value={90}>90</option>
-                                                        <option value={120}>120</option>
+                                                        <option value={120}>120</option> */}
                                                     </select>
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
