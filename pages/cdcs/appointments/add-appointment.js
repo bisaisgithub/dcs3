@@ -81,15 +81,19 @@ const AppointmentDetails = () => {
     getFields();
   }, [])
   if (isLoading){
-    return <p>Loading...</p>
+    return (
+        <div className='details-details-container'>
+            <h1>Loading...</h1>
+        </div>
+    )
   }
   const getFields = async ()=>{
     const getFields = await axios.get('/api/cdcs/fields')
     // console.log('getFields', getFields.data.data.fields)
     if (getFields.data.success) {
         // console.log('getFields Ok')
-        setLoading(false);
         setFields(getFields.data.data.fields)
+        setLoading(false);
     }else{
         alert('Failed Getting Procedures')
     }

@@ -17,6 +17,7 @@ import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 
 const AppointmentDetails = () => {
+  const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const [fields, setFields] = useState({
     app: {
@@ -58,16 +59,25 @@ const AppointmentDetails = () => {
   })
   const [usersList, setUserList] = useState([]);
   useEffect(()=>{
+    setLoading(true);
     getAppointments();
     getPatientDoctorList();
     getFields();
   }, [])
+  if (isLoading){
+    return (
+        <div className='details-details-container'>
+            <h1>Loading...</h1>
+        </div>
+    )
+  }
   const getFields = async ()=>{
     const getFields = await axios.get('/api/cdcs/fields')
     // console.log('getFields', getFields.data.data.fields)
     if (getFields.data.success) {
         // console.log('getFields Ok')
-        setFields(getFields.data.data.fields)
+        setFields(getFields.data.data.fields);
+        setLoading(false);
     }else{
         console.log('getFields Empty')
     }
