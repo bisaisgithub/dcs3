@@ -25,12 +25,12 @@ export default async (req, res) => {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-      if (obj.type === 'Admin') {
+      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
           const response = await CDCSFields.findOne()
           .sort({ createdAt: -1 });
           res.json({success: true, data: response})
-        } else if(req.method === 'POST'){
+        } else if(req.method === 'POST' && obj.type === 'Admin'){
             // console.log('req.body', req.body)
             let data = { fields: req.body, modified_by: obj._id}
             // console.log('data', data);
@@ -43,7 +43,7 @@ export default async (req, res) => {
               }
               // res.json({success: true, message: 'test'})
         }else {
-          res.json({success: false, message: `mthd ${req.method}`})
+          res.json({success: false, message: `mthd ${req.method} _x and nt a`})
         }
       } else {
         res.json({success: false, message: 'obj t nt a'})
