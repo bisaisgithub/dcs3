@@ -27,30 +27,22 @@ const AppointmentTable = ({user}) => {
     const getAppointments = async (data)=>{
         if (data) {
             // console.log('search data not empty', data)
-            if (data.filterType === 'filterNormal') {
+            if (data.filterType === 'filterNormal' || data.filterType === 'filterClosed') {
                 // console.log('filterNormal')
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
-                if (response.data.data) {
-                    const finalArray = response.data.data.map((a)=>{
-                        a.date = formatDate(a.date);
-                        return a;
-                    })
-                    // console.log('newArray', newArray)
-                    // let finalArray = [];
-                    // if (data.date) {
-                        // console.log('data.date true')
-                        // finalArray = newArray.filter((a)=>{
-                            // a.date = formatDate(a.date);
-                            // console.log('data.date', data.date)
-                            // console.log('a.date', a.date)
-                            // if (a.date === data.date) {
-                            //     return a;
-                            // }
-                            // return a.date === data.date;
-                        // })
-                        // finalArray = newArray2;
-                    // }
+                let responseData = []
+                if (data.filterType === 'filterNormal') {
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
+                    responseData = response.data.data;
+                }else if (data.filterType === 'filterClosed') {
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed`);
+                    responseData = response.data.data;
+                } else {
+                    alert('failed getting filtered appointments')
+                }
+                if (responseData) {
+                    let finalArray =  responseData;
                     if ('status' in data) {
+                        // console.log('status')
                         finalArray = finalArray.filter((a)=>{
                             return a.status.toLowerCase().includes(data.status.toLowerCase());
                         })
@@ -72,7 +64,7 @@ const AppointmentTable = ({user}) => {
                     if ('date' in data) {
                         data.date = formatDate(data.date)
                         finalArray = finalArray.filter((a)=>{
-                            return a.date === data.date;
+                            return formatDate(a.date) === data.date;
                         })
                     }
                     // console.log('finalArray', finalArray)
@@ -83,31 +75,12 @@ const AppointmentTable = ({user}) => {
                 }else{
                     alert('Failed getting appointments without filter')
                 }
-            } else {
-                console.log('not filterNormal')
             }
-            // console.log('data length', data.length)
-            // const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`, 
-            // {data});
-            // const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
-            // console.log('res.data', response.data)
-            // if (response.data.data) {
-            //     setAppointmentsData(response.data.data)
-            // }else{
-            //     alert('Falied getting appointments with filter')
-            // }
         } else {
             // console.log('empty data', data)
             const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
             if (response.data.data) {
-                // console.log(response.data.data);
-                const newArray = response.data.data.map((a)=>{
-                    a.date = formatDate(a.date);
-                    return a;
-                })
-                // console.log('newArray', newArray)
-                // setAppointmentsData(response.data.data)
-                setAppointmentsData(newArray);
+                setAppointmentsData(response.data.data)
             }else{
                 alert('Failed getting appointments without filter')
             }
@@ -176,7 +149,21 @@ const AppointmentTable = ({user}) => {
                         </th>
                         <th>
                             <p onClick={()=>{
-                                }}>Find Closed</p>
+                                // console.log('search',search)
+                                const asArray = Object.entries(search);
+                                //   console.log('asArray',asArray)
+                                  const filtered = asArray.filter(([key, value]) => value !== '');
+                                //   console.log('filtered',filtered)
+                                  const justStrings = Object.fromEntries(filtered);
+                                //   console.log('justStrings',justStrings)
+                                if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
+                                    // console.log('empty true');
+                                    getAppointments({filterType: 'filterClosed'});
+                                } else {
+                                    // console.log('empty false');
+                                    getAppointments({...justStrings, filterType: 'filterClosed'});
+                                }
+                            }}>Find Closed</p>
                         </th>
                             <th><p onClick={()=>{
                                 // console.log('search',search)
@@ -187,27 +174,27 @@ const AppointmentTable = ({user}) => {
                                   const justStrings = Object.fromEntries(filtered);
                                 //   console.log('justStrings',justStrings)
                                 if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
-                                        // console.log('empty true');
-                                        getAppointments();
-                                    } else {
-                                        // console.log('empty false');
-                                        getAppointments({...justStrings, filterType: 'filterNormal'});
-                                    }
-
-                                // getAppointments({
-                                    // filterType: 'filter',
-                                    // date: formatDateYYYYMMDD(search.date),
-                                    // endDate: formatDateYYYYMMDD(new Date(search.date.setDate(search.date.getDate() + 1))),
-                                    // ...justStrings
-                                
-                            // app_search_patient_name, 
-                            // app_search_user_doctor_name, 
-                            // app_search_date
-                            // : app_search_date === ''? '' : formatDateYYYYMMDD(app_search_date)
-                            // ,
-                            // })
+                                    // console.log('empty true');
+                                    getAppointments();
+                                } else {
+                                    // console.log('empty false');
+                                    getAppointments({...justStrings, filterType: 'filterNormal'});
+                                }
                             }}>Find</p></th>
-                         <th><input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/></th>
+                         <th>
+                             {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
+                             <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                        <option value="">-Select Status-</option>
+                                        <option value="On Schedule">On Schedule</option>
+                                        <option value="In Waiting Area">In Waiting Area</option>
+                                        <option value="In Procedure Room">In Procedure Room</option>
+                                        <option value="Next Appointment">Next Appointment</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="Closed No Show">Closed No Show</option>
+                                        <option value="Closed w/ Balance">Closed w/ Balance</option>
+                                        <option value="In Request">In Request</option>
+                                    </select>
+                             </th>
                         <th><Link href="/cdcs/appointments/add-appointment" passHref><p>New</p></Link></th>
                         
                     </tr>
@@ -226,7 +213,7 @@ const AppointmentTable = ({user}) => {
                 <tbody className='table-table2-table-tbody'>
                     {appointmentsData && appointmentsData.map((appointment, index)=>{
                         let totalMinutes = 0;
-                        appointment.proc_fields.map((f)=>{
+                        appointment.proc_fields.forEach((f)=>{
                             totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
                         })
                         let endTime = new Date(new Date(appointment.date).setMinutes(new Date(appointment.date).getMinutes()+totalMinutes))
@@ -235,10 +222,11 @@ const AppointmentTable = ({user}) => {
                                 <td>{appointment.doctor_id.name}</td>
                                 <td>{appointment.patient_id.name}</td>
                                 <td className='maxW50px'>{
-                                // formatDate(appointment.date)
-                                appointment.date
+                                formatDate(appointment.date)
+                                // appointment.date
                                 }</td>
                                 <td>{new Date(appointment.date).toLocaleString('en-PH', timeOptions)}</td>
+                                {/* <td>{appointment.status}</td> */}
                                 <td>{new Date(endTime).toLocaleString('en-PH', timeOptions)}</td>
                                 {/* <td className='table-table2-table-body-tr-td '>
                                     <button className='minW50px' style={{background:'#3c3f44'}} onClick={()=>{}}>{

@@ -465,4 +465,10 @@ input[type="text"] {
 .margin-bottom-20{
   margin: 0 0 20px !important;
 }
+.appointment-filter-select{
+  padding: 5px;
+  width: 100%;
+  border-radius: 5px;
+  height: 35px;
+}
 /* add-appointment ends */
