@@ -459,4 +459,10 @@ input[type="text"] {
   color: grey;
   cursor: auto;
 }
+.align-items-flex-end{
+  align-items: flex-end;
+}
+.margin-bottom-20{
+  margin: 0 0 20px !important;
+}
 /* add-appointment ends */

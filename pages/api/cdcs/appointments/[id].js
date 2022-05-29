@@ -36,6 +36,8 @@ export default async (req, res) => {
               req.query.id
               // '6256b7af49b7867a85bc47d7'
             })
+            .populate("patient_id", "name")
+            .populate("doctor_id", "name");
             // console.log('response2', response2)
             res.json({ success: true, data: response, childAppointments: response2});
           } else {

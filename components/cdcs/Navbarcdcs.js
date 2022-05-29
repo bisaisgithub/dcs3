@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Image from "next/dist/client/image";
+import { useRouter } from "next/router";
+
 
 const Navbarcdcs = ({ user }) => {
+  const router = useRouter();
   if (user.type === 'Admin') {
     return (
       <div className="nav">
@@ -70,8 +73,15 @@ const Navbarcdcs = ({ user }) => {
             <span>Settings</span>
           </a>
         </Link>
-        <Link href="/cdcs/logout" passHref>
-          <a className="nav__link">
+        {/* <button> */}
+           {/* href="/cdcs/logout" passHref> */}
+          <a className="nav__link" 
+          onClick={()=>{
+            let input = confirm('Are you sure you want to Logout?')
+            if (input) {
+              router.push('/cdcs/logout');
+            }
+          }}>
             <div>
               <Image
                 src="/navbar/exit-smalllikeart-flaticon.png"
@@ -82,7 +92,7 @@ const Navbarcdcs = ({ user }) => {
             </div>
             <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
           </a>
-        </Link>
+        {/* </button> */}
       </div>
     );
   } else {
@@ -140,8 +150,13 @@ const Navbarcdcs = ({ user }) => {
             <span>Dashboard</span>
           </a>
         </Link>
-        <Link href="/cdcs/logout" passHref>
-          <a className="nav__link">
+        <a className="nav__link" 
+          onClick={()=>{
+            let input = confirm('Are you sure you want to Logout?')
+            if (input) {
+              router.push('/cdcs/logout');
+            }
+          }}>
             <div>
               <Image
                 src="/navbar/exit-smalllikeart-flaticon.png"
@@ -152,7 +167,6 @@ const Navbarcdcs = ({ user }) => {
             </div>
             <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
           </a>
-        </Link>
       </div>
     );
   }

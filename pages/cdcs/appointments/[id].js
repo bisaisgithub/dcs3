@@ -51,6 +51,7 @@ const AppointmentDetails = () => {
   const [appParent, setAppParent] = useState({
     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
   });
+  const [appChild, setAppChild] = useState([]);
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
@@ -88,7 +89,8 @@ const AppointmentDetails = () => {
     );
     
     if (response.data.data && response.data.success) {
-        console.log('response is true', response.data);
+      console.log('response is true', response.data);
+      
       let totalMinutes = 0;
       let totalCost = 0
       response.data.data.proc_fields.map((f)=>{
@@ -103,6 +105,21 @@ const AppointmentDetails = () => {
         f.pay_date = new Date(f.pay_date)
         return f;
       })
+      if (response.data.childAppointments.length>0) {
+          console.log('child appoitment not empty')
+          
+          const childAppointments = response.data.childAppointments.map((f)=>{
+               let totalCost = 0;
+                f.proc_fields.map((f2)=>{
+                totalCost = parseFloat(f2.proc_cost)
+             })
+             f.totalCost = totalCost;
+             return f;
+          })
+          setAppChild(childAppointments)
+      }else{
+        console.log('empty child appoitment')
+      }
       if (totalCost - totalPayment < 0) {
           change = totalPayment - totalCost;
       } else {
@@ -156,29 +173,6 @@ const AppointmentDetails = () => {
             let totalPayment = 0;
             values.map(async (field, index)=>{
                 totalPayment = totalPayment + parseFloat(field.pay_amount);
-                
-                // for(let i = 0; i<= index; i++){
-                //     let pay_amount = 0;
-                //     if (app_pay_fields[i].pay_amount>0) {
-                //         pay_amount = app_pay_fields[i].pay_amount
-                //     }
-                //     totalPayment = totalPayment + parseFloat(pay_amount);
-                // }
-                // if (app_total_proc_cost-totalPayment>-1) {
-                // //    await set_app_pay_balance(parseFloat(app_total_proc_cost-totalPayment));
-                // //    await set_app_pay_change(0);
-                //     const values2 = [...app_pay_fields];
-                //     values[index]['pay_change'] = 0;
-                //     values[index]['pay_balance'] = parseFloat(app_total_proc_cost-totalPayment);
-                //     set_app_pay_fields(values2);
-                // } else {
-                //     // await set_app_pay_balance(0);
-                //     // await set_app_pay_change(parseFloat(totalPayment-app_total_proc_cost));
-                //     const values2 = [...app_pay_fields];
-                //     values[index]['pay_change'] = parseFloat(totalPayment-app_total_proc_cost);
-                //     values[index]['pay_balance'] = 0;
-                //     set_app_pay_fields(values2);
-                // }
             })
             let change = 0;
             let balance = 0;
@@ -217,26 +211,6 @@ const AppointmentDetails = () => {
                     value.proc_cost = 0;
                 }else{
                     if (event.target.name == 'proc_name' && !value.proc_name == '' && i === index) {       
-                        // console.log('ifs')
-                        // console.log('value.proc_name ifs:', value.proc_name)             
-                        // if (
-                        //     parseInt(value.proc_duration_minutes)>0
-                        //     // true
-                        //     ) 
-                        // {
-                        //     totalMinutes = totalMinutes + parseInt(value.proc_duration_minutes);
-                        // }else
-                        // {
-                            // if (value.proc_name === 'Extraction') {
-                            //     value.proc_duration_minutes = 30;
-                            //     value.proc_cost = 500;
-                            // }else if(value.proc_name === 'Cleaning'){
-                            //     value.proc_duration_minutes = 60;
-                            //     value.proc_cost = 800;
-                            // }else if(value.proc_name === 'Consultation'){
-                            //     value.proc_duration_minutes = 15;
-                            //     value.proc_cost = 300;
-                            // }
                             fields.app.proc_fields.forEach((f)=>{
                                 if (f.proc_name === value.proc_name) {
                                     value.proc_duration_minutes = parseInt(f.proc_duration_minutes);
@@ -954,9 +928,8 @@ const AppointmentDetails = () => {
                        (
                            <div className='details-details-container'>
                                <div className='details-details-modal-container'>
-                                   <div className='details-details-modal-body-button margin-bottom-20'> 
-                                   </div>
-                                   <h1>Current Parent Appointment</h1>
+                                   <div className='details-details-modal-body-button align-items-flex-end'> 
+                                   <span>Current Parent Appointment</span>
                                    <button onClick={ async ()=>{
                                     //    console.log('app.patient_id', app.patient_id)
                                        const response = await axios.post(`/api/cdcs/appointments`,{                            
@@ -970,59 +943,104 @@ const AppointmentDetails = () => {
                                          console.log('Failed getting parents appointments')
                                        }
                                        setIsOpen({...isOpen, appointmentSelectParent: true})
-                                       }}>Search Parent</button> 
+                                       }}>Search Parent</button>
+                                    </div>
                                    <div className='details-details-modal-body-container'>
-                                       <div>
-                                           {
                                            <div className='table-table2-container'>
-                                           <table className="table-table2-table">
-                                               <thead className='table-table2-table-thead-search2'>
-                                               {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                   <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                   <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                   <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                   </th>
-                                                   <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                   <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                   <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                               </tr> */}
-                                               </thead>
-                                               <thead className='table-table2-table-thead'>
-                                               <tr className='table-table2-table-thead-tr'>
-                                                   <th>Total Cost</th>
-                                                   <th>Patient</th>
-                                                   <th>Doctor</th>
-                                                   <th>Date</th>
-                                                   <th>Time</th>
-                                                   <th>Status</th>
-                                                   <th>Option</th>
-                                               </tr>
-                                               </thead>
-                                               <tbody className='table-table2-table-tbody'>
-                                                   <tr className='table-table2-table-tbody-tr'>
-                                                       <td>{appParent.totalCost}</td>
-                                                       <td>{appParent.patient_id.name}</td>
-                                                       <td>{appParent.doctor_id.name}</td>
-                                                       <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
-                                                       <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                       <td>{appParent.status}</td>
-                                                       <td>{appParent.status === ''? '' : 
-                                                       <button onClick={()=>{
-                                                           setAppParent({
-                                                           patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                                                           })
-                                                        //    delete app.parent_appointments
-                                                           setApp({...app, parent_appointments: null});
-                                                       }} 
-                                                       >Remove</button>
-                                                       }</td>
-                                                   </tr>
-                                               </tbody>
-                                           </table>
+                                                <table className="table-table2-table margin-bottom-20">
+                                                    <thead className='table-table2-table-thead-search2'>
+                                                    {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                        <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                        <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                        <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                        </th>
+                                                        <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                        <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                        <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                    </tr> */}
+                                                    </thead>
+                                                    <thead className='table-table2-table-thead'>
+                                                    <tr className='table-table2-table-thead-tr'>
+                                                        <th>Total Cost</th>
+                                                        <th>Patient</th>
+                                                        <th>Doctor</th>
+                                                        <th>Date</th>
+                                                        <th>Time</th>
+                                                        <th>Status</th>
+                                                        <th>Option</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody className='table-table2-table-tbody'>
+                                                        <tr className='table-table2-table-tbody-tr'>
+                                                            <td>{appParent.totalCost}</td>
+                                                            <td>{appParent.patient_id.name}</td>
+                                                            <td>{appParent.doctor_id.name}</td>
+                                                            <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
+                                                            <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                            <td>{appParent.status}</td>
+                                                            <td>{appParent.status === ''? '' : 
+                                                            <button onClick={()=>{
+                                                                setAppParent({
+                                                                patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                                })
+                                                                //    delete app.parent_appointments
+                                                                setApp({...app, parent_appointments: null});
+                                                            }} 
+                                                            >Remove</button>
+                                                            }</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                            </div>
-                                           }
-                                       </div>
-
+                                           <span>Current Child Appointments</span>
+                                                <table className="table-table2-table">
+                                                    <thead className='table-table2-table-thead-search2'>
+                                                    {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                        <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                        <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                        <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                        </th>
+                                                        <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                        <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                        <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                    </tr> */}
+                                                    </thead>
+                                                    <thead className='table-table2-table-thead'>
+                                                    <tr className='table-table2-table-thead-tr'>
+                                                        <th>Total Cost</th>
+                                                        <th>Patient</th>
+                                                        <th>Doctor</th>
+                                                        <th>Date</th>
+                                                        <th>Time</th>
+                                                        <th>Status</th>
+                                                        <th>Option</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody className='table-table2-table-tbody'>
+                                                      {
+                                                        appChild && appChild.map((f, i)=>{
+                                                            
+                                                            return(
+                                                                <tr key={i} className='table-table2-table-tbody-tr'>
+                                                                    <td>{f.totalCost}</td>
+                                                                    <td>{f.patient_id.name}</td>
+                                                                    <td>{f.doctor_id.name}</td>
+                                                                    <td>{f.date === '' ? '' : formatDate(f.date)}</td>
+                                                                    <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                                    <td>{f.status}</td>
+                                                                    <td>{f.status === ''? '' : 
+                                                                    <button onClick={()=>{
+                                                                        
+                                                                    }} 
+                                                                    >Edit</button>
+                                                                    }</td>
+                                                                </tr>
+                                                            )
+                                                            
+                                                        })
+                                                      }
+                                                    </tbody>
+                                                </table>
                                    </div>
                                    
                                    <div className='flex-end'> 

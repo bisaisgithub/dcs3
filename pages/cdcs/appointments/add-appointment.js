@@ -39,6 +39,9 @@ const AppointmentDetails = () => {
   const [isOpen, setIsOpen] = useState({
     payment: false, appointment: false, appointmentSelectParent: false
   })
+  const [disableButton, setDisableButton] = useState({
+      addAppointment: false 
+  })
 //   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 //   const [isAppontLinkOpen, setIsAppointmentLinkOpen] = useState(false);
   const [usersList, setUserList] = useState([]);
@@ -628,11 +631,13 @@ const AppointmentDetails = () => {
                         
                         <button className='button-w70 button-disabled' 
                         disabled={
-                            app.type === ''
+                            app.type === '' || 
+                            disableButton.addAppointment
                             // false
                         } 
-                            onClick={async()=>{
+                            onClick={async()=>{ 
                                 // console.log('app2', app2)
+                                setDisableButton(true);
                                 let checkProcEmpty = true;
                                 app.proc_fields.map((fields)=>{
                                     if(fields.proc_name === ''){
