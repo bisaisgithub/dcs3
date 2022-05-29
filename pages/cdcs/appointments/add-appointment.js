@@ -445,7 +445,7 @@ const AppointmentDetails = () => {
                                                 onChange={(event)=>{handleChangeInput(index, event)}}>
                                                     <option value="">-Select Procedure-</option>
                                                     {
-                                                            fields.app.proc_fields.map((f, k)=>{
+                                                           fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
                                                                 // console.log('f', f)
                                                                 return (
                                                                     <option key={k} value={f.proc_name}>{f.proc_name}</option>
