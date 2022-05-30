@@ -25,7 +25,7 @@ const AppointmentDetails = () => {
     date:'',patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
       },],
       app_pay_fields: []
   });
@@ -222,7 +222,7 @@ const AppointmentDetails = () => {
                     }
                 }
 
-                if (parseFloat(value.proc_cost)>0) {
+                if (parseFloat(value.proc_cost)>0 && value.in_package  === 'No') {
                     totalCost = parseFloat(totalCost + parseFloat(value.proc_cost));
                     value.proc_cost = parseFloat(value.proc_cost);
                 }else{
@@ -311,7 +311,7 @@ const AppointmentDetails = () => {
                         </button>
                         <button className='add-payment-button height-80p button-disabled' 
                             disabled={
-                                app.type === ''
+                                app.patient_id.value === ''
                                 // false
                             }
                             onClick={()=>{
@@ -499,11 +499,33 @@ const AppointmentDetails = () => {
                                                             handleChangeInput(index, event)
                                                         }}
                                                     />
-                                                    <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                    {
+                                                        app.parent_appointments?
+                                                        (
+                                                            <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                <option value='Yes'>Yes</option>
+                                                                <option value='No'>No</option>
+                                                                {/* <option value='No'>{app.parent_appointments}</option> */}
+                                                            </select>
+                                                        )
+                                                        :
+                                                        (
+                                                            <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                {/* <option value='Yes'>Yes</option> */}
+                                                                {/* <option value='No'>No</option> */}
+                                                                {/* <option value='Yes'>Yes</option> */}
+                                                                <option value='No'>No</option>
+                                                                <option value='No'>{`id: ${app.parent_appointments}`}</option>
+                                                            </select>
+                                                        )
+                                                    }
+                                                    {/* <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
                                                     onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value='No'>No</option>
                                                         <option value='Yes'>Yes</option>
-                                                    </select>
+                                                    </select> */}
                                                     <button className='add-remove-button' 
                                                     onClick={async ()=>{
                                                         // console.log('app: ', app)
@@ -519,7 +541,7 @@ const AppointmentDetails = () => {
                                                                     const values = [...app.proc_fields];
                                                                     values.splice(index, 1);
                                                                     values.map((value)=>{
-                                                                        if (value.proc_cost > -1) {
+                                                                        if (value.proc_cost > -1 && value.in_package === 'No') {
                                                                         totalCost = totalCost+parseFloat(value.proc_cost); 
                                                                         }
                                                                         if (value.proc_duration_minutes> -1) {
@@ -588,11 +610,25 @@ const AppointmentDetails = () => {
                                                 })
                                             }
                                             if (checkProcNotSelected) {
-                                                setApp((prev)=>{
-                                                    return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                                                proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
-                                                                }] } 
-                                                })
+                                                {
+                                                    app.parent_appointments? 
+                                                    (
+                                                        setApp((prev)=>{
+                                                            return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
+                                                                        proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
+                                                                        }] } 
+                                                        })
+                                                    )
+                                                    :
+                                                    (
+                                                        setApp((prev)=>{
+                                                            return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
+                                                                        proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+                                                                        }] } 
+                                                        })
+                                                    )
+                                                }
+                                                
                                             }else{
                                                 alert('Select Procedure first')
                                                 // console.log('app.proc_fieds:', app.proc_fields)
@@ -637,38 +673,44 @@ const AppointmentDetails = () => {
                         } 
                             onClick={async()=>{ 
                                 // console.log('app2', app2)
-                                setDisableButton({...disableButton.addAppointment, addAppointment: true});
                                 let checkProcEmpty = true;
-                                app.proc_fields.map((fields)=>{
-                                    if(fields.proc_name === ''){
-                                        console.log('proc_fields empty')
-                                        checkProcEmpty = false;
-                                    }
-                                })
+                                    app.proc_fields.map((fields)=>{
+                                        if(fields.proc_name === ''){
+                                            console.log('proc_fields empty')
+                                            checkProcEmpty = false;
+                                        }
+                                    })
                                 if (!checkProcEmpty) {
                                     alert('Please select procedure')
-                                }else if(!app.patient_id.value||!app.doctor_id||!app.date||!app.status ||!app.type){
-                                    alert('Empty Field/s')
-                                    console.log('app: ', app)
-                                }
-                                else{
-                                    let data = {...app, filterType: 'create', patient_id: app.patient_id.value}
-                                    // console.log('data: ', data)
-                                    const response = await axios.post(
-                                        "/api/cdcs/appointments",
-                                        {data});
-                                    console.log('response add appointment', response)
-                                    if (response.data.message === 'tkn_e') {
-                                        alert('token empty')
-                                        router.push("/cdcs/login");
-                                    } else if(response.data.success === true){
-                                        alert('Appointment Succesffuly Added')
-                                        router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
-                                    }else {
-                                        // alert('token ok')
-                                        alert('Failed Adding Apppointment')
+                                } else {
+                                    setDisableButton({...disableButton.addAppointment, addAppointment: true});
+                                    // if (!checkProcEmpty) {
+                                    //     alert('Please select procedure')
+                                    // }else 
+                                    if(!app.patient_id.value||!app.doctor_id||!app.date||!app.status ||!app.type){
+                                        alert('Empty Field/s')
+                                        console.log('app: ', app)
+                                    }
+                                    else{
+                                        let data = {...app, filterType: 'create', patient_id: app.patient_id.value}
+                                        // console.log('data: ', data)
+                                        const response = await axios.post(
+                                            "/api/cdcs/appointments",
+                                            {data});
+                                        console.log('response add appointment', response)
+                                        if (response.data.message === 'tkn_e') {
+                                            alert('token empty')
+                                            router.push("/cdcs/login");
+                                        } else if(response.data.success === true){
+                                            alert('Appointment Succesffuly Added')
+                                            router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
+                                        }else {
+                                            // alert('token ok')
+                                            alert('Failed Adding Apppointment')
+                                        }
                                     }
                                 }
+                               
                             
                             }}>
                                 {disableButton.addAppointment? 'Adding...' : 'Add Appointment' }

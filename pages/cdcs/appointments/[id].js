@@ -31,7 +31,7 @@ const AppointmentDetails = () => {
     ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
       },],
     app_pay_fields: [], parent_appointments:''
 
@@ -43,7 +43,7 @@ const AppointmentDetails = () => {
     ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
       },],
       app_pay_fields: []
   });
@@ -90,7 +90,7 @@ const AppointmentDetails = () => {
     );
     
     if (response.data.data && response.data.success) {
-      console.log('response is true', response.data);
+    //   console.log('response is true', response.data);
       
       let totalMinutes = 0;
       let totalCost = 0
@@ -107,12 +107,12 @@ const AppointmentDetails = () => {
         return f;
       })
       if (response.data.childAppointments.length>0) {
-          console.log('child appoitment not empty')
+          console.log('child appoitment not empty', response.data.childAppointments)
           
           const childAppointments = response.data.childAppointments.map((f)=>{
                let totalCost = 0;
                 f.proc_fields.map((f2)=>{
-                totalCost = parseFloat(f2.proc_cost)
+                totalCost = totalCost + parseFloat(f2.proc_cost)
              })
              f.totalCost = totalCost;
              return f;
@@ -233,7 +233,7 @@ const AppointmentDetails = () => {
                     }
                 }
 
-                if (parseFloat(value.proc_cost)>0) {
+                if (parseFloat(value.proc_cost)>0 && value.in_package === 'No') {
                     totalCost = parseFloat(totalCost + parseFloat(value.proc_cost));
                     value.proc_cost = parseFloat(value.proc_cost);
                 }else{
@@ -530,11 +530,29 @@ const AppointmentDetails = () => {
                                                             handleChangeInput(index, event)
                                                         }}
                                                     />
-                                                    <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
-                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                        <option value='No'>No</option>
-                                                        <option value='Yes'>Yes</option>
-                                                    </select>
+                                                    {
+                                                        app.parent_appointments?
+                                                        (
+                                                            <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                <option value='Yes'>Yes</option>
+                                                                <option value='No'>No</option>
+                                                                {/* <option value='No'>{app.parent_appointments}</option> */}
+                                                            </select>
+                                                        )
+                                                        :
+                                                        (
+                                                            <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                {/* <option value='Yes'>Yes</option> */}
+                                                                {/* <option value='No'>No</option> */}
+                                                                {/* <option value='Yes'>Yes</option> */}
+                                                                <option value='No'>No</option>
+                                                                {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
+                                                            </select>
+                                                        )
+                                                    }
+                                                    
                                                     <button className='add-remove-button' 
                                                     onClick={async ()=>{
                                                         // console.log('app: ', app)
@@ -550,7 +568,7 @@ const AppointmentDetails = () => {
                                                                     const values = [...app.proc_fields];
                                                                     values.splice(index, 1);
                                                                     values.map((value)=>{
-                                                                        if (value.proc_cost > -1) {
+                                                                        if (value.proc_cost > -1 && value.in_package === 'No') {
                                                                         totalCost = totalCost+parseFloat(value.proc_cost); 
                                                                         }
                                                                         if (value.proc_duration_minutes> -1) {
