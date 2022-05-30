@@ -12,6 +12,9 @@ import Link from 'next/link'
 // import DatePicker, { registerLocale } from "react-datepicker";
 // import el from "date-fns/locale/"; // the locale you want
 // registerLocale("el", el); // register it with the name you want
+import { getCookie, removeCookies } from "cookies-next";
+import jwt from "jsonwebtoken";
+import CDCSUsers7 from "../../../models/cdcs/Users";
 
 const AppointmentDetails = () => {
   const [isLoading, setLoading] = useState(false);
@@ -35,6 +38,9 @@ const AppointmentDetails = () => {
   });
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
+  });
+  const [appParentSummary, setAppParentSummary]=useState({
+    totalCost: 0, totalPayment: 0, balance: 0, change: 0 
   });
   const [isOpen, setIsOpen] = useState({
     payment: false, appointment: false, appointmentSelectParent: false
@@ -293,7 +299,39 @@ const AppointmentDetails = () => {
                                 app.type === ''
                                 // false
                             }
-                            onClick={()=>{
+                            onClick={async ()=>{
+                            if (app.parent_appointments) {
+                                console.log('payment parent not empty')
+                                const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`);
+                                console.log('response.data.childAppointments', response.data.childAppointments)
+                                if (response.data.success) {
+                                    let totalPayment = 0;
+                                    let totalCost = 0;
+                                    if (response.data.childAppointments.length>0) {
+                                        response.data.childAppointments.forEach((f)=>{
+                                            if (f.app_pay_fields.length > 0) {
+                                                f.app_pay_fields.map((f)=>{
+                                                    totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                })
+                                            }
+                                        })
+                                        console.log('totalPaymentchilds', totalPayment)
+                                    } else {
+                                        console.log('empty child app')
+                                    }
+                                    if(response.data.data.proc_fields.length>0){
+                                        response.data.data.proc_fields.map((f)=>{
+                                            totalCost = totalCost + parseFloat(f.proc_cost)
+                                        })
+                                    }
+                                    
+                                    setAppParentSummary({
+                                        totalCost, totalPayment, balance: 0, change: 0 
+                                    })
+                                } else {
+                                    alert('Failed getting the Parent appointment')
+                                }
+                            }
                             setIsOpen({...isOpen, payment: true});
                             }}>Payments
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
@@ -315,7 +353,7 @@ const AppointmentDetails = () => {
                                 // false
                             }
                             onClick={()=>{
-                            console.log('app.patient_id', app.patient_id)
+                            // console.log('app.patient_id', app.patient_id)
                             if (app.patient_id.value === '') {
                                 alert('Please select patient first');
                             } else {
@@ -728,28 +766,37 @@ const AppointmentDetails = () => {
                             
                             </div>
                             <div className='details-details-modal-body-container'>
-                                <h4 style={{'margin': '5px'}}>Parent Appointment Payment Summary</h4>
-                                <div style={{display: 'flex', width: '100%'}}>
-                                    <div className="details-details-modal-body-input-box">
-                                        <span>Total Cost</span>
-                                        <input type='number' value={
-                                            // app_total_proc_cost
-                                            app2.payments.totalCost
-                                            } disabled />
-                                    </div>
-                                    <div className="details-details-modal-body-input-box">
-                                        <span>Total Payment</span>
-                                        <input type='number' value={app2.payments.totalPayment} disabled />
-                                    </div>
-                                    <div className="details-details-modal-body-input-box">
-                                        <span>Balance</span>
-                                        <input type='number' value={app2.payments.balance} disabled />
-                                    </div>
-                                    <div className="details-details-modal-body-input-box">
-                                        <span>Change</span>
-                                        <input type='number' value={app2.payments.change} disabled />
-                                    </div>
-                                </div>
+                                {
+                                    app.parent_appointments? 
+                                    // true?
+                                    (
+                                        <div>
+                                            <h4 style={{'margin': '5px'}}>Parent Appointment Payment Summary</h4>
+                                            <div style={{display: 'flex', width: '100%'}}>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Total Cost</span>
+                                                    <input type='number' value={
+                                                        // app_total_proc_cost
+                                                        appParentSummary.totalCost
+                                                        } disabled />
+                                                </div>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Total Payment</span>
+                                                    <input type='number' value={appParentSummary.totalPayment} disabled />
+                                                </div>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Balance</span>
+                                                    <input type='number' value={appParentSummary.balance} disabled />
+                                                </div>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Change</span>
+                                                    <input type='number' value={appParentSummary.change} disabled />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ):
+                                    ''
+                                }
 
                                 <h4 style={{'margin': '5px'}}>Payment Summary</h4>
                                 <div style={{display: 'flex', width: '100%'}}>
@@ -899,9 +946,15 @@ const AppointmentDetails = () => {
                                                 { 
                                                     appParentsSearched && appParentsSearched.map((f,i)=>{
                                                         let totalCost= 0;
-                                                        f.proc_fields.map((f)=>{
+                                                        let totalPayment = 0
+                                                        f.proc_fields.forEach((f)=>{
                                                             totalCost = totalCost + parseFloat(f.proc_cost)
                                                         })
+                                                        if (f.app_pay_fields.length>0) {
+                                                            f.app_pay_fields.forEach((f)=>{
+                                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                            })
+                                                        }
                                                         return (
                                                             <tr key={i} className='table-table2-table-tbody-tr'>
                                                             <td>{totalCost}</td>
@@ -911,7 +964,9 @@ const AppointmentDetails = () => {
                                                             <td>{new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
                                                             <td>{f.status}</td>
                                                             <td><button
-                                                            onClick={()=>{
+                                                            onClick={async ()=>{
+                                                                // console.log('appParent', f)
+                                                                
                                                                 setApp({...app, parent_appointments:f._id});
                                                                 setAppParent({...f, totalCost});
                                                                 setIsOpen({...isOpen, appointmentSelectParent: false});
@@ -955,7 +1010,7 @@ const AppointmentDetails = () => {
                                         const response = await axios.post(`/api/cdcs/appointments`,{                            
                                           data: {filterType: 'getParent', patient_id: app.patient_id.value}
                                         });
-                                          console.log('response',response.data);
+                                        //   console.log('response',response.data);
                                         if (response.data) {
                                           console.log('response',response.data);
                                           setAppParentsSearched(response.data.data);
@@ -1000,13 +1055,38 @@ const AppointmentDetails = () => {
                                                         <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
                                                         <td>{appParent.status}</td>
                                                         <td>{appParent.status === ''? '' : 
-                                                        <button onClick={()=>{
-                                                            setAppParent({
-                                                            patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                                                            })
-                                                            setApp({...app, parent_appointments:''});
-                                                        }} 
-                                                        >Remove</button>
+                                                        (
+                                                            <div>
+                                                                <button onClick={()=>{
+                                                                    setAppParent({
+                                                                    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                                    })
+                                                                    //    delete app.parent_appointments
+                                                                    setApp({...app, parent_appointments: null});
+                                                                    }} 
+                                                                    style={{background:'#e9115bf0'}} 
+                                                                    >Remove
+                                                                    </button>
+                                                                {/* <button
+                                                                    onClick={async ()=>{
+                                                                        // setIsOpen({...isOpen, appointment: false})
+
+                                                                        await router.push(`/cdcs/appointments/${appParent._id}`)
+                                                                        window.location.reload();
+                                                                    }}
+                                                                    style={{background:'#e9115bf0'}} 
+                                                                
+                                                                >View/Edit
+                                                                </button> */}
+                                                            </div>
+                                                        )
+                                                        // <button onClick={()=>{
+                                                        //     setAppParent({
+                                                        //     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                        //     })
+                                                        //     setApp({...app, parent_appointments:''});
+                                                        // }} 
+                                                        // >Remove</button>
                                                         }</td>
                                                     </tr>
                                                 </tbody>
@@ -1033,5 +1113,43 @@ const AppointmentDetails = () => {
         
     );
 };
+
+export async function getServerSideProps({ req, res }) {
+    try {
+    //   await dbConnect();
+      const token = getCookie("cdcsjwt", { req, res });
+      if (!token) {
+        return { redirect: { destination: "/cdcs/login" } };
+      } else {
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        // console.log("verified.id:", verified);
+        const obj = await CDCSUsers7.findOne(
+          { _id: verified.id },
+          { type: 1, name: 1 }
+        );
+        // console.log("user obj:", obj);
+        // console.log("user obj.type:", obj.type);
+        if (
+          obj
+          // true
+        ) {
+        //   console.log('before return')
+          return {
+            props: {
+              user: { type: obj.type, name: obj.name },
+            },
+          };
+        } else {
+          console.log("user obj false:", obj);
+          removeCookies("cdcsjwt", { req, res });
+          return { redirect: { destination: "/cdcs/login" } };
+        }
+      }
+    } catch (error) {
+      console.log("catch appointment [id] error:", error);
+      removeCookies("cdcsjwt", { req, res });
+      return { redirect: { destination: "/cdcs/login" } };
+    }
+  }
 
 export default AppointmentDetails;

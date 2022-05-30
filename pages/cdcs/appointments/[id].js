@@ -1009,7 +1009,7 @@ const AppointmentDetails = () => {
                                                             <td>{appParent.status === ''? '' : 
                                                             (
                                                             <div>
-                                                                     <button onClick={()=>{
+                                                                <button onClick={()=>{
                                                                     setAppParent({
                                                                     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
                                                                     })
@@ -1124,7 +1124,7 @@ export async function getServerSideProps({ req, res }) {
       if (!token) {
         return { redirect: { destination: "/cdcs/login" } };
       } else {
-        const verified = await jwt.verify(token, process.env.JWT_SECRET);
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
         // console.log("verified.id:", verified);
         const obj = await CDCSUsers7.findOne(
           { _id: verified.id },
