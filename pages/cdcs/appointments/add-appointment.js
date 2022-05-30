@@ -671,8 +671,8 @@ const AppointmentDetails = () => {
                                 }
                             
                             }}>
-                                {/* {disableButton.addAppointment} */}
-                                Add Appointment
+                                {disableButton.addAppointment? 'Adding...' : 'Add Appointment' }
+                                
                                 </button>     
 
                       <Link href="/cdcs/appointments" passHref><button className='button-w20'>Close</button></Link>
