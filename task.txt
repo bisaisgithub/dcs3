@@ -1,2 +1,2 @@
-fix sending email
-appointment update
+add appointment payment and parent payment summary
+edit appointment payment and parent payment summary, child payments

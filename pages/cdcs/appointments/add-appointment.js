@@ -725,9 +725,33 @@ const AppointmentDetails = () => {
                     <div className='details-details-container'>
                         <div className='details-details-modal-container'>
                             <div className='details-details-modal-body-button margin-bottom-20'> 
-                            </div>
                             
+                            </div>
                             <div className='details-details-modal-body-container'>
+                                <h4 style={{'margin': '5px'}}>Parent Appointment Payment Summary</h4>
+                                <div style={{display: 'flex', width: '100%'}}>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Total Cost</span>
+                                        <input type='number' value={
+                                            // app_total_proc_cost
+                                            app2.payments.totalCost
+                                            } disabled />
+                                    </div>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Total Payment</span>
+                                        <input type='number' value={app2.payments.totalPayment} disabled />
+                                    </div>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Balance</span>
+                                        <input type='number' value={app2.payments.balance} disabled />
+                                    </div>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Change</span>
+                                        <input type='number' value={app2.payments.change} disabled />
+                                    </div>
+                                </div>
+
+                                <h4 style={{'margin': '5px'}}>Payment Summary</h4>
                                 <div style={{display: 'flex', width: '100%'}}>
                                     <div className="details-details-modal-body-input-box">
                                         <span>Total Cost</span>
@@ -750,6 +774,7 @@ const AppointmentDetails = () => {
                                     </div>
                                 </div>
                                 <div>
+                                    
                                     {
                                         app.app_pay_fields &&
                                         app.app_pay_fields.map((payfield, index)=>{
@@ -821,7 +846,6 @@ const AppointmentDetails = () => {
                                     </button>
                                 </div>
                                 
-
                             </div>
                             
                             <div className='flex-end'> 

@@ -96,7 +96,9 @@ const AppointmentDetails = () => {
       let totalCost = 0
       response.data.data.proc_fields.map((f)=>{
           totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
-          totalCost = totalCost + parseFloat(f.proc_cost);
+          if (f.in_package === 'No') {
+            totalCost = totalCost + parseFloat(f.proc_cost);
+          }
       })
       let totalPayment = 0;
       let change = 0;
