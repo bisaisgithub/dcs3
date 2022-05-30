@@ -57,9 +57,8 @@ export default async (req, res) => {
               } else {
                 res.json({success: false, message: 'failed mdb'})
               }
-              res.json({success: true, data: 'create test'})
+              // res.json({success: true, data: 'create test'})
             }else {
-              
               res.json({success: false, message: 'filterType_x'})
             }
         }else {

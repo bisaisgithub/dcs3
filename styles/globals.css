@@ -455,7 +455,7 @@ input[type="text"] {
   cursor: auto;
 } */
 .button-disabled[disabled]{
-  background: #afacac;
+  background: #afacac !important;
   color: grey;
   cursor: auto;
 }

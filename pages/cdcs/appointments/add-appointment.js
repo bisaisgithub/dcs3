@@ -637,7 +637,7 @@ const AppointmentDetails = () => {
                         } 
                             onClick={async()=>{ 
                                 // console.log('app2', app2)
-                                setDisableButton(true);
+                                setDisableButton({...disableButton.addAppointment, addAppointment: true});
                                 let checkProcEmpty = true;
                                 app.proc_fields.map((fields)=>{
                                     if(fields.proc_name === ''){
@@ -670,7 +670,10 @@ const AppointmentDetails = () => {
                                     }
                                 }
                             
-                            }}>Add Appointment</button>     
+                            }}>
+                                {/* {disableButton.addAppointment} */}
+                                Add Appointment
+                                </button>     
 
                       <Link href="/cdcs/appointments" passHref><button className='button-w20'>Close</button></Link>
                     </div>

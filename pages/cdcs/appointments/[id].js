@@ -78,7 +78,7 @@ const AppointmentDetails = () => {
     if (getFields.data.success) {
         // console.log('getFields Ok')
         setFields(getFields.data.data.fields);
-        setLoading(false);
+        
     }else{
         console.log('getFields Empty')
     }
@@ -86,6 +86,7 @@ const AppointmentDetails = () => {
   const getAppointments = async ()=>{
     const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`,
       // {post:2,id:router.query.id,}
+      
     );
     
     if (response.data.data && response.data.success) {
@@ -144,6 +145,7 @@ const AppointmentDetails = () => {
           date_end: new Date(response.data.data.date).setMinutes(new Date(response.data.data.date).getMinutes()+totalMinutes),
           payments: {...app2.payments, totalCost, totalPayment, change, balance}
         });
+        setLoading(false);
     }else{
         // console.log('response is false data', response.data);
         // console.log('response is false success', response.data.success);
@@ -896,8 +898,14 @@ const AppointmentDetails = () => {
                                                                setApp({...app, parent_appointments:f._id});
                                                                setAppParent({...f, totalCost});
                                                                setIsOpen({...isOpen, appointmentSelectParent: false});
+                                                            console.log('app.parent_appointments', app.parent_appointments)
                                                            }}
-                                                           >Select</button></td>
+                                                           disabled={f._id === app._id || f._id === app.parent_appointments}
+                                                           style={{background:'#e9115bf0'}}
+                                                           className='button-disabled'
+                                                           >
+                                                            {f._id === app._id || f._id === app.parent_appointments? 'Self/Selected' : 'Select'}
+                                                            </button></td>
                                                            {/* <td>
                                                                <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
                                                            </td>
@@ -979,14 +987,34 @@ const AppointmentDetails = () => {
                                                             <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
                                                             <td>{appParent.status}</td>
                                                             <td>{appParent.status === ''? '' : 
-                                                            <button onClick={()=>{
-                                                                setAppParent({
-                                                                patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                                                                })
-                                                                //    delete app.parent_appointments
-                                                                setApp({...app, parent_appointments: null});
-                                                            }} 
-                                                            >Remove</button>
+                                                            (
+                                                            <div>
+                                                                     <button onClick={()=>{
+                                                                    setAppParent({
+                                                                    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                                    })
+                                                                    //    delete app.parent_appointments
+                                                                    setApp({...app, parent_appointments: null});
+                                                                    }} 
+                                                                    style={{background:'#e9115bf0'}} 
+                                                                    >Remove
+                                                                    </button>
+                                                                <button
+                                                                    onClick={async ()=>{
+                                                                        // setIsOpen({...isOpen, appointment: false})
+
+                                                                        await router.push(`/cdcs/appointments/${appParent._id}`)
+                                                                        window.location.reload();
+                                                                    }}
+                                                                    style={{background:'#e9115bf0'}} 
+                                                                
+                                                                >View/Edit
+                                                                </button>
+                                                            </div>
+                                                           
+                                                            
+                                                            )
+                                                            
                                                             }</td>
                                                         </tr>
                                                     </tbody>
@@ -1029,10 +1057,19 @@ const AppointmentDetails = () => {
                                                                     <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
                                                                     <td>{f.status}</td>
                                                                     <td>{f.status === ''? '' : 
-                                                                    <button onClick={()=>{
-                                                                        
-                                                                    }} 
-                                                                    >Edit</button>
+                                                                        // <Link href={`/cdcs/appointments/${f._id}`} passHref>
+                                                                            <button
+                                                                            onClick={async ()=>{
+                                                                                // setIsOpen({...isOpen, appointment: false})
+
+                                                                                await router.push(`/cdcs/appointments/${f._id}`)
+                                                                                window.location.reload();
+                                                                            }}
+                                                                            style={{background:'#e9115bf0'}} 
+                                                                            
+                                                                            >View/Edit
+                                                                            </button>
+                                                                        // </Link>
                                                                     }</td>
                                                                 </tr>
                                                             )
