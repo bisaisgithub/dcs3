@@ -167,16 +167,50 @@ const AppointmentDetails = () => {
     
   }
     
+    // const handleChangeInputPayment = async (index, event, date, ename)=>{
+    //     if (event) {
+    //         const values = [...app.app_pay_fields];
+    //         values[index][event.target.name] = event.target.value;
+
+    //         // set_app_pay_fields(values);
+    //         setApp({...app, app_pay_fields: values})
+    //         let totalPayment = 0;
+    //         values.map(async (field, index)=>{
+    //             totalPayment = totalPayment + parseFloat(field.pay_amount);
+    //         })
+    //         let change = 0;
+    //         let balance = 0;
+    //         if (parseFloat(app2.payments.totalCost) - totalPayment < 0) {
+    //             change = totalPayment - parseFloat(app2.payments.totalCost)
+    //         } else {
+    //             balance = parseFloat(app2.payments.totalCost) - totalPayment
+    //         }
+    //         setApp2({...app2, payments: {...app2.payments, totalPayment :totalPayment.toFixed(2), change, balance}})
+            
+    //     }else{
+    //         const values = [...app.app_pay_fields];
+    //         values[index][ename] = date;
+    //         console.log('values: ', values);
+    //         // set_app_pay_fields(values);
+    //         setApp({...app, app_pay_fields: values})
+    //     }
+    // }
     const handleChangeInputPayment = async (index, event, date, ename)=>{
         if (event) {
             const values = [...app.app_pay_fields];
+            // if (isNaN(event.target.value)) {
+            //     console.log('Nan true')
+            //     event.target.value = 0;
+            // }
             values[index][event.target.name] = event.target.value;
 
             // set_app_pay_fields(values);
             setApp({...app, app_pay_fields: values})
             let totalPayment = 0;
             values.map(async (field, index)=>{
-                totalPayment = totalPayment + parseFloat(field.pay_amount);
+                if (field.pay_amount !== '' && field.in_package === 'No') {
+                    totalPayment = totalPayment + parseFloat(field.pay_amount);
+                }
             })
             let change = 0;
             let balance = 0;
@@ -195,6 +229,7 @@ const AppointmentDetails = () => {
             setApp({...app, app_pay_fields: values})
         }
     }
+
 
     const handleChangeInput =(index, event)=>{
         // console.log('app_proc_fields: ',app_proc_fields)
@@ -777,7 +812,7 @@ const AppointmentDetails = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        {
+                                        {/* {
                                             app.app_pay_fields &&
                                             app.app_pay_fields.map((payfield, index)=>{
                                                 return (
@@ -835,8 +870,133 @@ const AppointmentDetails = () => {
                                                     </div>
                                                 );
                                             })
-                                        }
-                                        <button className='add-payment-button height-80p' onClick={()=>{
+                                        } */}
+                                        {
+                                        app.app_pay_fields &&
+                                        app.app_pay_fields.map((payfield, index)=>{
+                                            return (
+                                                <div key={index}>
+                                                    <div className='display-flex' style={{marginTop:'0px'}} >
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <div className='display-flex'>
+                                                                <span style={index > 0? {display: 'none'}:{}} >Payment</span>
+                                                                {/* <span style={index > 0? {display: 'none'}:{}} >To Parent?</span> */}
+                                                            </div>
+                                                            
+                                                            <div className='display-flex'>
+                                                                
+                                                                <input type='number' name='pay_amount' value={payfield.pay_amount}
+                                                                onChange={(e)=>{
+                                                                    handleChangeInputPayment(index, e)
+                                                                }} />
+                                                                {/* <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                onClick={()=>{
+                                                                    const values = [...app.app_pay_fields];
+                                                                    values.splice(index, 1);
+                                                                    setApp({...app, app_pay_fields: values});
+                                                                    let totalPayment = 0;
+                                                                    values.map((field)=>{
+                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
+                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                        }
+                                                                        
+                                                                    })
+                                                                    let change = 0;
+                                                                    let balance = 0;
+                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                    } else {
+                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                    }
+                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                    }}>-</button> */}
+
+                                                                    
+                                                            </div>
+                                                        </div>
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}}>Date of Payment</span>
+                                                                
+                                                            <DatePicker 
+                                                            name='pay_date'
+                                                            maxDate={new Date()} 
+                                                            yearDropdownItemNumber={90}
+                                                            showTimeSelect
+                                                            showYearDropdown 
+                                                            scrollableYearDropdown={true} 
+                                                            dateFormat='MMMM d, yyyy h:mm aa' 
+                                                            className='date-picker' 
+                                                            placeholderText="Select Date" 
+                                                            selected={payfield.pay_date} 
+                                                            onChange={(date)=>{
+                                                                handleChangeInputPayment(index, false, date, 'pay_date')
+                                                                // set_app_pay_date(date)
+                                                            }} 
+                                                            />
+                                                        </div>
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}}>Note</span>
+                                                            <input type='text' name='pay_note' value={payfield.pay_note}
+                                                                onChange={(e)=>{
+                                                                    handleChangeInputPayment(index, e)
+                                                                }} />
+                                                        </div>
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}}>To Parent</span>
+                                                            <div className='display-flex'>
+                                                                {
+                                                                    app.parent_appointments?
+                                                                    (
+                                                                        <select name="in_package"  value={payfield.in_package} 
+                                                                        onChange={(event)=>{handleChangeInputPayment(index, event)}}>
+                                                                            <option value='Yes'>Yes</option>
+                                                                            <option value='No'>No</option>
+                                                                            {/* <option value='No'>{app.parent_appointments}</option> */}
+                                                                        </select>
+                                                                    )
+                                                                    :
+                                                                    (
+                                                                        <select name="in_package"  value={payfield.in_package} 
+                                                                        onChange={(event)=>{handleChangeInputPayment(index, event)}}>
+                                                                            {/* <option value='Yes'>Yes</option> */}
+                                                                            {/* <option value='No'>No</option> */}
+                                                                            {/* <option value='Yes'>Yes</option> */}
+                                                                            <option value='No'>No</option>
+                                                                            {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
+                                                                        </select>
+                                                                    )
+                                                                }
+                                                                <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                onClick={()=>{
+                                                                    const values = [...app.app_pay_fields];
+                                                                    values.splice(index, 1);
+                                                                    setApp({...app, app_pay_fields: values});
+                                                                    let totalPayment = 0;
+                                                                    values.map((field)=>{
+                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
+                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                        }
+                                                                        
+                                                                    })
+                                                                    let change = 0;
+                                                                    let balance = 0;
+                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                    } else {
+                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                    }
+                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                }}>-</button>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    }
+                                        {/* <button className='add-payment-button height-80p' onClick={()=>{
                                             setApp({...app, app_pay_fields: 
                                                 [
                                                     ...app.app_pay_fields, 
@@ -845,7 +1005,36 @@ const AppointmentDetails = () => {
                                             })
                                             // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
                                             }}>Add Payment
-                                        </button>
+                                        </button> */}
+                                        {
+                                            app.parent_appointments?
+                                            (
+                                                <button className='add-payment-button height-80p' onClick={()=>{
+                                        
+                                                    setApp({...app, app_pay_fields: 
+                                                        [
+                                                            ...app.app_pay_fields, 
+                                                            {pay_amount: '', pay_date: new Date(), in_package: 'Yes', pay_note:''}
+                                                        ]
+                                                    })
+                                                    // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                                    }}>Add Payment
+                                                </button>  
+                                            ):
+                                            (
+                                                <button className='add-payment-button height-80p' onClick={()=>{
+                                        
+                                                    setApp({...app, app_pay_fields: 
+                                                        [
+                                                            ...app.app_pay_fields, 
+                                                            {pay_amount: '', pay_date: new Date(), in_package: 'No'}
+                                                        ]
+                                                    })
+                                                    // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                                    }}>Add Payment
+                                                </button>
+                                            )
+                                        }
                                     </div>
                                     
 

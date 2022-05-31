@@ -36,6 +36,7 @@ const AppointmentDetails = () => {
   const [appParent, setAppParent] = useState({
       patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: '', totalPayment: ''
   });
+  const [appParentWithChild, setAppParentWithChild] = useState([]);
   const [appChild, setAppChild] = useState([]);
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
@@ -130,9 +131,13 @@ const AppointmentDetails = () => {
             // set_app_pay_fields(values);
             setApp({...app, app_pay_fields: values})
             let totalPayment = 0;
+            let totalPaymentParent = 0;
             values.map(async (field, index)=>{
                 if (field.pay_amount !== '' && field.in_package === 'No') {
                     totalPayment = totalPayment + parseFloat(field.pay_amount);
+                }
+                if (field.pay_amount !== '' && field.in_package === 'Yes') {
+                    totalPaymentParent = totalPaymentParent + parseFloat(field.pay_amount);
                 }
             })
             let change = 0;
@@ -143,6 +148,33 @@ const AppointmentDetails = () => {
                 balance = parseFloat(app2.payments.totalCost) - totalPayment
             }
             setApp2({...app2, payments: {...app2.payments, totalPayment :totalPayment.toFixed(2), change, balance}})
+            if (app.parent_appointments) {
+                // console.log('appParentWithChild', appParentWithChild)
+                if (appParentWithChild.childAppointments.length>0) {
+                    appParentWithChild.childAppointments.forEach((f)=>{
+                        // console.log('pay fields', f.app_pay_fields)
+                        if (f.app_pay_fields.length>0) {
+                            f.app_pay_fields.forEach((f)=>{
+                                console.log('payamount', f.pay_amount)
+                                if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                    totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
+                                }
+                            })
+                        }
+                    })
+                }
+                if (appParentWithChild.data.app_pay_fields.length>0) {
+                    appParentWithChild.data.app_pay_fields.forEach((f)=>{
+                        if (f.pay_amount !== '' && f.in_package === 'No') {
+                            totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
+                        }
+                    })
+                }
+                setAppParentSummary((p)=>{
+                    const n = {...p, totalPayment: totalPaymentParent}
+                    return n;
+                })
+            }
             
         }else{
             const values = [...app.app_pay_fields];
@@ -288,13 +320,15 @@ const AppointmentDetails = () => {
                                 console.log('payment parent not empty')
                                 const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`);
                                 console.log('response.data.childAppointments', response.data.childAppointments)
+                                
                                 if (response.data.success) {
+                                    setAppParentWithChild(response.data);
                                     let totalPayment = 0;
                                     let totalCost = 0;
                                     if (response.data.childAppointments.length>0) {
                                         response.data.childAppointments.forEach((f)=>{
                                             if (f.app_pay_fields.length > 0) {
-                                                f.app_pay_fields.map((f)=>{
+                                                f.app_pay_fields.forEach((f)=>{
                                                     totalPayment = totalPayment + parseFloat(f.pay_amount)
                                                 })
                                             }
@@ -304,8 +338,16 @@ const AppointmentDetails = () => {
                                         console.log('empty child app')
                                     }
                                     if(response.data.data.proc_fields.length>0){
-                                        response.data.data.proc_fields.map((f)=>{
+                                        response.data.data.proc_fields.forEach((f)=>{
                                             totalCost = totalCost + parseFloat(f.proc_cost)
+                                        })
+                                    }
+                                    if(response.data.data.app_pay_fields.length>0){
+                                        response.data.data.app_pay_fields.forEach((f)=>{
+                                            console.log('f', f)
+                                            if(f.pay_amount !=='' && f.in_package === 'No'){
+                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                            }
                                         })
                                     }
                                     
@@ -554,7 +596,7 @@ const AppointmentDetails = () => {
                                                                 {/* <option value='No'>No</option> */}
                                                                 {/* <option value='Yes'>Yes</option> */}
                                                                 <option value='No'>No</option>
-                                                                <option value='No'>{`id: ${app.parent_appointments}`}</option>
+                                                                {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
                                                             </select>
                                                         )
                                                     }
