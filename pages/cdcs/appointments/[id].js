@@ -49,7 +49,7 @@ const AppointmentDetails = () => {
   });
   const [appParentsSearched, setAppParentsSearched] = useState([]);
   const [appParent, setAppParent] = useState({
-    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: '', totalPayment: ''
   });
   const [appChild, setAppChild] = useState([]);
   const [app2, setApp2]=useState({
@@ -1041,63 +1041,63 @@ const AppointmentDetails = () => {
                                                 </table>
                                            </div>
                                            <span>Current Child Appointments</span>
-                                                <table className="table-table2-table">
-                                                    <thead className='table-table2-table-thead-search2'>
-                                                    {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                        <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                        <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                        <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                        </th>
-                                                        <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                        <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                        <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                    </tr> */}
-                                                    </thead>
-                                                    <thead className='table-table2-table-thead'>
-                                                    <tr className='table-table2-table-thead-tr'>
-                                                        <th>Total Cost</th>
-                                                        <th>Patient</th>
-                                                        <th>Doctor</th>
-                                                        <th>Date</th>
-                                                        <th>Time</th>
-                                                        <th>Status</th>
-                                                        <th>Option</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody className='table-table2-table-tbody'>
-                                                      {
-                                                        appChild && appChild.map((f, i)=>{
-                                                            
-                                                            return(
-                                                                <tr key={i} className='table-table2-table-tbody-tr'>
-                                                                    <td>{f.totalCost}</td>
-                                                                    <td>{f.patient_id.name}</td>
-                                                                    <td>{f.doctor_id.name}</td>
-                                                                    <td>{f.date === '' ? '' : formatDate(f.date)}</td>
-                                                                    <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                                    <td>{f.status}</td>
-                                                                    <td>{f.status === ''? '' : 
-                                                                        // <Link href={`/cdcs/appointments/${f._id}`} passHref>
-                                                                            <button
-                                                                            onClick={async ()=>{
-                                                                                // setIsOpen({...isOpen, appointment: false})
+                                            <table className="table-table2-table">
+                                                <thead className='table-table2-table-thead-search2'>
+                                                {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                    </th>
+                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                </tr> */}
+                                                </thead>
+                                                <thead className='table-table2-table-thead'>
+                                                <tr className='table-table2-table-thead-tr'>
+                                                    <th>Total Cost</th>
+                                                    <th>Patient</th>
+                                                    <th>Doctor</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Status</th>
+                                                    <th>Option</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody className='table-table2-table-tbody'>
+                                                    {
+                                                    appChild && appChild.map((f, i)=>{
+                                                        
+                                                        return(
+                                                            <tr key={i} className='table-table2-table-tbody-tr'>
+                                                                <td>{f.totalCost}</td>
+                                                                <td>{f.patient_id.name}</td>
+                                                                <td>{f.doctor_id.name}</td>
+                                                                <td>{f.date === '' ? '' : formatDate(f.date)}</td>
+                                                                <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                                <td>{f.status}</td>
+                                                                <td>{f.status === ''? '' : 
+                                                                    // <Link href={`/cdcs/appointments/${f._id}`} passHref>
+                                                                        <button
+                                                                        onClick={async ()=>{
+                                                                            // setIsOpen({...isOpen, appointment: false})
 
-                                                                                await router.push(`/cdcs/appointments/${f._id}`)
-                                                                                window.location.reload();
-                                                                            }}
-                                                                            style={{background:'#e9115bf0'}} 
-                                                                            
-                                                                            >View/Edit
-                                                                            </button>
-                                                                        // </Link>
-                                                                    }</td>
-                                                                </tr>
-                                                            )
-                                                            
-                                                        })
-                                                      }
-                                                    </tbody>
-                                                </table>
+                                                                            await router.push(`/cdcs/appointments/${f._id}`)
+                                                                            window.location.reload();
+                                                                        }}
+                                                                        style={{background:'#e9115bf0'}} 
+                                                                        
+                                                                        >View/Edit
+                                                                        </button>
+                                                                    // </Link>
+                                                                }</td>
+                                                            </tr>
+                                                        )
+                                                        
+                                                    })
+                                                    }
+                                                </tbody>
+                                            </table>
                                    </div>
                                    
                                    <div className='flex-end'> 

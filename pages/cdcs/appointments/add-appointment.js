@@ -34,8 +34,9 @@ const AppointmentDetails = () => {
   });
   const [appParentsSearched, setAppParentsSearched] = useState([]);
   const [appParent, setAppParent] = useState({
-      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: '', totalPayment: ''
   });
+  const [appChild, setAppChild] = useState([]);
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
@@ -120,36 +121,19 @@ const AppointmentDetails = () => {
     const handleChangeInputPayment = async (index, event, date, ename)=>{
         if (event) {
             const values = [...app.app_pay_fields];
+            // if (isNaN(event.target.value)) {
+            //     console.log('Nan true')
+            //     event.target.value = 0;
+            // }
             values[index][event.target.name] = event.target.value;
 
             // set_app_pay_fields(values);
             setApp({...app, app_pay_fields: values})
             let totalPayment = 0;
             values.map(async (field, index)=>{
-                totalPayment = totalPayment + parseFloat(field.pay_amount);
-                
-                // for(let i = 0; i<= index; i++){
-                //     let pay_amount = 0;
-                //     if (app_pay_fields[i].pay_amount>0) {
-                //         pay_amount = app_pay_fields[i].pay_amount
-                //     }
-                //     totalPayment = totalPayment + parseFloat(pay_amount);
-                // }
-                // if (app_total_proc_cost-totalPayment>-1) {
-                // //    await set_app_pay_balance(parseFloat(app_total_proc_cost-totalPayment));
-                // //    await set_app_pay_change(0);
-                //     const values2 = [...app_pay_fields];
-                //     values[index]['pay_change'] = 0;
-                //     values[index]['pay_balance'] = parseFloat(app_total_proc_cost-totalPayment);
-                //     set_app_pay_fields(values2);
-                // } else {
-                //     // await set_app_pay_balance(0);
-                //     // await set_app_pay_change(parseFloat(totalPayment-app_total_proc_cost));
-                //     const values2 = [...app_pay_fields];
-                //     values[index]['pay_change'] = parseFloat(totalPayment-app_total_proc_cost);
-                //     values[index]['pay_balance'] = 0;
-                //     set_app_pay_fields(values2);
-                // }
+                if (field.pay_amount !== '' && field.in_package === 'No') {
+                    totalPayment = totalPayment + parseFloat(field.pay_amount);
+                }
             })
             let change = 0;
             let balance = 0;
@@ -352,13 +336,28 @@ const AppointmentDetails = () => {
                                 app.patient_id.value === ''
                                 // false
                             }
-                            onClick={()=>{
-                            // console.log('app.patient_id', app.patient_id)
-                            if (app.patient_id.value === '') {
-                                alert('Please select patient first');
-                            } else {
+                            onClick={async()=>{
+                            // // console.log('app.patient_id', app.patient_id)
+                            // if (app.patient_id.value === '') {
+                            //     alert('Please select patient first');
+                            // } else {
+                            //     setIsOpen({...isOpen, appointment: true});
+                            // }
+                                if (app.parent_appointments) {
+                                    // console.log('parent appointment not empty')
+                                    const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
+                                    // {post:2,id:router.query.id,}
+                                    );
+                                    // console.log('get parent appointment response', response.data.data);
+                                    let totalCost = 0
+                                    response.data.data.proc_fields.map((f)=>{
+                                        totalCost = totalCost + parseFloat(f.proc_cost)
+                                    })
+                                    setAppParent({...response.data.data, totalCost})
+                                } else {
+                                    // console.log('parent appointment empty')
+                                }
                                 setIsOpen({...isOpen, appointment: true});
-                            }
                             }}>Appointment Links
                         </button>
                         {/* <button className='add-payment-button height-80p' onClick={()=>{
@@ -527,7 +526,7 @@ const AppointmentDetails = () => {
                                             <div className="details-details-modal-body-input-box3">
                                                 <div className="display-flex">
                                                     <span style={index? {display: 'none'}:{}}>Cost</span>
-                                                    <span style={index? {display: 'none'}:{}}>In Package</span>
+                                                    <span style={index? {display: 'none'}:{}}>To Parent?</span>
                                                     <span style={index? {display: 'none'}:{}}>Delete</span>
                                                 </div>
                                                 
@@ -829,21 +828,28 @@ const AppointmentDetails = () => {
                                                 <div key={index}>
                                                     <div className='display-flex' style={{marginTop:'0px'}} >
                                                         <div className='details-details-modal-body-input-box'>
-                                                            <span style={index > 0? {display: 'none'}:{}} >Payment</span>
+                                                            <div className='display-flex'>
+                                                                <span style={index > 0? {display: 'none'}:{}} >Payment</span>
+                                                                {/* <span style={index > 0? {display: 'none'}:{}} >To Parent?</span> */}
+                                                            </div>
+                                                            
                                                             <div className='display-flex'>
                                                                 
                                                                 <input type='number' name='pay_amount' value={payfield.pay_amount}
                                                                 onChange={(e)=>{
                                                                     handleChangeInputPayment(index, e)
                                                                 }} />
-                                                                <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                {/* <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
                                                                 onClick={()=>{
                                                                     const values = [...app.app_pay_fields];
                                                                     values.splice(index, 1);
                                                                     setApp({...app, app_pay_fields: values});
                                                                     let totalPayment = 0;
                                                                     values.map((field)=>{
-                                                                        totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
+                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                        }
+                                                                        
                                                                     })
                                                                     let change = 0;
                                                                     let balance = 0;
@@ -853,7 +859,9 @@ const AppointmentDetails = () => {
                                                                         balance = parseFloat(app2.payments.totalCost) - totalPayment
                                                                     }
                                                                     setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
-                                                                    }}>-</button>
+                                                                    }}>-</button> */}
+
+                                                                    
                                                             </div>
                                                         </div>
                                                         <div className='details-details-modal-body-input-box'>
@@ -876,21 +884,98 @@ const AppointmentDetails = () => {
                                                             }} 
                                                             />
                                                         </div>
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}}>Note</span>
+                                                            <input type='text' name='pay_note' value={payfield.pay_note}
+                                                                onChange={(e)=>{
+                                                                    handleChangeInputPayment(index, e)
+                                                                }} />
+                                                        </div>
+                                                        <div className='details-details-modal-body-input-box'>
+                                                            <span style={index > 0? {display: 'none'}:{}}>To Parent</span>
+                                                            <div className='display-flex'>
+                                                                {
+                                                                    app.parent_appointments?
+                                                                    (
+                                                                        <select name="in_package"  value={payfield.in_package} 
+                                                                        onChange={(event)=>{handleChangeInputPayment(index, event)}}>
+                                                                            <option value='Yes'>Yes</option>
+                                                                            <option value='No'>No</option>
+                                                                            {/* <option value='No'>{app.parent_appointments}</option> */}
+                                                                        </select>
+                                                                    )
+                                                                    :
+                                                                    (
+                                                                        <select name="in_package"  value={payfield.in_package} 
+                                                                        onChange={(event)=>{handleChangeInputPayment(index, event)}}>
+                                                                            {/* <option value='Yes'>Yes</option> */}
+                                                                            {/* <option value='No'>No</option> */}
+                                                                            {/* <option value='Yes'>Yes</option> */}
+                                                                            <option value='No'>No</option>
+                                                                            {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
+                                                                        </select>
+                                                                    )
+                                                                }
+                                                                <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                onClick={()=>{
+                                                                    const values = [...app.app_pay_fields];
+                                                                    values.splice(index, 1);
+                                                                    setApp({...app, app_pay_fields: values});
+                                                                    let totalPayment = 0;
+                                                                    values.map((field)=>{
+                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
+                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                        }
+                                                                        
+                                                                    })
+                                                                    let change = 0;
+                                                                    let balance = 0;
+                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                    } else {
+                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                    }
+                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                }}>-</button>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                        
                                                     </div>
                                                 </div>
                                             );
                                         })
                                     }
-                                    <button className='add-payment-button height-80p' onClick={()=>{
-                                        setApp({...app, app_pay_fields: 
-                                            [
-                                                ...app.app_pay_fields, 
-                                                {pay_amount: '', pay_date: new Date()}
-                                            ]
-                                        })
-                                        // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                        }}>Add Payment
-                                    </button>
+                                    {
+                                        app.parent_appointments?
+                                        (
+                                            <button className='add-payment-button height-80p' onClick={()=>{
+                                    
+                                                setApp({...app, app_pay_fields: 
+                                                    [
+                                                        ...app.app_pay_fields, 
+                                                        {pay_amount: '', pay_date: new Date(), in_package: 'Yes', pay_note:''}
+                                                    ]
+                                                })
+                                                // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                                }}>Add Payment
+                                            </button>  
+                                        ):
+                                        (
+                                            <button className='add-payment-button height-80p' onClick={()=>{
+                                    
+                                                setApp({...app, app_pay_fields: 
+                                                    [
+                                                        ...app.app_pay_fields, 
+                                                        {pay_amount: '', pay_date: new Date(), in_package: 'No'}
+                                                    ]
+                                                })
+                                                // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                                }}>Add Payment
+                                            </button>
+                                        )
+                                    }
+                                    
                                 </div>
                                 
                             </div>
@@ -934,6 +1019,7 @@ const AppointmentDetails = () => {
                                                 <thead className='table-table2-table-thead'>
                                                 <tr className='table-table2-table-thead-tr'>
                                                     <th>Total Cost</th>
+                                                    <th>Total Payment</th>
                                                     <th>Patient</th>
                                                     <th>Doctor</th>
                                                     <th>Date</th>
@@ -958,6 +1044,7 @@ const AppointmentDetails = () => {
                                                         return (
                                                             <tr key={i} className='table-table2-table-tbody-tr'>
                                                             <td>{totalCost}</td>
+                                                            <td>{totalPayment}</td>
                                                             <td>{f.patient_id.name}</td>
                                                             <td>{f.doctor_id.name}</td>
                                                             <td>{formatDate(f.date)}</td>
@@ -965,10 +1052,10 @@ const AppointmentDetails = () => {
                                                             <td>{f.status}</td>
                                                             <td><button
                                                             onClick={async ()=>{
-                                                                // console.log('appParent', f)
+                                                                console.log('appParent', f)
                                                                 
                                                                 setApp({...app, parent_appointments:f._id});
-                                                                setAppParent({...f, totalCost});
+                                                                setAppParent({...f, totalCost, totalPayment});
                                                                 setIsOpen({...isOpen, appointmentSelectParent: false});
                                                             }}
                                                             >Select</button></td>
@@ -993,7 +1080,7 @@ const AppointmentDetails = () => {
                                     
                                     <div className='flex-end'> 
 
-                                    <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Close</button>
+                                    <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Back</button>
                                     </div>
                                 </div>
                             </div>
@@ -1002,109 +1089,264 @@ const AppointmentDetails = () => {
                         (
                             <div className='details-details-container'>
                                 <div className='details-details-modal-container'>
-                                    <div className='details-details-modal-body-button margin-bottom-20'> 
-                                    </div>
-                                    <h1>Current Parent Appointment</h1>
+                                    <div className='details-details-modal-body-button align-items-flex-end'> 
+                                    <span>Current Parent Appointment</span>
                                     <button onClick={ async ()=>{
-                                        console.log('app.patient_id', app.patient_id)
+                                     //    console.log('app.patient_id', app.patient_id)
                                         const response = await axios.post(`/api/cdcs/appointments`,{                            
                                           data: {filterType: 'getParent', patient_id: app.patient_id.value}
                                         });
-                                        //   console.log('response',response.data);
+                                         //  console.log('response',response.data);
                                         if (response.data) {
-                                          console.log('response',response.data);
+                                         //  console.log('response',response.data);
                                           setAppParentsSearched(response.data.data);
                                         }else{
                                           console.log('Failed getting parents appointments')
                                         }
                                         setIsOpen({...isOpen, appointmentSelectParent: true})
-                                        }}>Search Parent</button> 
+                                        }}>Search Parent</button>
+                                     </div>
                                     <div className='details-details-modal-body-container'>
-                                        <div>
-                                            {
                                             <div className='table-table2-container'>
-                                            <table className="table-table2-table">
-                                                <thead className='table-table2-table-thead-search2'>
-                                                {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                    </th>
-                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                </tr> */}
-                                                </thead>
-                                                <thead className='table-table2-table-thead'>
-                                                <tr className='table-table2-table-thead-tr'>
-                                                    <th>Total Cost</th>
-                                                    <th>Patient</th>
-                                                    <th>Doctor</th>
-                                                    <th>Date</th>
-                                                    <th>Time</th>
-                                                    <th>Status</th>
-                                                    <th>Option</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody className='table-table2-table-tbody'>
-                                                    <tr className='table-table2-table-tbody-tr'>
-                                                        <td>{appParent.totalCost}</td>
-                                                        <td>{appParent.patient_id.name}</td>
-                                                        <td>{appParent.doctor_id.name}</td>
-                                                        <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
-                                                        <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                        <td>{appParent.status}</td>
-                                                        <td>{appParent.status === ''? '' : 
-                                                        (
-                                                            <div>
-                                                                <button onClick={()=>{
-                                                                    setAppParent({
-                                                                    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                                                                    })
-                                                                    //    delete app.parent_appointments
-                                                                    setApp({...app, parent_appointments: null});
-                                                                    }} 
-                                                                    style={{background:'#e9115bf0'}} 
-                                                                    >Remove
-                                                                    </button>
-                                                                {/* <button
-                                                                    onClick={async ()=>{
-                                                                        // setIsOpen({...isOpen, appointment: false})
-
-                                                                        await router.push(`/cdcs/appointments/${appParent._id}`)
-                                                                        window.location.reload();
-                                                                    }}
-                                                                    style={{background:'#e9115bf0'}} 
-                                                                
-                                                                >View/Edit
-                                                                </button> */}
-                                                            </div>
-                                                        )
-                                                        // <button onClick={()=>{
-                                                        //     setAppParent({
-                                                        //     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                                                        //     })
-                                                        //     setApp({...app, parent_appointments:''});
-                                                        // }} 
-                                                        // >Remove</button>
-                                                        }</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                                 <table className="table-table2-table margin-bottom-20">
+                                                     <thead className='table-table2-table-thead-search2'>
+                                                     {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                         <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                         <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                         <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                         </th>
+                                                         <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                         <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                         <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                     </tr> */}
+                                                     </thead>
+                                                     <thead className='table-table2-table-thead'>
+                                                     <tr className='table-table2-table-thead-tr'>
+                                                         <th>Total Cost</th>
+                                                         <th>Patient</th>
+                                                         <th>Doctor</th>
+                                                         <th>Date</th>
+                                                         <th>Time</th>
+                                                         <th>Status</th>
+                                                         <th>Option</th>
+                                                     </tr>
+                                                     </thead>
+                                                     <tbody className='table-table2-table-tbody'>
+                                                         <tr className='table-table2-table-tbody-tr'>
+                                                             <td>{appParent.totalCost}</td>
+                                                             <td>{appParent.patient_id.name}</td>
+                                                             <td>{appParent.doctor_id.name}</td>
+                                                             <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
+                                                             <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                             <td>{appParent.status}</td>
+                                                             <td>{appParent.status === ''? '' : 
+                                                             (
+                                                             <div>
+                                                                 <button onClick={()=>{
+                                                                     setAppParent({
+                                                                     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                                     })
+                                                                     //    delete app.parent_appointments
+                                                                     setApp({...app, parent_appointments: null});
+                                                                     }} 
+                                                                     style={{background:'#e9115bf0'}} 
+                                                                     >Remove
+                                                                     </button>
+                                                                 <button
+                                                                     onClick={async ()=>{
+                                                                         // setIsOpen({...isOpen, appointment: false})
+ 
+                                                                         await router.push(`/cdcs/appointments/${appParent._id}`)
+                                                                         window.location.reload();
+                                                                     }}
+                                                                     style={{background:'#e9115bf0'}} 
+                                                                 
+                                                                 >View/Edit
+                                                                 </button>
+                                                             </div>
+                                                            
+                                                             
+                                                             )
+                                                             
+                                                             }</td>
+                                                         </tr>
+                                                     </tbody>
+                                                 </table>
                                             </div>
-                                            }
-                                        </div>
-
+                                            <span>Current Child Appointments</span>
+                                             <table className="table-table2-table">
+                                                 <thead className='table-table2-table-thead-search2'>
+                                                 {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                     <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                     <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                     <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                     </th>
+                                                     <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                     <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                     <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                 </tr> */}
+                                                 </thead>
+                                                 <thead className='table-table2-table-thead'>
+                                                 <tr className='table-table2-table-thead-tr'>
+                                                     <th>Total Cost</th>
+                                                     <th>Patient</th>
+                                                     <th>Doctor</th>
+                                                     <th>Date</th>
+                                                     <th>Time</th>
+                                                     <th>Status</th>
+                                                     <th>Option</th>
+                                                 </tr>
+                                                 </thead>
+                                                 <tbody className='table-table2-table-tbody'>
+                                                     {
+                                                     appChild && appChild.map((f, i)=>{
+                                                         
+                                                         return(
+                                                             <tr key={i} className='table-table2-table-tbody-tr'>
+                                                                 <td>{f.totalCost}</td>
+                                                                 <td>{f.patient_id.name}</td>
+                                                                 <td>{f.doctor_id.name}</td>
+                                                                 <td>{f.date === '' ? '' : formatDate(f.date)}</td>
+                                                                 <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                                 <td>{f.status}</td>
+                                                                 <td>{f.status === ''? '' : 
+                                                                     // <Link href={`/cdcs/appointments/${f._id}`} passHref>
+                                                                         <button
+                                                                         onClick={async ()=>{
+                                                                             // setIsOpen({...isOpen, appointment: false})
+ 
+                                                                             await router.push(`/cdcs/appointments/${f._id}`)
+                                                                             window.location.reload();
+                                                                         }}
+                                                                         style={{background:'#e9115bf0'}} 
+                                                                         
+                                                                         >View/Edit
+                                                                         </button>
+                                                                     // </Link>
+                                                                 }</td>
+                                                             </tr>
+                                                         )
+                                                         
+                                                     })
+                                                     }
+                                                 </tbody>
+                                             </table>
                                     </div>
                                     
                                     <div className='flex-end'> 
-
+ 
                                     <button onClick={()=>{setIsOpen({...isOpen, appointment: false})}} className='button-w20'>Close</button>
                                     </div>
                                 </div>
                             </div>
                             
                         )
+                        // (
+                        //     <div className='details-details-container'>
+                        //         <div className='details-details-modal-container'>
+                        //             <div className='details-details-modal-body-button margin-bottom-20'> 
+                        //             </div>
+                        //             <h1>Current Parent Appointment</h1>
+                        //             <button onClick={ async ()=>{
+                        //                 console.log('app.patient_id', app.patient_id)
+                        //                 const response = await axios.post(`/api/cdcs/appointments`,{                            
+                        //                   data: {filterType: 'getParent', patient_id: app.patient_id.value}
+                        //                 });
+                        //                 //   console.log('response',response.data);
+                        //                 if (response.data) {
+                        //                   console.log('response',response.data);
+                        //                   setAppParentsSearched(response.data.data);
+                        //                 }else{
+                        //                   console.log('Failed getting parents appointments')
+                        //                 }
+                        //                 setIsOpen({...isOpen, appointmentSelectParent: true})
+                        //                 }}>Search Parent</button> 
+                        //             <div className='details-details-modal-body-container'>
+                        //                 <div>
+                        //                     {
+                        //                     <div className='table-table2-container'>
+                        //                     <table className="table-table2-table">
+                        //                         <thead className='table-table2-table-thead-search2'>
+                        //                         {/* <tr className='table-table2-table-thead-tr-search2'>
+                        //                             <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                        //                             <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                        //                             <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                        //                             </th>
+                        //                             <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                        //                             <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                        //                             <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                        //                         </tr> */}
+                        //                         </thead>
+                        //                         <thead className='table-table2-table-thead'>
+                        //                         <tr className='table-table2-table-thead-tr'>
+                        //                             <th>Total Cost</th>
+                        //                             <th>Patient</th>
+                        //                             <th>Doctor</th>
+                        //                             <th>Date</th>
+                        //                             <th>Time</th>
+                        //                             <th>Status</th>
+                        //                             <th>Option</th>
+                        //                         </tr>
+                        //                         </thead>
+                        //                         <tbody className='table-table2-table-tbody'>
+                        //                             <tr className='table-table2-table-tbody-tr'>
+                        //                                 <td>{appParent.totalCost}</td>
+                        //                                 <td>{appParent.patient_id.name}</td>
+                        //                                 <td>{appParent.doctor_id.name}</td>
+                        //                                 <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
+                        //                                 <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
+                        //                                 <td>{appParent.status}</td>
+                        //                                 <td>{appParent.status === ''? '' : 
+                        //                                 (
+                        //                                     <div>
+                        //                                         <button onClick={()=>{
+                        //                                             setAppParent({
+                        //                                             patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                        //                                             })
+                        //                                             //    delete app.parent_appointments
+                        //                                             setApp({...app, parent_appointments: null});
+                        //                                             }} 
+                        //                                             style={{background:'#e9115bf0'}} 
+                        //                                             >Remove
+                        //                                             </button>
+                        //                                         {/* <button
+                        //                                             onClick={async ()=>{
+                        //                                                 // setIsOpen({...isOpen, appointment: false})
+
+                        //                                                 await router.push(`/cdcs/appointments/${appParent._id}`)
+                        //                                                 window.location.reload();
+                        //                                             }}
+                        //                                             style={{background:'#e9115bf0'}} 
+                                                                
+                        //                                         >View/Edit
+                        //                                         </button> */}
+                        //                                     </div>
+                        //                                 )
+                        //                                 // <button onClick={()=>{
+                        //                                 //     setAppParent({
+                        //                                 //     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                        //                                 //     })
+                        //                                 //     setApp({...app, parent_appointments:''});
+                        //                                 // }} 
+                        //                                 // >Remove</button>
+                        //                                 }</td>
+                        //                             </tr>
+                        //                         </tbody>
+                        //                     </table>
+                        //                     </div>
+                        //                     }
+                        //                 </div>
+
+                        //             </div>
+                                    
+                        //             <div className='flex-end'> 
+
+                        //             <button onClick={()=>{setIsOpen({...isOpen, appointment: false})}} className='button-w20'>Back</button>
+                        //             </div>
+                        //         </div>
+                        //     </div>
+                            
+                        // )
                     
                     )
                 }

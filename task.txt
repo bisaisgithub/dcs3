@@ -1,2 +1,5 @@
+add appointment proc_cost and payment in_package
+edit appointment proc_cost and payment in_package
+
 add appointment payment and parent payment summary
 edit appointment payment and parent payment summary, child payments
