@@ -1149,8 +1149,12 @@ const AppointmentDetails = () => {
                                           data: {filterType: 'getParent', patient_id: app.patient_id.value}
                                         });
                                          //  console.log('response',response.data);
-                                        if (response.data) {
+                                        if (response.data.data>0) {
                                           console.log('response',response.data);
+                                          let n = response.data.data.map(async (f)=>{
+                                            const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`,);
+                                            let keni = 0
+                                          })
                                           setAppParentsSearched(response.data.data);
                                         }else{
                                           console.log('Failed getting parents appointments')
