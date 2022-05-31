@@ -78,8 +78,8 @@ const Register = () => {
     e.preventDefault();
     setDisableButton({...disableButton, submitCode: true});
     // alert(`verify code function inputCode: ${inputCode}, receivedCode: ${receivedCode}`);
-    console.log('inputCode', inputCode)
-    console.log('received Code', receivedCode)
+    // console.log('inputCode', inputCode)
+    // console.log('received Code', receivedCode)
     if (receivedCode.toString()===inputCode) {
       // alert('Code is correct')
       setUserInput(prev=>({...prev,email}))
@@ -98,7 +98,7 @@ const Register = () => {
       "/api/amcs/users",
       {...userInput, post: 30}
     );
-    // console.log("user:", response);
+    console.log("user response:", response);
     if (response.data.success) {
       alert('Your are now registered and may login');
       router.push('/amcs/login');

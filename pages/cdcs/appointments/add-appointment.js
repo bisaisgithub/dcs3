@@ -1097,8 +1097,16 @@ const AppointmentDetails = () => {
                                                             <td><button
                                                             onClick={async ()=>{
                                                                 console.log('appParent', f)
-                                                                
-                                                                setApp({...app, parent_appointments:f._id});
+                                                                setApp((p)=>{
+                                                                    let n = p.proc_fields.map((f)=>{
+                                                                        f.in_package = 'Yes'
+                                                                        return f;
+                                                                    })
+                                                                    // let test = {...p, proc_fields: n, parent_appointments: f._id};
+                                                                    // console.log('select test', test)
+                                                                    return {...p, proc_fields: n, parent_appointments: f._id}
+                                                                })
+                                                                // setApp({...app, parent_appointments:f._id});
                                                                 setAppParent({...f, totalCost, totalPayment});
                                                                 setIsOpen({...isOpen, appointmentSelectParent: false});
                                                             }}
@@ -1142,7 +1150,7 @@ const AppointmentDetails = () => {
                                         });
                                          //  console.log('response',response.data);
                                         if (response.data) {
-                                         //  console.log('response',response.data);
+                                          console.log('response',response.data);
                                           setAppParentsSearched(response.data.data);
                                         }else{
                                           console.log('Failed getting parents appointments')
@@ -1191,7 +1199,15 @@ const AppointmentDetails = () => {
                                                                      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
                                                                      })
                                                                      //    delete app.parent_appointments
-                                                                     setApp({...app, parent_appointments: null});
+                                                                     setApp((p)=>{
+                                                                         let n = p.proc_fields.map((f)=>{
+                                                                             f.in_package = 'No'
+                                                                             return f;
+                                                                         })
+                                                                        //  const test = {...p, parent_appointments: null, proc_fields: n}
+                                                                        //  console.log('return', test)
+                                                                         return {...p, parent_appointments: null, proc_fields: n}
+                                                                     });
                                                                      }} 
                                                                      style={{background:'#e9115bf0'}} 
                                                                      >Remove
