@@ -28,7 +28,7 @@ const AppointmentDetails = () => {
     date:'',patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
-        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
+        proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
       },],
       app_pay_fields: []
   });
@@ -193,7 +193,7 @@ const AppointmentDetails = () => {
             values[index][event.target.name] = event.target.value;
             let totalMinutes = 0;
             let totalCost = 0;
-            values.map((value, i)=>{
+            values.forEach((value, i)=>{
                 // console.log('i', i);
                 // console.log('index', index);
                 // console.log('event.target.name', event.target.name)
@@ -245,11 +245,13 @@ const AppointmentDetails = () => {
                 }
 
                 if (parseFloat(value.proc_cost)>0 && value.in_package  === 'No') {
+                    // console.log('proc cost', value)
                     totalCost = parseFloat(totalCost + parseFloat(value.proc_cost));
-                    value.proc_cost = parseFloat(value.proc_cost);
+                    // value.proc_cost = parseFloat(value.proc_cost);
                 }else{
-                } 
-                return null;
+                    console.log('else proc cost', value)
+                }
+                
             })
             // setApp2({...app2, payments: {
             //     // ...app2.payments, 

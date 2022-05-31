@@ -28,11 +28,11 @@ const SettingsCDCS = () => {
             // const values = [...app_proc_fields];
             const values = [...app.proc_fields];
             let checkSameProcName = false;
-            values.forEach((f)=>{
-                if (condition) {
+            // values.forEach((f)=>{
+            //     if (condition) {
                     
-                }
-            })
+            //     }
+            // })
             values[index][event.target.name] = event.target.value;
             setApp({...app, proc_fields: values});
     }
