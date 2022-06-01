@@ -1,4 +1,4 @@
-add appointment parent payment summary deleting payment
+add appointment parent payment summary deleting payment, balance, change
 
 add appointment proc_cost and payment in_package
 edit appointment proc_cost and payment in_package

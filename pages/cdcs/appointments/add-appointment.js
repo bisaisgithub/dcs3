@@ -249,7 +249,7 @@ const AppointmentDetails = () => {
                     totalCost = parseFloat(totalCost + parseFloat(value.proc_cost));
                     // value.proc_cost = parseFloat(value.proc_cost);
                 }else{
-                    console.log('else proc cost', value)
+                    // console.log('else proc cost', value)
                 }
                 
             })
@@ -319,7 +319,7 @@ const AppointmentDetails = () => {
                             }
                             onClick={async ()=>{
                             if (app.parent_appointments) {
-                                console.log('payment parent not empty')
+                                // console.log('payment parent not empty')
                                 const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`);
                                 console.log('response.data.childAppointments', response.data.childAppointments)
                                 
@@ -354,9 +354,17 @@ const AppointmentDetails = () => {
                                             }
                                         })
                                     }
+                                    let change = 0;
+                                    let balance = 0;
+                                    if (totalCost > totalPayment) {
+                                        balance = totalCost - totalPayment;
+                                    }
+                                    if(totalPayment > totalCost){
+                                        change = totalPayment - totalCost;
+                                    }
                                     
                                     setAppParentSummary({
-                                        totalCost, totalPayment, balance: 0, change: 0 
+                                        totalCost, totalPayment, balance, change
                                     })
                                 } else {
                                     alert('Failed getting the Parent appointment')
@@ -776,8 +784,10 @@ const AppointmentDetails = () => {
                                     <span>Type</span>
                                     <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
                                         <option value="">-Select Type-</option>
-                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Portal">Phone Call</option>
+                                        <option value="Portal">FB Messenger</option>
                                         <option value="Walk-in">Walk-in</option>
+                                        <option value="Portal">Portal</option>
                                     </select>       
                                 </div>
                             </div>
@@ -859,14 +869,17 @@ const AppointmentDetails = () => {
                                             <div style={{display: 'flex', width: '100%'}}>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Total Cost</span>
+                                                    {/* <span>{new Intl.NumberFormat().format(appParentSummary.totalCost)}</span> */}
                                                     <input type='number' value={
                                                         // app_total_proc_cost
-                                                        appParentSummary.totalCost
+                                                        new Intl.NumberFormat().format(appParentSummary.totalCost)
                                                         } disabled />
                                                 </div>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Total Payment</span>
                                                     <input type='number' value={appParentSummary.totalPayment} disabled />
+                                                    {/* <span>Total Payment</span>
+                                                    <span>{new Intl.NumberFormat().format(appParentSummary.totalPayment)}</span> */}
                                                 </div>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Balance</span>
@@ -1249,7 +1262,7 @@ const AppointmentDetails = () => {
                                                      </thead>
                                                      <tbody className='table-table2-table-tbody'>
                                                          <tr className='table-table2-table-tbody-tr'>
-                                                             <td>{appParent.totalCost}</td>
+                                                             <td>{new Intl.NumberFormat().format(appParent.totalCost)}</td>
                                                              <td>{appParent.totalPayment}</td>
                                                              <td>{appParent.patient_id.name}</td>
                                                              <td>{appParent.doctor_id.name}</td>
