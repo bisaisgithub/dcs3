@@ -331,7 +331,9 @@ const AppointmentDetails = () => {
                                         response.data.childAppointments.forEach((f)=>{
                                             if (f.app_pay_fields.length > 0) {
                                                 f.app_pay_fields.forEach((f)=>{
-                                                    totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                    if (f.pay_amount !=='' && f.in_package === 'Yes') {
+                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                    }
                                                 })
                                             }
                                         })
@@ -381,23 +383,62 @@ const AppointmentDetails = () => {
                                 // false
                             }
                             onClick={async()=>{
-                            // // console.log('app.patient_id', app.patient_id)
-                            // if (app.patient_id.value === '') {
-                            //     alert('Please select patient first');
-                            // } else {
-                            //     setIsOpen({...isOpen, appointment: true});
-                            // }
+                                // const response = await axios.post(`/api/cdcs/appointments`,{                            
+                                //     data: {filterType: 'getParent', patient_id: app.patient_id.value}
+                                //   });
+                                //   //   console.log('response',response.data.data.length);
+                                //   if (response.data.data.length>0) {
+                                //   //   console.log('response',response.data);
+                                //     let newArray = await Promise.all(
+                                //       await response.data.data.map(async (f)=>{
+                                //           const response = await axios.get(`/api/cdcs/appointments/${f._id}`,);
+                                //           // console.log('n response', response)
+                                //           f.childAppointments =  response.data.childAppointments;
+                                //           // console.log('f', f)
+                                //           return f;
+                                //         })
+                                //     ) 
+                                //   //   setAppParentsSearched(response.data.data);
+                                //     setAppParentsSearched(newArray);
+                                //   }else{
+                                //     console.log('Failed getting parents appointments')
+                                //   }
+
                                 if (app.parent_appointments) {
                                     // console.log('parent appointment not empty')
                                     const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
                                     // {post:2,id:router.query.id,}
                                     );
-                                    // console.log('get parent appointment response', response.data.data);
-                                    let totalCost = 0
-                                    response.data.data.proc_fields.map((f)=>{
-                                        totalCost = totalCost + parseFloat(f.proc_cost)
-                                    })
-                                    setAppParent({...response.data.data, totalCost})
+                                    console.log('get parent appointment response', response.data);
+                                    let totalCost = 0;
+                                    let totalPayment = 0;
+                                    if (response.data.data.proc_fields.length>0) {
+                                        response.data.data.proc_fields.forEach((f)=>{
+                                            if (f.in_package === 'No') {
+                                                totalCost = totalCost + parseFloat(f.proc_cost)
+                                            }
+                                        })
+                                    }
+                                    if (response.data.data.app_pay_fields.length>0) {
+                                        response.data.data.app_pay_fields.forEach((f)=>{
+                                            if (f.pay_amount !== '' && f.in_package === 'No') {
+                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                            }
+                                        })
+                                    }
+                                    if (response.data.childAppointments.length>0) {
+                                        response.data.childAppointments.forEach((f)=>{
+                                            // console.log('f childapp', f)
+                                            if (f.app_pay_fields.length>0) {
+                                                f.app_pay_fields.forEach((f)=>{
+                                                    if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                    setAppParent({...response.data.data, totalCost, totalPayment})
                                 } else {
                                     // console.log('parent appointment empty')
                                 }
@@ -1085,6 +1126,18 @@ const AppointmentDetails = () => {
                                                                 totalPayment = totalPayment + parseFloat(f.pay_amount)
                                                             })
                                                         }
+                                                        if (f.childAppointments.length>0) {
+                                                            f.childAppointments.forEach((f)=>{
+                                                                // console.log('f', f)
+                                                                if (f.app_pay_fields.length>0) {
+                                                                    f.app_pay_fields.forEach((f)=>{
+                                                                        if (f.pay_amount !== '' && f.in_package ==='Yes') {
+                                                                            totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                                        }
+                                                                    })
+                                                                }
+                                                            })
+                                                        }
                                                         return (
                                                             <tr key={i} className='table-table2-table-tbody-tr'>
                                                             <td>{totalCost}</td>
@@ -1096,7 +1149,7 @@ const AppointmentDetails = () => {
                                                             <td>{f.status}</td>
                                                             <td><button
                                                             onClick={async ()=>{
-                                                                console.log('appParent', f)
+                                                                // console.log('appParent', f)
                                                                 setApp((p)=>{
                                                                     let n = p.proc_fields.map((f)=>{
                                                                         f.in_package = 'Yes'
@@ -1148,14 +1201,20 @@ const AppointmentDetails = () => {
                                         const response = await axios.post(`/api/cdcs/appointments`,{                            
                                           data: {filterType: 'getParent', patient_id: app.patient_id.value}
                                         });
-                                         //  console.log('response',response.data);
-                                        if (response.data.data>0) {
-                                          console.log('response',response.data);
-                                          let n = response.data.data.map(async (f)=>{
-                                            const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`,);
-                                            let keni = 0
-                                          })
-                                          setAppParentsSearched(response.data.data);
+                                        //   console.log('response',response.data.data.length);
+                                        if (response.data.data.length>0) {
+                                        //   console.log('response',response.data);
+                                          let newArray = await Promise.all(
+                                            await response.data.data.map(async (f)=>{
+                                                const response = await axios.get(`/api/cdcs/appointments/${f._id}`,);
+                                                // console.log('n response', response)
+                                                f.childAppointments =  response.data.childAppointments;
+                                                // console.log('f', f)
+                                                return f;
+                                              })
+                                          ) 
+                                        //   setAppParentsSearched(response.data.data);
+                                          setAppParentsSearched(newArray);
                                         }else{
                                           console.log('Failed getting parents appointments')
                                         }
@@ -1179,6 +1238,7 @@ const AppointmentDetails = () => {
                                                      <thead className='table-table2-table-thead'>
                                                      <tr className='table-table2-table-thead-tr'>
                                                          <th>Total Cost</th>
+                                                         <th>Total Payment</th>
                                                          <th>Patient</th>
                                                          <th>Doctor</th>
                                                          <th>Date</th>
@@ -1190,6 +1250,7 @@ const AppointmentDetails = () => {
                                                      <tbody className='table-table2-table-tbody'>
                                                          <tr className='table-table2-table-tbody-tr'>
                                                              <td>{appParent.totalCost}</td>
+                                                             <td>{appParent.totalPayment}</td>
                                                              <td>{appParent.patient_id.name}</td>
                                                              <td>{appParent.doctor_id.name}</td>
                                                              <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
@@ -1220,8 +1281,9 @@ const AppointmentDetails = () => {
                                                                      onClick={async ()=>{
                                                                          // setIsOpen({...isOpen, appointment: false})
  
-                                                                         await router.push(`/cdcs/appointments/${appParent._id}`)
-                                                                         window.location.reload();
+                                                                        //  await router.push(`/cdcs/appointments/${appParent._id}`)
+                                                                        //  window.location.reload();
+                                                                        window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${appParent._id}`, "_blank");
                                                                      }}
                                                                      style={{background:'#e9115bf0'}} 
                                                                  
@@ -1253,6 +1315,7 @@ const AppointmentDetails = () => {
                                                  <thead className='table-table2-table-thead'>
                                                  <tr className='table-table2-table-thead-tr'>
                                                      <th>Total Cost</th>
+                                                     <th>Total Payment</th>
                                                      <th>Patient</th>
                                                      <th>Doctor</th>
                                                      <th>Date</th>
@@ -1268,6 +1331,7 @@ const AppointmentDetails = () => {
                                                          return(
                                                              <tr key={i} className='table-table2-table-tbody-tr'>
                                                                  <td>{f.totalCost}</td>
+                                                                 <td>{f.totalPayment}</td>
                                                                  <td>{f.patient_id.name}</td>
                                                                  <td>{f.doctor_id.name}</td>
                                                                  <td>{f.date === '' ? '' : formatDate(f.date)}</td>
