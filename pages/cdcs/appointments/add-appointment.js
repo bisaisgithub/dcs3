@@ -272,7 +272,11 @@ const AppointmentDetails = () => {
                                 // false
                             }
                             onClick={async()=>{
-                                setIsOpen({...isOpen, appointment: true});
+                                if (app.patient_id.value === '') {
+                                    alert('Please select patient first');
+                                } else {
+                                    setIsOpen({...isOpen, appointment: true});
+                                }
                             }}>Appointment Links
                         </button>
                         {/* <button className='add-payment-button height-80p' onClick={()=>{
@@ -1177,10 +1181,6 @@ const AppointmentDetails = () => {
                                                                      </button>
                                                                  <button
                                                                      onClick={async ()=>{
-                                                                         // setIsOpen({...isOpen, appointment: false})
- 
-                                                                        //  await router.push(`/cdcs/appointments/${appParent._id}`)
-                                                                        //  window.location.reload();
                                                                         window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${appParent._id}`, "_blank");
                                                                      }}
                                                                      style={{background:'#e9115bf0'}} 

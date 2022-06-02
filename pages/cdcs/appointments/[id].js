@@ -88,7 +88,7 @@ const AppointmentDetails = () => {
   const getAppointments = async ()=>{
     const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`);
     if (response.data.data && response.data.success) {
-    //   console.log('response is true', response.data);
+      console.log('response is true', response.data);
       let totalMinutes = 0;
       let totalCost = 0
       response.data.data.proc_fields.forEach((f)=>{
@@ -146,6 +146,34 @@ const AppointmentDetails = () => {
           date_end: new Date(response.data.data.date).setMinutes(new Date(response.data.data.date).getMinutes()+totalMinutes),
           payments: {...app2.payments, totalCost, totalPayment, change, balance}
         });
+        if (response.data.data.parent_appointments) {
+            console.log('app.parent ok', response.data.data.parent_appointments)
+            const responseParent = await axios.get(`/api/cdcs/appointments/${response.data.data.parent_appointments}`);
+            console.log('responseParent', responseParent)
+            if (responseParent.data.success) {
+                let totalCostParent = 0;
+                let totalPaymentParent = 0;
+                if(responseParent.data.data.proc_fields.length>0){
+                    responseParent.data.data.proc_fields.forEach((f)=>{
+                        if (f.proc_cost !=='' && f.in_package === 'No') {
+                            totalCostParent = totalCostParent + parseFloat(f.proc_cost)
+                        }
+                    })
+                }
+                if (responseParent.data.data.app_pay_fields.length>0) {
+                    responseParent.data.data.app_pay_fields.forEach((f)=>{
+                        if (f.pay_amount !== '' && f.in_package === 'No') {
+                            totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                        }
+                    })
+                }
+                console.log('totalCost for parent', totalCostParent)
+                setAppParent({...responseParent.data.data, totalCost: totalCostParent, totalPayment: totalPaymentParent})
+            }
+            
+        }else{
+            console.log('app.parent empty')
+        }
         setLoading(false);
     }else{
         // console.log('response is false data', response.data);
@@ -355,23 +383,23 @@ const AppointmentDetails = () => {
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                         </button>
                         <button className='add-payment-button height-80p' onClick={async ()=>{
-                            if (app.patient_id === '') {
+                            if (app.patient_id.value === '') {
                                 alert('Please select patient first');
                             } else {
-                                if (app.parent_appointments) {
-                                    // console.log('parent appointment not empty')
-                                    const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
-                                    // {post:2,id:router.query.id,}
-                                    );
-                                    // console.log('get parent appointment response', response.data.data);
-                                    let totalCost = 0
-                                    response.data.data.proc_fields.map((f)=>{
-                                        totalCost = totalCost + parseFloat(f.proc_cost)
-                                    })
-                                    setAppParent({...response.data.data, totalCost})
-                                } else {
-                                    // console.log('parent appointment empty')
-                                }
+                                // if (app.parent_appointments) {
+                                //     // console.log('parent appointment not empty')
+                                //     const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
+                                //     // {post:2,id:router.query.id,}
+                                //     );
+                                //     // console.log('get parent appointment response', response.data.data);
+                                //     let totalCost = 0
+                                //     response.data.data.proc_fields.map((f)=>{
+                                //         totalCost = totalCost + parseFloat(f.proc_cost)
+                                //     })
+                                //     setAppParent({...response.data.data, totalCost})
+                                // } else {
+                                //     // console.log('parent appointment empty')
+                                // }
                                 setIsOpen({...isOpen, appointment: true});
                             }
                             }}>Appointment Links
@@ -1087,7 +1115,7 @@ const AppointmentDetails = () => {
                                             { 
                                                 appParentsSearched && appParentsSearched.map((f,i)=>{
                                                     let totalCost= 0;
-                                                    let totalPayment = 0
+                                                    let totalPayment = 0;
                                                     f.proc_fields.forEach((f)=>{
                                                         totalCost = totalCost + parseFloat(f.proc_cost)
                                                     })
@@ -1097,14 +1125,16 @@ const AppointmentDetails = () => {
                                                         })
                                                     }
                                                     if (f.childAppointments.length>0) {
-
-                                                        f.childAppointments.forEach((f)=>{
-                                                            // console.log('f', f)
-                                                            if (f.app_pay_fields.length>0) {
-                                                                f.app_pay_fields.forEach((f)=>{
-                                                                    if (f.pay_amount !== '' && f.in_package ==='Yes') {
-                                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                                                    }
+                                                        // console.log('f childapp', f.childAppointments)
+                                                        f.childAppointments.forEach((f2)=>{
+                                                            if (f2.app_pay_fields.length>0) {
+                                                                // console.log('f2 app fields', f2)
+                                                                f2.app_pay_fields.forEach((f3)=>{
+                                                                    // console.log('f2', f2)
+                                                                    // console.log('app', app)
+                                                                    if (f3.pay_amount !== '' && f3.in_package ==='Yes' && f2._id !== app._id) {
+                                                                        totalPayment = totalPayment + parseFloat(f3.pay_amount)
+                                                                    }       
                                                                 })
                                                             }
                                                         })
@@ -1127,7 +1157,6 @@ const AppointmentDetails = () => {
                                                                             if (f.pay_amount !== '') {
                                                                                 totalPayment = totalPayment + parseFloat(f.pay_amount)
                                                                             }
-                                                                            
                                                                         })
                                                                     }
                                                                     setApp((p)=>{
@@ -1158,17 +1187,14 @@ const AppointmentDetails = () => {
                                                                     setAppParent({...f, totalCost, totalPayment, balance, change });
                                                                     setApp2({...app2, payments: {totalCost:0, totalPayment: 0, balance:0, change: 0} })
                                                                     setIsOpen({...isOpen, appointmentSelectParent: false});
+                                                                    // console.log('f', f)
+                                                                    // console.log('app', app)
                                                                 }}
-                                                                >Select
+                                                                disabled={app._id === f._id}
+                                                                className='button-disabled'
+                                                                >{app._id === f._id? 'Self' : 'Select'}
                                                             </button>
                                                         </td>
-                                                        {/* <td>
-                                                            <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                                        </td>
-                                                        <td>{user.type}</td>
-                                                        <td className='table-table2-table-body-tr-td'>
-                                                            <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                                        </td> */}
                                                     </tr>
                                                     )
                                                 })
@@ -1218,34 +1244,11 @@ const AppointmentDetails = () => {
                                         }
                                         setIsOpen({...isOpen, appointmentSelectParent: true})
                                         }}>Search Parent</button>
-                                   {/* <button onClick={ async ()=>{
-                                    //    console.log('app.patient_id', app.patient_id)
-                                       const response = await axios.post(`/api/cdcs/appointments`,{                            
-                                         data: {filterType: 'getParent', patient_id: app.patient_id.value}
-                                       });
-                                        //  console.log('response',response.data);
-                                       if (response.data) {
-                                        //  console.log('response',response.data);
-                                         setAppParentsSearched(response.data.data);
-                                       }else{
-                                         console.log('Failed getting parents appointments')
-                                       }
-                                       setIsOpen({...isOpen, appointmentSelectParent: true})
-                                       }}>Search Parent</button> */}
                                     </div>
                                    <div className='details-details-modal-body-container'>
                                    <div className='table-table2-container'>
                                                  <table className="table-table2-table margin-bottom-20">
                                                      <thead className='table-table2-table-thead-search2'>
-                                                     {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                         <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                         <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                         <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                         </th>
-                                                         <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                         <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                         <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                     </tr> */}
                                                      </thead>
                                                      <thead className='table-table2-table-thead'>
                                                      <tr className='table-table2-table-thead-tr'>
@@ -1338,75 +1341,9 @@ const AppointmentDetails = () => {
                                                      </tbody>
                                                  </table>
                                             </div>
-                                           {/* <div className='table-table2-container'>
-                                                <table className="table-table2-table margin-bottom-20">
-                                                    <thead className='table-table2-table-thead-search2'>
-                                                    </thead>
-                                                    <thead className='table-table2-table-thead'>
-                                                    <tr className='table-table2-table-thead-tr'>
-                                                        <th>Total Cost</th>
-                                                        <th>Patient</th>
-                                                        <th>Doctor</th>
-                                                        <th>Date</th>
-                                                        <th>Time</th>
-                                                        <th>Status</th>
-                                                        <th>Option</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody className='table-table2-table-tbody'>
-                                                        <tr className='table-table2-table-tbody-tr'>
-                                                            <td>{appParent.totalCost}</td>
-                                                            <td>{appParent.patient_id.name}</td>
-                                                            <td>{appParent.doctor_id.name}</td>
-                                                            <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
-                                                            <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                            <td>{appParent.status}</td>
-                                                            <td>{appParent.status === ''? '' : 
-                                                            (
-                                                            <div>
-                                                                <button onClick={()=>{
-                                                                    setAppParent({
-                                                                    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                                                                    })
-                                                                    //    delete app.parent_appointments
-                                                                    setApp({...app, parent_appointments: null});
-                                                                    }} 
-                                                                    style={{background:'#e9115bf0'}} 
-                                                                    >Remove
-                                                                    </button>
-                                                                <button
-                                                                    onClick={async ()=>{
-                                                                        // setIsOpen({...isOpen, appointment: false})
-
-                                                                        await router.push(`/cdcs/appointments/${appParent._id}`)
-                                                                        window.location.reload();
-                                                                    }}
-                                                                    style={{background:'#e9115bf0'}} 
-                                                                
-                                                                >View/Edit
-                                                                </button>
-                                                            </div>
-                                                           
-                                                            
-                                                            )
-                                                            
-                                                            }</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                           </div> */}
                                            <span>Current Child Appointments</span>
                                             <table className="table-table2-table">
                                                 <thead className='table-table2-table-thead-search2'>
-                                                {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                    </th>
-                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                </tr> */}
                                                 </thead>
                                                 <thead className='table-table2-table-thead'>
                                                 <tr className='table-table2-table-thead-tr'>
@@ -1435,10 +1372,7 @@ const AppointmentDetails = () => {
                                                                     // <Link href={`/cdcs/appointments/${f._id}`} passHref>
                                                                         <button
                                                                         onClick={async ()=>{
-                                                                            // setIsOpen({...isOpen, appointment: false})
-
-                                                                            await router.push(`/cdcs/appointments/${f._id}`)
-                                                                            window.location.reload();
+                                                                            window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${f._id}`, "_blank");
                                                                         }}
                                                                         style={{background:'#e9115bf0'}} 
                                                                         

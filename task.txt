@@ -1,2 +1,2 @@
 
-edit appointment parent must not select self as parent, computations also
+edit appointment appoinmennt link parent total payment need add child appointments
