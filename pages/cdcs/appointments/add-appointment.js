@@ -34,16 +34,16 @@ const AppointmentDetails = () => {
   });
   const [appParentsSearched, setAppParentsSearched] = useState([]);
   const [appParent, setAppParent] = useState({
-      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: '', totalPayment: ''
+      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: '', totalPayment: '', balance: '', change: ''
   });
-  const [appParentWithChild, setAppParentWithChild] = useState([]);
-  const [appChild, setAppChild] = useState([]);
+//   const [appParentWithChild, setAppParentWithChild] = useState([]);
+//   const [appChild, setAppChild] = useState([]);
   const [app2, setApp2]=useState({
     date_end:'',payments: {totalCost: 0, totalPayment: 0, balance: 0, change: 0 }
   });
-  const [appParentSummary, setAppParentSummary]=useState({
-    totalCost: 0, totalPayment: 0, balance: 0, change: 0 
-  });
+//   const [appParentSummary, setAppParentSummary]=useState({
+//     totalCost: 0, totalPayment: 0, balance: 0, change: 0 
+//   });
   const [isOpen, setIsOpen] = useState({
     payment: false, appointment: false, appointmentSelectParent: false
   })
@@ -150,12 +150,12 @@ const AppointmentDetails = () => {
             setApp2({...app2, payments: {...app2.payments, totalPayment :totalPayment.toFixed(2), change, balance}})
             if (app.parent_appointments) {
                 // console.log('appParentWithChild', appParentWithChild)
-                if (appParentWithChild.childAppointments.length>0) {
-                    appParentWithChild.childAppointments.forEach((f)=>{
+                if (appParent.childAppointments.length>0) {
+                    appParent.childAppointments.forEach((f)=>{
                         // console.log('pay fields', f.app_pay_fields)
                         if (f.app_pay_fields.length>0) {
                             f.app_pay_fields.forEach((f)=>{
-                                console.log('payamount', f.pay_amount)
+                                // console.log('payamount', f.pay_amount)
                                 if (f.pay_amount !== '' && f.in_package === 'Yes') {
                                     totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
                                 }
@@ -163,16 +163,29 @@ const AppointmentDetails = () => {
                         }
                     })
                 }
-                if (appParentWithChild.data.app_pay_fields.length>0) {
-                    appParentWithChild.data.app_pay_fields.forEach((f)=>{
+                if (appParent.app_pay_fields.length>0) {
+                    appParent.app_pay_fields.forEach((f)=>{
                         if (f.pay_amount !== '' && f.in_package === 'No') {
                             totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
                         }
                     })
                 }
-                setAppParentSummary((p)=>{
-                    const n = {...p, totalPayment: totalPaymentParent}
-                    return n;
+                // setAppParentSummary((p)=>{
+                //     const n = {...p, totalPayment: totalPaymentParent}
+                //     return n;
+                // })
+                // setAppParent({...appParent, totalPayment: totalPaymentParent, change, balance})
+                setAppParent((p)=>{
+                    let change = 0;
+                    let balance = 0;
+                    if ( parseFloat(p.totalCost)>totalPaymentParent) {
+                        balance = parseFloat(p.totalCost) - totalPaymentParent;
+                    }
+                    if (totalPaymentParent> parseFloat(p.totalCost)) {
+                        change = totalPaymentParent -  parseFloat(p.totalCost);
+                    }
+
+                    return {...appParent, totalPayment: totalPaymentParent, change, balance}
                 })
             }
             
@@ -318,58 +331,59 @@ const AppointmentDetails = () => {
                                 // false
                             }
                             onClick={async ()=>{
-                            if (app.parent_appointments) {
-                                // console.log('payment parent not empty')
-                                const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`);
-                                console.log('response.data.childAppointments', response.data.childAppointments)
-                                
-                                if (response.data.success) {
-                                    setAppParentWithChild(response.data);
-                                    let totalPayment = 0;
-                                    let totalCost = 0;
-                                    if (response.data.childAppointments.length>0) {
-                                        response.data.childAppointments.forEach((f)=>{
-                                            if (f.app_pay_fields.length > 0) {
-                                                f.app_pay_fields.forEach((f)=>{
-                                                    if (f.pay_amount !=='' && f.in_package === 'Yes') {
-                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                                    }
-                                                })
-                                            }
-                                        })
-                                        console.log('totalPaymentchilds', totalPayment)
-                                    } else {
-                                        console.log('empty child app')
-                                    }
-                                    if(response.data.data.proc_fields.length>0){
-                                        response.data.data.proc_fields.forEach((f)=>{
-                                            totalCost = totalCost + parseFloat(f.proc_cost)
-                                        })
-                                    }
-                                    if(response.data.data.app_pay_fields.length>0){
-                                        response.data.data.app_pay_fields.forEach((f)=>{
-                                            console.log('f', f)
-                                            if(f.pay_amount !=='' && f.in_package === 'No'){
-                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                            }
-                                        })
-                                    }
-                                    let change = 0;
-                                    let balance = 0;
-                                    if (totalCost > totalPayment) {
-                                        balance = totalCost - totalPayment;
-                                    }
-                                    if(totalPayment > totalCost){
-                                        change = totalPayment - totalCost;
-                                    }
+                                // console.log('appParent', appParent)
+                                // if (app.parent_appointments) {
+                                //     console.log('payment parent not empty')
+                                //     const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`);
+                                //     console.log('response.data.childAppointments', response.data.childAppointments)
                                     
-                                    setAppParentSummary({
-                                        totalCost, totalPayment, balance, change
-                                    })
-                                } else {
-                                    alert('Failed getting the Parent appointment')
-                                }
-                            }
+                                //     if (response.data.success) {
+                                //         setAppParentWithChild(response.data);
+                                //         let totalPayment = 0;
+                                //         let totalCost = 0;
+                                //         if (response.data.childAppointments.length>0) {
+                                //             response.data.childAppointments.forEach((f)=>{
+                                //                 if (f.app_pay_fields.length > 0) {
+                                //                     f.app_pay_fields.forEach((f)=>{
+                                //                         if (f.pay_amount !=='' && f.in_package === 'Yes') {
+                                //                             totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                //                         }
+                                //                     })
+                                //                 }
+                                //             })
+                                //             console.log('totalPaymentchilds', totalPayment)
+                                //         } else {
+                                //             console.log('empty child app')
+                                //         }
+                                //         if(response.data.data.proc_fields.length>0){
+                                //             response.data.data.proc_fields.forEach((f)=>{
+                                //                 totalCost = totalCost + parseFloat(f.proc_cost)
+                                //             })
+                                //         }
+                                //         if(response.data.data.app_pay_fields.length>0){
+                                //             response.data.data.app_pay_fields.forEach((f)=>{
+                                //                 console.log('f', f)
+                                //                 if(f.pay_amount !=='' && f.in_package === 'No'){
+                                //                     totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                //                 }
+                                //             })
+                                //         }
+                                //         let change = 0;
+                                //         let balance = 0;
+                                //         if (totalCost > totalPayment) {
+                                //             balance = totalCost - totalPayment;
+                                //         }
+                                //         if(totalPayment > totalCost){
+                                //             change = totalPayment - totalCost;
+                                //         }
+                                        
+                                //         setAppParentSummary({
+                                //             totalCost, totalPayment, balance, change
+                                //         })
+                                //     } else {
+                                //         alert('Failed getting the Parent Childs appointments')
+                                //     }
+                                // }
                             setIsOpen({...isOpen, payment: true});
                             }}>Payments
                             {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
@@ -412,44 +426,42 @@ const AppointmentDetails = () => {
                                 //     console.log('Failed getting parents appointments')
                                 //   }
 
-                                if (app.parent_appointments) {
-                                    // console.log('parent appointment not empty')
-                                    const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
-                                    // {post:2,id:router.query.id,}
-                                    );
-                                    console.log('get parent appointment response', response.data);
-                                    let totalCost = 0;
-                                    let totalPayment = 0;
-                                    if (response.data.data.proc_fields.length>0) {
-                                        response.data.data.proc_fields.forEach((f)=>{
-                                            if (f.in_package === 'No') {
-                                                totalCost = totalCost + parseFloat(f.proc_cost)
-                                            }
-                                        })
-                                    }
-                                    if (response.data.data.app_pay_fields.length>0) {
-                                        response.data.data.app_pay_fields.forEach((f)=>{
-                                            if (f.pay_amount !== '' && f.in_package === 'No') {
-                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                            }
-                                        })
-                                    }
-                                    if (response.data.childAppointments.length>0) {
-                                        response.data.childAppointments.forEach((f)=>{
-                                            // console.log('f childapp', f)
-                                            if (f.app_pay_fields.length>0) {
-                                                f.app_pay_fields.forEach((f)=>{
-                                                    if (f.pay_amount !== '' && f.in_package === 'Yes') {
-                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                                    }
-                                                })
-                                            }
-                                        })
-                                    }
-                                    setAppParent({...response.data.data, totalCost, totalPayment})
-                                } else {
-                                    // console.log('parent appointment empty')
-                                }
+                                // if (app.parent_appointments) {
+                                //     console.log('parent appointment not empty')
+                                //     const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
+                                //     );
+                                //     console.log('get parent appointment response', response.data);
+                                //     let totalCost = 0;
+                                //     let totalPayment = 0;
+                                //     if (response.data.data.proc_fields.length>0) {
+                                //         response.data.data.proc_fields.forEach((f)=>{
+                                //             if (f.in_package === 'No') {
+                                //                 totalCost = totalCost + parseFloat(f.proc_cost)
+                                //             }
+                                //         })
+                                //     }
+                                //     if (response.data.data.app_pay_fields.length>0) {
+                                //         response.data.data.app_pay_fields.forEach((f)=>{
+                                //             if (f.pay_amount !== '' && f.in_package === 'No') {
+                                //                 totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                //             }
+                                //         })
+                                //     }
+                                //     if (response.data.childAppointments.length>0) {
+                                //         response.data.childAppointments.forEach((f)=>{
+                                //             if (f.app_pay_fields.length>0) {
+                                //                 f.app_pay_fields.forEach((f)=>{
+                                //                     if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                //                         totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                //                     }
+                                //                 })
+                                //             }
+                                //         })
+                                //     }
+                                //     setAppParent({...response.data.data, totalCost, totalPayment})
+                                // } else {
+                                //     console.log('parent appointment empty')
+                                // }
                                 setIsOpen({...isOpen, appointment: true});
                             }}>Appointment Links
                         </button>
@@ -551,19 +563,23 @@ const AppointmentDetails = () => {
                             <div style={{display: 'flex', width: '100%'}}>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Total Cost</span>
-                                    <input type='number' value={app2.payments.totalCost} disabled />
+                                    {/* <input type='number' value={app2.payments.totalCost} disabled /> */}
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Total Payment</span>
-                                    <input type='number' value={app2.payments.totalPayment} disabled />
+                                    {/* <input type='number' value={app2.payments.totalPayment} disabled /> */}
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Balance</span>
-                                    <input type='number' value={app2.payments.balance} disabled />
+                                    {/* <input type='number' value={app2.payments.balance} disabled /> */}
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Change</span>
-                                    <input type='number' value={app2.payments.change} disabled />
+                                    {/* <input type='number' value={app2.payments.change} disabled /> */}
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
                                 </div>
                             </div>
                             
@@ -869,25 +885,19 @@ const AppointmentDetails = () => {
                                             <div style={{display: 'flex', width: '100%'}}>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Total Cost</span>
-                                                    {/* <span>{new Intl.NumberFormat().format(appParentSummary.totalCost)}</span> */}
-                                                    <input type='number' value={
-                                                        // app_total_proc_cost
-                                                        new Intl.NumberFormat().format(appParentSummary.totalCost)
-                                                        } disabled />
+                                                    <span className="span-total">{new Intl.NumberFormat().format(appParent.totalCost)}</span>
                                                 </div>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Total Payment</span>
-                                                    <input type='number' value={appParentSummary.totalPayment} disabled />
-                                                    {/* <span>Total Payment</span>
-                                                    <span>{new Intl.NumberFormat().format(appParentSummary.totalPayment)}</span> */}
+                                                    <span className="span-total">{new Intl.NumberFormat().format(appParent.totalPayment)}</span>
                                                 </div>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Balance</span>
-                                                    <input type='number' value={appParentSummary.balance} disabled />
+                                                    <span className="span-total">{new Intl.NumberFormat().format(appParent.balance)}</span>
                                                 </div>
                                                 <div className="details-details-modal-body-input-box">
                                                     <span>Change</span>
-                                                    <input type='number' value={appParentSummary.change} disabled />
+                                                    <span className="span-total">{new Intl.NumberFormat().format(appParent.change)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -899,22 +909,19 @@ const AppointmentDetails = () => {
                                 <div style={{display: 'flex', width: '100%'}}>
                                     <div className="details-details-modal-body-input-box">
                                         <span>Total Cost</span>
-                                        <input type='number' value={
-                                            // app_total_proc_cost
-                                            app2.payments.totalCost
-                                            } disabled />
+                                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
                                     </div>
                                     <div className="details-details-modal-body-input-box">
                                         <span>Total Payment</span>
-                                        <input type='number' value={app2.payments.totalPayment} disabled />
+                                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
                                     </div>
                                     <div className="details-details-modal-body-input-box">
                                         <span>Balance</span>
-                                        <input type='number' value={app2.payments.balance} disabled />
+                                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
                                     </div>
                                     <div className="details-details-modal-body-input-box">
                                         <span>Change</span>
-                                        <input type='number' value={app2.payments.change} disabled />
+                                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
                                     </div>
                                 </div>
                                 <div>
@@ -1014,26 +1021,67 @@ const AppointmentDetails = () => {
                                                                         </select>
                                                                     )
                                                                 }
-                                                                <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
+                                                                <button 
+                                                                // disabled={index !== app.app_pay_fields.length -1} 
+                                                                className='add-remove-button height-80p' 
                                                                 onClick={()=>{
-                                                                    const values = [...app.app_pay_fields];
-                                                                    values.splice(index, 1);
-                                                                    setApp({...app, app_pay_fields: values});
-                                                                    let totalPayment = 0;
-                                                                    values.map((field)=>{
-                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
-                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                    //keni
+                                                                    let confirmDelete = confirm('Are you sure to delete the payment?')
+                                                                    // console.log('confirmDelete', confirmDelete)
+                                                                    if (confirmDelete) {
+                                                                        const values = [...app.app_pay_fields];
+                                                                        values.splice(index, 1);
+                                                                        setApp({...app, app_pay_fields: values});
+                                                                        let totalPayment = 0;
+                                                                        let totalPaymentParent = 0;
+                                                                        values.forEach((field)=>{
+                                                                            if (field.pay_amount !== '' && field.in_package === 'No') {
+                                                                                totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                            }
+                                                                            if (field.pay_amount !== '' && field.in_package === 'Yes') {
+                                                                                totalPaymentParent = totalPaymentParent + parseFloat(field.pay_amount);
+                                                                            }
+                                                                        })
+                                                                        let change = 0;
+                                                                        let balance = 0;
+                                                                        if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                            change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                        } else {
+                                                                            balance = parseFloat(app2.payments.totalCost) - totalPayment
                                                                         }
-                                                                        
-                                                                    })
-                                                                    let change = 0;
-                                                                    let balance = 0;
-                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
-                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
-                                                                    } else {
-                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                        setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                        if (appParent.childAppointments.length>0) {
+                                                                            appParent.childAppointments.forEach((f)=>{
+                                                                                if (f.app_pay_fields.length>0) {
+                                                                                    f.app_pay_fields.forEach((f)=>{
+                                                                                        if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                                                                            totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                                                                                        }
+                                                                                    })
+                                                                                }
+                                                                            })
+                                                                        }
+                                                                        if (appParent.app_pay_fields.length>0) {
+                                                                            console.log('appParent payfields', appParent.app_pay_fields )
+                                                                            appParent.app_pay_fields.forEach((f)=>{
+                                                                                if (f.pay_amount !== '' && f.in_package === 'No') {
+                                                                                    totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                                                                                }
+                                                                            })
+                                                                        }
+                                                                        setAppParent((p)=>{
+                                                                            let change = 0;
+                                                                            let balance = 0;
+                                                                            if (parseFloat(p.totalCost)> totalPaymentParent) {
+                                                                                balance = parseFloat(p.totalCost)- totalPaymentParent;
+                                                                            }
+                                                                            if (totalPaymentParent>parseFloat(p.totalCost)) {
+                                                                                change = totalPaymentParent - parseFloat(p.totalCost);
+                                                                            }
+                                                                            return {...p, totalPayment: totalPaymentParent, change, balance}
+                                                                        })
                                                                     }
-                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                    
                                                                 }}>-</button>
                                                             </div>
                                                             
@@ -1056,7 +1104,7 @@ const AppointmentDetails = () => {
                                                     ]
                                                 })
                                                 // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                                }}>Add Payment
+                                                }}>Add Payment Field
                                             </button>  
                                         ):
                                         (
@@ -1069,7 +1117,7 @@ const AppointmentDetails = () => {
                                                     ]
                                                 })
                                                 // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                                }}>Add Payment
+                                                }}>Add Payment Field
                                             </button>
                                         )
                                     }
@@ -1140,6 +1188,7 @@ const AppointmentDetails = () => {
                                                             })
                                                         }
                                                         if (f.childAppointments.length>0) {
+
                                                             f.childAppointments.forEach((f)=>{
                                                                 // console.log('f', f)
                                                                 if (f.app_pay_fields.length>0) {
@@ -1153,8 +1202,8 @@ const AppointmentDetails = () => {
                                                         }
                                                         return (
                                                             <tr key={i} className='table-table2-table-tbody-tr'>
-                                                            <td>{totalCost}</td>
-                                                            <td>{totalPayment}</td>
+                                                            <td>{new Intl.NumberFormat().format(totalCost)}</td>
+                                                            <td>{new Intl.NumberFormat().format(totalPayment)}</td>
                                                             <td>{f.patient_id.name}</td>
                                                             <td>{f.doctor_id.name}</td>
                                                             <td>{formatDate(f.date)}</td>
@@ -1163,17 +1212,41 @@ const AppointmentDetails = () => {
                                                             <td><button
                                                             onClick={async ()=>{
                                                                 // console.log('appParent', f)
+                                                                // if (f.childAppointments.length>0) {
+                                                                //     setAppParentWithChild(f.childAppointments)
+                                                                // }
+                                                                if (app.app_pay_fields.length>0) {
+                                                                    app.app_pay_fields.forEach((f)=>{
+                                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                                    })
+                                                                }
                                                                 setApp((p)=>{
                                                                     let n = p.proc_fields.map((f)=>{
                                                                         f.in_package = 'Yes'
                                                                         return f;
                                                                     })
+                                                                    let n2 =[];
+                                                                    if (p.app_pay_fields.length>0) {
+                                                                        p.app_pay_fields.forEach((f)=>{
+                                                                            f.in_package = 'Yes'
+                                                                            n2 = [...n2, f]
+                                                                        })
+                                                                    }
                                                                     // let test = {...p, proc_fields: n, parent_appointments: f._id};
                                                                     // console.log('select test', test)
-                                                                    return {...p, proc_fields: n, parent_appointments: f._id}
+                                                                    return {...p, app_pay_fields: n2, proc_fields: n, parent_appointments: f._id}
                                                                 })
-                                                                // setApp({...app, parent_appointments:f._id});
-                                                                setAppParent({...f, totalCost, totalPayment});
+                                                                let change = 0;
+                                                                let balance = 0;
+                                                                if (totalCost > totalPayment) {
+                                                                    balance = totalCost - totalPayment;
+                                                                }
+                                                                if (totalPayment > totalCost) {
+                                                                    change = totalPayment - totalCost;
+                                                                }
+                                                                
+                                                                setAppParent({...f, totalCost, totalPayment, balance, change });
+                                                                setApp2({...app2, payments: {totalCost:0, totalPayment: 0, balance:0, change: 0} })
                                                                 setIsOpen({...isOpen, appointmentSelectParent: false});
                                                             }}
                                                             >Select</button></td>
@@ -1262,8 +1335,8 @@ const AppointmentDetails = () => {
                                                      </thead>
                                                      <tbody className='table-table2-table-tbody'>
                                                          <tr className='table-table2-table-tbody-tr'>
-                                                             <td>{new Intl.NumberFormat().format(appParent.totalCost)}</td>
-                                                             <td>{appParent.totalPayment}</td>
+                                                             <td>{appParent.totalCost? new Intl.NumberFormat().format(appParent.totalCost) : ''}</td>
+                                                             <td>{appParent.totalPayment? new Intl.NumberFormat().format(appParent.totalPayment) : ''}</td>
                                                              <td>{appParent.patient_id.name}</td>
                                                              <td>{appParent.doctor_id.name}</td>
                                                              <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
@@ -1277,15 +1350,42 @@ const AppointmentDetails = () => {
                                                                      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
                                                                      })
                                                                      //    delete app.parent_appointments
-                                                                     setApp((p)=>{
-                                                                         let n = p.proc_fields.map((f)=>{
-                                                                             f.in_package = 'No'
-                                                                             return f;
+                                                                     let totalCost2 = 0;
+                                                                     let totalPayment = 0;
+                                                                     let change = 0;
+                                                                     let balance = 0;
+                                                                     app.proc_fields.forEach((f)=>{
+                                                                         totalCost2 = totalCost2 + parseFloat(f.proc_cost);
+                                                                     })
+                                                                     if (app.app_pay_fields.length>0) {
+                                                                         app.app_pay_fields.forEach((f)=>{
+                                                                             totalPayment = totalPayment + parseFloat(f.pay_amount);
                                                                          })
-                                                                        //  const test = {...p, parent_appointments: null, proc_fields: n}
-                                                                        //  console.log('return', test)
-                                                                         return {...p, parent_appointments: null, proc_fields: n}
-                                                                     });
+                                                                     }
+                                                                     if (totalCost2 > totalPayment) {
+                                                                         balance = totalCost2 - totalPayment;
+                                                                     }
+                                                                     if (totalPayment > totalCost2) {
+                                                                         change = totalPayment - totalCost2;
+                                                                     }
+                                                                     setApp2({...app2, payments: {totalCost: totalCost2, totalPayment, change, balance}})
+
+                                                                     setApp((p)=>{
+                                                                        let n = p.proc_fields.map((f)=>{
+                                                                            f.in_package = 'No'
+                                                                            return f;
+                                                                        })
+                                                                        let n2 = [];
+                                                                        if (p.app_pay_fields.length>0) {
+                                                                            p.app_pay_fields.forEach((f)=>{
+                                                                               f.in_package = 'No'
+                                                                            })
+                                                                        }
+                                                                       //  const test = {...p, parent_appointments: null, proc_fields: n}
+                                                                       //  console.log('return', test)
+                                                                        return {...p, parent_appointments: null, proc_fields: n}
+                                                                    });
+
                                                                      }} 
                                                                      style={{background:'#e9115bf0'}} 
                                                                      >Remove
@@ -1312,10 +1412,10 @@ const AppointmentDetails = () => {
                                                      </tbody>
                                                  </table>
                                             </div>
-                                            <span>Current Child Appointments</span>
+                                            {/* <span>Current Child Appointments</span>
                                              <table className="table-table2-table">
                                                  <thead className='table-table2-table-thead-search2'>
-                                                 {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                 <tr className='table-table2-table-thead-tr-search2'>
                                                      <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
                                                      <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
                                                      <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
@@ -1323,7 +1423,7 @@ const AppointmentDetails = () => {
                                                      <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
                                                      <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
                                                      <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                 </tr> */}
+                                                 </tr>
                                                  </thead>
                                                  <thead className='table-table2-table-thead'>
                                                  <tr className='table-table2-table-thead-tr'>
@@ -1371,7 +1471,7 @@ const AppointmentDetails = () => {
                                                      })
                                                      }
                                                  </tbody>
-                                             </table>
+                                             </table> */}
                                     </div>
                                     
                                     <div className='flex-end'> 

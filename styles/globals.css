@@ -471,4 +471,20 @@ input[type="text"] {
   border-radius: 5px;
   height: 35px;
 }
+.span-total{
+  height: 35px;
+  width: 100%;
+  /* outline: none; */
+  font-size: 18px;
+  border-radius: 5px;
+  /* padding-left: 16px; */
+  border: 1px solid #ccc;
+  border-bottom-width: 2px;
+  transition: all 0.3s ease;
+  padding: 0 0 0 5px;
+  display: inline-flex !important;
+  align-items: center;
+  color: black;
+  font-weight: 450 !important;
+}
 /* add-appointment ends */
