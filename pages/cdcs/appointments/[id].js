@@ -49,7 +49,9 @@ const AppointmentDetails = () => {
   });
   const [appParentsSearched, setAppParentsSearched] = useState([]);
   const [appParent, setAppParent] = useState({
-    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: '', totalPayment: ''
+    patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '',
+    totalCost: '', totalPayment: '', balance: '', change: '',
+    childAppointments: [], app_pay_fields: [],
   });
   const [appChild, setAppChild] = useState([]);
   const [app2, setApp2]=useState({
@@ -84,19 +86,14 @@ const AppointmentDetails = () => {
     }
   }
   const getAppointments = async ()=>{
-    const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`,
-      // {post:2,id:router.query.id,}
-      
-    );
-    
+    const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`);
     if (response.data.data && response.data.success) {
     //   console.log('response is true', response.data);
-      
       let totalMinutes = 0;
       let totalCost = 0
-      response.data.data.proc_fields.map((f)=>{
+      response.data.data.proc_fields.forEach((f)=>{
           totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
-          if (f.in_package === 'No') {
+          if (f.proc_cost !== '' && f.in_package === 'No') {
             totalCost = totalCost + parseFloat(f.proc_cost);
           }
       })
@@ -104,7 +101,9 @@ const AppointmentDetails = () => {
       let change = 0;
       let balance = 0
       const app_pay_fields = response.data.data.app_pay_fields.map((f)=>{
-        totalPayment = totalPayment + parseFloat(f.pay_amount);
+        if (f.pay_amount !== '' && f.in_package === 'No') {
+            totalPayment = totalPayment + parseFloat(f.pay_amount);
+        }
         f.pay_date = new Date(f.pay_date)
         return f;
       })
@@ -166,50 +165,21 @@ const AppointmentDetails = () => {
     }
     
   }
-    
-    // const handleChangeInputPayment = async (index, event, date, ename)=>{
-    //     if (event) {
-    //         const values = [...app.app_pay_fields];
-    //         values[index][event.target.name] = event.target.value;
-
-    //         // set_app_pay_fields(values);
-    //         setApp({...app, app_pay_fields: values})
-    //         let totalPayment = 0;
-    //         values.map(async (field, index)=>{
-    //             totalPayment = totalPayment + parseFloat(field.pay_amount);
-    //         })
-    //         let change = 0;
-    //         let balance = 0;
-    //         if (parseFloat(app2.payments.totalCost) - totalPayment < 0) {
-    //             change = totalPayment - parseFloat(app2.payments.totalCost)
-    //         } else {
-    //             balance = parseFloat(app2.payments.totalCost) - totalPayment
-    //         }
-    //         setApp2({...app2, payments: {...app2.payments, totalPayment :totalPayment.toFixed(2), change, balance}})
-            
-    //     }else{
-    //         const values = [...app.app_pay_fields];
-    //         values[index][ename] = date;
-    //         console.log('values: ', values);
-    //         // set_app_pay_fields(values);
-    //         setApp({...app, app_pay_fields: values})
-    //     }
-    // }
     const handleChangeInputPayment = async (index, event, date, ename)=>{
         if (event) {
             const values = [...app.app_pay_fields];
-            // if (isNaN(event.target.value)) {
-            //     console.log('Nan true')
-            //     event.target.value = 0;
-            // }
             values[index][event.target.name] = event.target.value;
 
             // set_app_pay_fields(values);
             setApp({...app, app_pay_fields: values})
             let totalPayment = 0;
+            let totalPaymentParent = 0;
             values.map(async (field, index)=>{
                 if (field.pay_amount !== '' && field.in_package === 'No') {
                     totalPayment = totalPayment + parseFloat(field.pay_amount);
+                }
+                if (field.pay_amount !== '' && field.in_package === 'Yes') {
+                    totalPaymentParent = totalPaymentParent + parseFloat(field.pay_amount);
                 }
             })
             let change = 0;
@@ -220,6 +190,41 @@ const AppointmentDetails = () => {
                 balance = parseFloat(app2.payments.totalCost) - totalPayment
             }
             setApp2({...app2, payments: {...app2.payments, totalPayment :totalPayment.toFixed(2), change, balance}})
+            if (app.parent_appointments) {
+                // console.log('appParentWithChild', appParentWithChild)
+                if (appParent.childAppointments.length>0) {
+                    appParent.childAppointments.forEach((f)=>{
+                        // console.log('pay fields', f.app_pay_fields)
+                        if (f.app_pay_fields.length>0) {
+                            f.app_pay_fields.forEach((f)=>{
+                                // console.log('payamount', f.pay_amount)
+                                if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                    totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
+                                }
+                            })
+                        }
+                    })
+                }
+                if (appParent.app_pay_fields.length>0) {
+                    appParent.app_pay_fields.forEach((f)=>{
+                        if (f.pay_amount !== '' && f.in_package === 'No') {
+                            totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
+                        }
+                    })
+                }
+                setAppParent((p)=>{
+                    let change = 0;
+                    let balance = 0;
+                    if ( parseFloat(p.totalCost)>totalPaymentParent) {
+                        balance = parseFloat(p.totalCost) - totalPaymentParent;
+                    }
+                    if (totalPaymentParent> parseFloat(p.totalCost)) {
+                        change = totalPaymentParent -  parseFloat(p.totalCost);
+                    }
+
+                    return {...appParent, totalPayment: totalPaymentParent, change, balance}
+                })
+            }
             
         }else{
             const values = [...app.app_pay_fields];
@@ -489,22 +494,21 @@ const AppointmentDetails = () => {
                             <div style={{display: 'flex', width: '100%'}}>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Total Cost</span>
-                                    <input type='number' value={app2.payments.totalCost} disabled />
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Total Payment</span>
-                                    <input type='number' value={app2.payments.totalPayment} disabled />
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Balance</span>
-                                    <input type='number' value={app2.payments.balance} disabled />
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
                                 </div>
                                 <div className="details-details-modal-body-input-box">
                                     <span>Change</span>
-                                    <input type='number' value={app2.payments.change} disabled />
+                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
                                 </div>
                             </div>
-                            
                         </div>
 
                         <div>
@@ -704,8 +708,10 @@ const AppointmentDetails = () => {
                                     <span>Type</span>
                                     <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
                                         <option value="">-Select Type-</option>
-                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Portal">Phone Call</option>
+                                        <option value="Portal">FB Messenger</option>
                                         <option value="Walk-in">Walk-in</option>
+                                        <option value="Portal">Portal</option>
                                     </select>       
                                 </div>
                             </div>
@@ -783,72 +789,85 @@ const AppointmentDetails = () => {
                     </div>
                 </div>
                 {
-                    isOpen.payment && (
+                   isOpen.payment && (
                         <div className='details-details-container'>
                             <div className='details-details-modal-container'>
                                 <div className='details-details-modal-body-button margin-bottom-20'> 
-                                </div>
                                 
+                                </div>
                                 <div className='details-details-modal-body-container'>
+                                    {
+                                        app.parent_appointments? 
+                                        // true?
+                                        (
+                                            <div>
+                                                <h4 style={{'margin': '5px'}}>Parent Appointment Payment Summary</h4>
+                                                <div style={{display: 'flex', width: '100%'}}>
+                                                    <div className="details-details-modal-body-input-box">
+                                                        <span>Total Cost</span>
+                                                        <span className="span-total">{new Intl.NumberFormat().format(appParent.totalCost)}</span>
+                                                    </div>
+                                                    <div className="details-details-modal-body-input-box">
+                                                        <span>Total Payment</span>
+                                                        <span className="span-total">{new Intl.NumberFormat().format(appParent.totalPayment)}</span>
+                                                    </div>
+                                                    <div className="details-details-modal-body-input-box">
+                                                        <span>Balance</span>
+                                                        <span className="span-total">{new Intl.NumberFormat().format(appParent.balance)}</span>
+                                                    </div>
+                                                    <div className="details-details-modal-body-input-box">
+                                                        <span>Change</span>
+                                                        <span className="span-total">{new Intl.NumberFormat().format(appParent.change)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ):
+                                        ''
+                                    }
+
+                                    <h4 style={{'margin': '5px'}}>Payment Summary</h4>
                                     <div style={{display: 'flex', width: '100%'}}>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Total Cost</span>
-                                            <input type='number' value={
-                                                // app_total_proc_cost
-                                                app2.payments.totalCost
-                                                } disabled />
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
                                         </div>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Total Payment</span>
-                                            <input type='number' value={app2.payments.totalPayment} disabled />
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
                                         </div>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Balance</span>
-                                            <input type='number' value={app2.payments.balance} disabled />
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
                                         </div>
                                         <div className="details-details-modal-body-input-box">
                                             <span>Change</span>
-                                            <input type='number' value={app2.payments.change} disabled />
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
                                         </div>
                                     </div>
                                     <div>
-                                        {/* {
+                                        
+                                        {
                                             app.app_pay_fields &&
                                             app.app_pay_fields.map((payfield, index)=>{
                                                 return (
                                                     <div key={index}>
                                                         <div className='display-flex' style={{marginTop:'0px'}} >
                                                             <div className='details-details-modal-body-input-box'>
-                                                                <span style={index > 0? {display: 'none'}:{}} >Payment</span>
+                                                                <div className='display-flex'>
+                                                                    <span style={index > 0? {display: 'none'}:{}} >Payment</span>
+                                                                    {/* <span style={index > 0? {display: 'none'}:{}} >To Parent?</span> */}
+                                                                </div>
+                                                                
                                                                 <div className='display-flex'>
                                                                     
                                                                     <input type='number' name='pay_amount' value={payfield.pay_amount}
                                                                     onChange={(e)=>{
                                                                         handleChangeInputPayment(index, e)
                                                                     }} />
-                                                                    <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
-                                                                    onClick={()=>{
-                                                                        const values = [...app.app_pay_fields];
-                                                                        values.splice(index, 1);
-                                                                        setApp({...app, app_pay_fields: values});
-                                                                        let totalPayment = 0;
-                                                                        values.map((field)=>{
-                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
-                                                                        })
-                                                                        let change = 0;
-                                                                        let balance = 0;
-                                                                        if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
-                                                                            change = totalPayment - parseFloat(app2.payments.totalCost);
-                                                                        } else {
-                                                                            balance = parseFloat(app2.payments.totalCost) - totalPayment
-                                                                        }
-                                                                        setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
-                                                                        }}>-</button>
                                                                 </div>
                                                             </div>
                                                             <div className='details-details-modal-body-input-box'>
                                                                 <span style={index > 0? {display: 'none'}:{}}>Date of Payment</span>
-                                                                    
                                                                 <DatePicker 
                                                                 name='pay_date'
                                                                 maxDate={new Date()} 
@@ -866,146 +885,107 @@ const AppointmentDetails = () => {
                                                                 }} 
                                                                 />
                                                             </div>
+                                                            <div className='details-details-modal-body-input-box'>
+                                                                <span style={index > 0? {display: 'none'}:{}}>Note</span>
+                                                                <input type='text' name='pay_note' value={payfield.pay_note}
+                                                                    onChange={(e)=>{
+                                                                        handleChangeInputPayment(index, e)
+                                                                    }} />
+                                                            </div>
+                                                            <div className='details-details-modal-body-input-box'>
+                                                                <span style={index > 0? {display: 'none'}:{}}>To Parent</span>
+                                                                <div className='display-flex'>
+                                                                    {
+                                                                        app.parent_appointments?
+                                                                        (
+                                                                            <select name="in_package"  value={payfield.in_package} 
+                                                                            onChange={(event)=>{handleChangeInputPayment(index, event)}}>
+                                                                                <option value='Yes'>Yes</option>
+                                                                                <option value='No'>No</option>
+                                                                                {/* <option value='No'>{app.parent_appointments}</option> */}
+                                                                            </select>
+                                                                        )
+                                                                        :
+                                                                        (
+                                                                            <select name="in_package"  value={payfield.in_package} 
+                                                                            onChange={(event)=>{handleChangeInputPayment(index, event)}}>
+                                                                                {/* <option value='Yes'>Yes</option> */}
+                                                                                {/* <option value='No'>No</option> */}
+                                                                                {/* <option value='Yes'>Yes</option> */}
+                                                                                <option value='No'>No</option>
+                                                                                {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
+                                                                            </select>
+                                                                        )
+                                                                    }
+                                                                    <button 
+                                                                    // disabled={index !== app.app_pay_fields.length -1} 
+                                                                    className='add-remove-button height-80p' 
+                                                                    onClick={()=>{
+                                                                        let confirmDelete = confirm('Are you sure to delete the payment?')
+                                                                        if (confirmDelete) {
+                                                                            const values = [...app.app_pay_fields];
+                                                                            values.splice(index, 1);
+                                                                            setApp({...app, app_pay_fields: values});
+                                                                            let totalPayment = 0;
+                                                                            let totalPaymentParent = 0;
+                                                                            values.forEach((field)=>{
+                                                                                if (field.pay_amount !== '' && field.in_package === 'No') {
+                                                                                    totalPayment = totalPayment + parseFloat(field.pay_amount);
+                                                                                }
+                                                                                if (field.pay_amount !== '' && field.in_package === 'Yes') {
+                                                                                    totalPaymentParent = totalPaymentParent + parseFloat(field.pay_amount);
+                                                                                }
+                                                                            })
+                                                                            let change = 0;
+                                                                            let balance = 0;
+                                                                            if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
+                                                                                change = totalPayment - parseFloat(app2.payments.totalCost);
+                                                                            } else {
+                                                                                balance = parseFloat(app2.payments.totalCost) - totalPayment
+                                                                            }
+                                                                            setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
+                                                                            if (appParent.childAppointments && appParent.childAppointments.length>0) {
+                                                                                appParent.childAppointments.forEach((f)=>{
+                                                                                    if (f.app_pay_fields.length>0) {
+                                                                                        f.app_pay_fields.forEach((f)=>{
+                                                                                            if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                                                                                totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                                                                                            }
+                                                                                        })
+                                                                                    }
+                                                                                })
+                                                                            }
+                                                                            if (appParent.app_pay_fields && appParent.app_pay_fields.length>0) {
+                                                                                console.log('appParent payfields', appParent.app_pay_fields )
+                                                                                appParent.app_pay_fields.forEach((f)=>{
+                                                                                    if (f.pay_amount !== '' && f.in_package === 'No') {
+                                                                                        totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                                                                                    }
+                                                                                })
+                                                                            }
+                                                                            setAppParent((p)=>{
+                                                                                let change = 0;
+                                                                                let balance = 0;
+                                                                                if (parseFloat(p.totalCost)> totalPaymentParent) {
+                                                                                    balance = parseFloat(p.totalCost)- totalPaymentParent;
+                                                                                }
+                                                                                if (totalPaymentParent>parseFloat(p.totalCost)) {
+                                                                                    change = totalPaymentParent - parseFloat(p.totalCost);
+                                                                                }
+                                                                                return {...p, totalPayment: totalPaymentParent, change, balance}
+                                                                            })
+                                                                        }
+                                                                        
+                                                                    }}>-</button>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                            
                                                         </div>
                                                     </div>
                                                 );
                                             })
-                                        } */}
-                                        {
-                                        app.app_pay_fields &&
-                                        app.app_pay_fields.map((payfield, index)=>{
-                                            return (
-                                                <div key={index}>
-                                                    <div className='display-flex' style={{marginTop:'0px'}} >
-                                                        <div className='details-details-modal-body-input-box'>
-                                                            <div className='display-flex'>
-                                                                <span style={index > 0? {display: 'none'}:{}} >Payment</span>
-                                                                {/* <span style={index > 0? {display: 'none'}:{}} >To Parent?</span> */}
-                                                            </div>
-                                                            
-                                                            <div className='display-flex'>
-                                                                
-                                                                <input type='number' name='pay_amount' value={payfield.pay_amount}
-                                                                onChange={(e)=>{
-                                                                    handleChangeInputPayment(index, e)
-                                                                }} />
-                                                                {/* <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
-                                                                onClick={()=>{
-                                                                    const values = [...app.app_pay_fields];
-                                                                    values.splice(index, 1);
-                                                                    setApp({...app, app_pay_fields: values});
-                                                                    let totalPayment = 0;
-                                                                    values.map((field)=>{
-                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
-                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
-                                                                        }
-                                                                        
-                                                                    })
-                                                                    let change = 0;
-                                                                    let balance = 0;
-                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
-                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
-                                                                    } else {
-                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
-                                                                    }
-                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
-                                                                    }}>-</button> */}
-
-                                                                    
-                                                            </div>
-                                                        </div>
-                                                        <div className='details-details-modal-body-input-box'>
-                                                            <span style={index > 0? {display: 'none'}:{}}>Date of Payment</span>
-                                                                
-                                                            <DatePicker 
-                                                            name='pay_date'
-                                                            maxDate={new Date()} 
-                                                            yearDropdownItemNumber={90}
-                                                            showTimeSelect
-                                                            showYearDropdown 
-                                                            scrollableYearDropdown={true} 
-                                                            dateFormat='MMMM d, yyyy h:mm aa' 
-                                                            className='date-picker' 
-                                                            placeholderText="Select Date" 
-                                                            selected={payfield.pay_date} 
-                                                            onChange={(date)=>{
-                                                                handleChangeInputPayment(index, false, date, 'pay_date')
-                                                                // set_app_pay_date(date)
-                                                            }} 
-                                                            />
-                                                        </div>
-                                                        <div className='details-details-modal-body-input-box'>
-                                                            <span style={index > 0? {display: 'none'}:{}}>Note</span>
-                                                            <input type='text' name='pay_note' value={payfield.pay_note}
-                                                                onChange={(e)=>{
-                                                                    handleChangeInputPayment(index, e)
-                                                                }} />
-                                                        </div>
-                                                        <div className='details-details-modal-body-input-box'>
-                                                            <span style={index > 0? {display: 'none'}:{}}>To Parent</span>
-                                                            <div className='display-flex'>
-                                                                {
-                                                                    app.parent_appointments?
-                                                                    (
-                                                                        <select name="in_package"  value={payfield.in_package} 
-                                                                        onChange={(event)=>{handleChangeInputPayment(index, event)}}>
-                                                                            <option value='Yes'>Yes</option>
-                                                                            <option value='No'>No</option>
-                                                                            {/* <option value='No'>{app.parent_appointments}</option> */}
-                                                                        </select>
-                                                                    )
-                                                                    :
-                                                                    (
-                                                                        <select name="in_package"  value={payfield.in_package} 
-                                                                        onChange={(event)=>{handleChangeInputPayment(index, event)}}>
-                                                                            {/* <option value='Yes'>Yes</option> */}
-                                                                            {/* <option value='No'>No</option> */}
-                                                                            {/* <option value='Yes'>Yes</option> */}
-                                                                            <option value='No'>No</option>
-                                                                            {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
-                                                                        </select>
-                                                                    )
-                                                                }
-                                                                <button disabled={index !== app.app_pay_fields.length -1} className='add-remove-button height-80p' 
-                                                                onClick={()=>{
-                                                                    const values = [...app.app_pay_fields];
-                                                                    values.splice(index, 1);
-                                                                    setApp({...app, app_pay_fields: values});
-                                                                    let totalPayment = 0;
-                                                                    values.map((field)=>{
-                                                                        if (field.pay_amount !== '' && field.in_package === 'No') {
-                                                                            totalPayment = totalPayment + parseFloat(field.pay_amount);
-                                                                        }
-                                                                        
-                                                                    })
-                                                                    let change = 0;
-                                                                    let balance = 0;
-                                                                    if (parseFloat(app2.payments.totalCost)-totalPayment < 0) {
-                                                                        change = totalPayment - parseFloat(app2.payments.totalCost);
-                                                                    } else {
-                                                                        balance = parseFloat(app2.payments.totalCost) - totalPayment
-                                                                    }
-                                                                    setApp2({...app2, payments: {...app2.payments, totalPayment, change, balance}})
-                                                                }}>-</button>
-                                                            </div>
-                                                            
-                                                        </div>
-                                                        
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    }
-                                        {/* <button className='add-payment-button height-80p' onClick={()=>{
-                                            setApp({...app, app_pay_fields: 
-                                                [
-                                                    ...app.app_pay_fields, 
-                                                    {pay_amount: '', pay_date: new Date()}
-                                                ]
-                                            })
-                                            // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                            }}>Add Payment
-                                        </button> */}
+                                        }
                                         {
                                             app.parent_appointments?
                                             (
@@ -1018,7 +998,7 @@ const AppointmentDetails = () => {
                                                         ]
                                                     })
                                                     // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                                    }}>Add Payment
+                                                    }}>Add Payment Field
                                                 </button>  
                                             ):
                                             (
@@ -1031,18 +1011,33 @@ const AppointmentDetails = () => {
                                                         ]
                                                     })
                                                     // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                                                    }}>Add Payment
+                                                    }}>Add Payment Field
                                                 </button>
                                             )
                                         }
+                                        
                                     </div>
                                     
-
                                 </div>
                                 
-                                <div className='flex-end'> 
-
-                                <button onClick={()=>{setIsOpen({...isOpen, payment: false})}} className='button-w20'>Close</button>
+                                <div className='flex-end'>
+                                    <button onClick={()=>{
+                                        let checkEmptyPayment = false;
+                                        if (app.app_pay_fields.length>0) {
+                                            app.app_pay_fields.forEach((f)=>{
+                                                if (f.pay_amount === '') {
+                                                    checkEmptyPayment = true;
+                                                }
+                                            })
+                                        }
+                                        if (checkEmptyPayment) {
+                                            alert('Please fill all pay amount field')
+                                        } else {
+                                            setIsOpen({...isOpen, payment: false})
+                                        }
+                                        
+                                }} className='button-w20'>Close</button>
+                                {/* <button onClick={()=>{setIsOpen({...isOpen, payment: false})}} className='button-w20'>Close</button> */}
                                 </div>
                             </div>
                         </div>
@@ -1053,93 +1048,145 @@ const AppointmentDetails = () => {
                    (
                        isOpen.appointmentSelectParent? 
                        (
-                           <div className='details-details-container'>
-                               <div className='details-details-modal-container'>
-                                   <div className='details-details-modal-body-button margin-bottom-20'> 
-                                   </div>
-                                   <h1>Select Parent Appointment</h1>
-                                   <div className='details-details-modal-body-container'>
-                                   
-                                       <div>
-                                           {
-                                           <div className='table-table2-container'>
-                                           <table className="table-table2-table">
-                                               <thead className='table-table2-table-thead-search2'>
-                                               {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                   <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                   <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                   <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                   </th>
-                                                   <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                   <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                   <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                               </tr> */}
-                                               </thead>
-                                               
-                                               <thead className='table-table2-table-thead'>
-                                               <tr className='table-table2-table-thead-tr'>
-                                                   <th>Total Cost</th>
-                                                   <th>Patient</th>
-                                                   <th>Doctor</th>
-                                                   <th>Date</th>
-                                                   <th>Time</th>
-                                                   <th>Status</th>
-                                                   <th>Option</th>
-                                               </tr>
-                                               </thead>
-                                               <tbody className='table-table2-table-tbody'>
-                                               { 
-                                                   appParentsSearched && appParentsSearched.map((f,i)=>{
-                                                       let totalCost= 0;
-                                                       f.proc_fields.map((f)=>{
-                                                           totalCost = totalCost + parseFloat(f.proc_cost)
-                                                       })
-                                                       return (
-                                                           <tr key={i} className='table-table2-table-tbody-tr'>
-                                                           <td>{totalCost}</td>
-                                                           <td>{f.patient_id.name}</td>
-                                                           <td>{f.doctor_id.name}</td>
-                                                           <td>{formatDate(f.date)}</td>
-                                                           <td>{new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                           <td>{f.status}</td>
-                                                           <td><button
-                                                           onClick={()=>{
-                                                               setApp({...app, parent_appointments:f._id});
-                                                               setAppParent({...f, totalCost});
-                                                               setIsOpen({...isOpen, appointmentSelectParent: false});
-                                                            console.log('app.parent_appointments', app.parent_appointments)
-                                                           }}
-                                                           disabled={f._id === app._id || f._id === app.parent_appointments}
-                                                           style={{background:'#e9115bf0'}}
-                                                           className='button-disabled'
-                                                           >
-                                                            {f._id === app._id || f._id === app.parent_appointments? 'Self/Selected' : 'Select'}
-                                                            </button></td>
-                                                           {/* <td>
-                                                               <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                                           </td>
-                                                           <td>{user.type}</td>
-                                                           <td className='table-table2-table-body-tr-td'>
-                                                               <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                                           </td> */}
-                                                       </tr>
-                                                       )
-                                                   })
-                                               }
-                                               </tbody>
-                                           </table>
-                                           </div>
-                                           }
-                                       </div>
+                        <div className='details-details-container'>
+                            <div className='details-details-modal-container'>
+                                <div className='details-details-modal-body-button margin-bottom-20'> 
+                                </div>
+                                <h1>Select Parent Appointment</h1>
+                                <div className='details-details-modal-body-container'>
+                                
+                                    <div>
+                                        {
+                                        <div className='table-table2-container'>
+                                        <table className="table-table2-table">
+                                            <thead className='table-table2-table-thead-search2'>
+                                            {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                </th>
+                                                <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                            </tr> */}
+                                            </thead>
+                                            
+                                            <thead className='table-table2-table-thead'>
+                                            <tr className='table-table2-table-thead-tr'>
+                                                <th>Total Cost</th>
+                                                <th>Total Payment</th>
+                                                <th>Patient</th>
+                                                <th>Doctor</th>
+                                                <th>Date</th>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                                <th>Option</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody className='table-table2-table-tbody'>
+                                            { 
+                                                appParentsSearched && appParentsSearched.map((f,i)=>{
+                                                    let totalCost= 0;
+                                                    let totalPayment = 0
+                                                    f.proc_fields.forEach((f)=>{
+                                                        totalCost = totalCost + parseFloat(f.proc_cost)
+                                                    })
+                                                    if (f.app_pay_fields.length>0) {
+                                                        f.app_pay_fields.forEach((f)=>{
+                                                            totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                        })
+                                                    }
+                                                    if (f.childAppointments.length>0) {
 
-                                   </div>
-                                   
-                                   <div className='flex-end'> 
+                                                        f.childAppointments.forEach((f)=>{
+                                                            // console.log('f', f)
+                                                            if (f.app_pay_fields.length>0) {
+                                                                f.app_pay_fields.forEach((f)=>{
+                                                                    if (f.pay_amount !== '' && f.in_package ==='Yes') {
+                                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                                    }
+                                                                })
+                                                            }
+                                                        })
+                                                    }
+                                                    return (
+                                                        <tr key={i} className='table-table2-table-tbody-tr'>
+                                                        <td>{new Intl.NumberFormat().format(totalCost)}</td>
+                                                        <td>{new Intl.NumberFormat().format(totalPayment)}</td>
+                                                        <td>{f.patient_id.name}</td>
+                                                        <td>{f.doctor_id.name}</td>
+                                                        <td>{formatDate(f.date)}</td>
+                                                        <td>{new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                        <td>{f.status}</td>
+                                                        <td>
+                                                            <button
+                                                                onClick={async ()=>{
+                                                                    // console.log('appParent', f)
+                                                                    if (app.app_pay_fields.length>0) {
+                                                                        app.app_pay_fields.forEach((f)=>{
+                                                                            if (f.pay_amount !== '') {
+                                                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
+                                                                            }
+                                                                            
+                                                                        })
+                                                                    }
+                                                                    setApp((p)=>{
+                                                                        let n = p.proc_fields.map((f)=>{
+                                                                            f.in_package = 'Yes'
+                                                                            return f;
+                                                                        })
+                                                                        let n2 =[];
+                                                                        if (p.app_pay_fields.length>0) {
+                                                                            p.app_pay_fields.forEach((f)=>{
+                                                                                f.in_package = 'Yes'
+                                                                                n2 = [...n2, f]
+                                                                            })
+                                                                        }
+                                                                        // let test = {...p, proc_fields: n, parent_appointments: f._id};
+                                                                        // console.log('select test', test)
+                                                                        return {...p, app_pay_fields: n2, proc_fields: n, parent_appointments: f._id}
+                                                                    })
+                                                                    let change = 0;
+                                                                    let balance = 0;
+                                                                    if (totalCost > totalPayment) {
+                                                                        balance = totalCost - totalPayment;
+                                                                    }
+                                                                    if (totalPayment > totalCost) {
+                                                                        change = totalPayment - totalCost;
+                                                                    }
+                                                                    
+                                                                    setAppParent({...f, totalCost, totalPayment, balance, change });
+                                                                    setApp2({...app2, payments: {totalCost:0, totalPayment: 0, balance:0, change: 0} })
+                                                                    setIsOpen({...isOpen, appointmentSelectParent: false});
+                                                                }}
+                                                                >Select
+                                                            </button>
+                                                        </td>
+                                                        {/* <td>
+                                                            <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
+                                                        </td>
+                                                        <td>{user.type}</td>
+                                                        <td className='table-table2-table-body-tr-td'>
+                                                            <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
+                                                        </td> */}
+                                                    </tr>
+                                                    )
+                                                })
+                                            }
+                                            </tbody>
+                                        </table>
+                                        </div>
+                                        }
+                                    </div>
 
-                                   <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Close</button>
-                                   </div>
-                               </div>
-                           </div>
+                                </div>
+                                
+                                <div className='flex-end'> 
+
+                                <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Back</button>
+                                </div>
+                            </div>
+                        </div>
                        )
                        :
                        (
@@ -1148,6 +1195,30 @@ const AppointmentDetails = () => {
                                    <div className='details-details-modal-body-button align-items-flex-end'> 
                                    <span>Current Parent Appointment</span>
                                    <button onClick={ async ()=>{
+                                     //    console.log('app.patient_id', app.patient_id)
+                                        const response = await axios.post(`/api/cdcs/appointments`,{                            
+                                          data: {filterType: 'getParent', patient_id: app.patient_id.value}
+                                        });
+                                        //   console.log('response',response.data.data.length);
+                                        if (response.data.data.length>0) {
+                                        //   console.log('response',response.data);
+                                          let newArray = await Promise.all(
+                                            await response.data.data.map(async (f)=>{
+                                                const response = await axios.get(`/api/cdcs/appointments/${f._id}`,);
+                                                // console.log('n response', response)
+                                                f.childAppointments =  response.data.childAppointments;
+                                                // console.log('f', f)
+                                                return f;
+                                              })
+                                          ) 
+                                        //   setAppParentsSearched(response.data.data);
+                                          setAppParentsSearched(newArray);
+                                        }else{
+                                          console.log('Failed getting parents appointments')
+                                        }
+                                        setIsOpen({...isOpen, appointmentSelectParent: true})
+                                        }}>Search Parent</button>
+                                   {/* <button onClick={ async ()=>{
                                     //    console.log('app.patient_id', app.patient_id)
                                        const response = await axios.post(`/api/cdcs/appointments`,{                            
                                          data: {filterType: 'getParent', patient_id: app.patient_id.value}
@@ -1160,21 +1231,116 @@ const AppointmentDetails = () => {
                                          console.log('Failed getting parents appointments')
                                        }
                                        setIsOpen({...isOpen, appointmentSelectParent: true})
-                                       }}>Search Parent</button>
+                                       }}>Search Parent</button> */}
                                     </div>
                                    <div className='details-details-modal-body-container'>
-                                           <div className='table-table2-container'>
+                                   <div className='table-table2-container'>
+                                                 <table className="table-table2-table margin-bottom-20">
+                                                     <thead className='table-table2-table-thead-search2'>
+                                                     {/* <tr className='table-table2-table-thead-tr-search2'>
+                                                         <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
+                                                         <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+                                                         <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
+                                                         </th>
+                                                         <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
+                                                         <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+                                                         <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+                                                     </tr> */}
+                                                     </thead>
+                                                     <thead className='table-table2-table-thead'>
+                                                     <tr className='table-table2-table-thead-tr'>
+                                                         <th>Total Cost</th>
+                                                         <th>Total Payment</th>
+                                                         <th>Patient</th>
+                                                         <th>Doctor</th>
+                                                         <th>Date</th>
+                                                         <th>Time</th>
+                                                         <th>Status</th>
+                                                         <th>Option</th>
+                                                     </tr>
+                                                     </thead>
+                                                     <tbody className='table-table2-table-tbody'>
+                                                         <tr className='table-table2-table-tbody-tr'>
+                                                             <td>{appParent.totalCost? new Intl.NumberFormat().format(appParent.totalCost) : ''}</td>
+                                                             <td>{appParent.totalPayment? new Intl.NumberFormat().format(appParent.totalPayment) : ''}</td>
+                                                             <td>{appParent.patient_id.name}</td>
+                                                             <td>{appParent.doctor_id.name}</td>
+                                                             <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
+                                                             <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
+                                                             <td>{appParent.status}</td>
+                                                             <td>{appParent.status === ''? '' : 
+                                                             (
+                                                             <div>
+                                                                 <button onClick={()=>{
+                                                                     setAppParent({
+                                                                     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
+                                                                     })
+                                                                     //    delete app.parent_appointments
+                                                                     let totalCost2 = 0;
+                                                                     let totalPayment = 0;
+                                                                     let change = 0;
+                                                                     let balance = 0;
+                                                                     app.proc_fields.forEach((f)=>{
+                                                                         totalCost2 = totalCost2 + parseFloat(f.proc_cost);
+                                                                     })
+                                                                     if (app.app_pay_fields.length>0) {
+                                                                         app.app_pay_fields.forEach((f)=>{
+                                                                             totalPayment = totalPayment + parseFloat(f.pay_amount);
+                                                                         })
+                                                                     }
+                                                                     if (totalCost2 > totalPayment) {
+                                                                         balance = totalCost2 - totalPayment;
+                                                                     }
+                                                                     if (totalPayment > totalCost2) {
+                                                                         change = totalPayment - totalCost2;
+                                                                     }
+                                                                     setApp2({...app2, payments: {totalCost: totalCost2, totalPayment, change, balance}})
+
+                                                                     setApp((p)=>{
+                                                                        let n = p.proc_fields.map((f)=>{
+                                                                            f.in_package = 'No'
+                                                                            return f;
+                                                                        })
+                                                                        let n2 = [];
+                                                                        if (p.app_pay_fields.length>0) {
+                                                                            p.app_pay_fields.forEach((f)=>{
+                                                                               f.in_package = 'No'
+                                                                            })
+                                                                        }
+                                                                       //  const test = {...p, parent_appointments: null, proc_fields: n}
+                                                                       //  console.log('return', test)
+                                                                        return {...p, parent_appointments: null, proc_fields: n}
+                                                                    });
+
+                                                                     }} 
+                                                                     style={{background:'#e9115bf0'}} 
+                                                                     >Remove
+                                                                     </button>
+                                                                 <button
+                                                                     onClick={async ()=>{
+                                                                         // setIsOpen({...isOpen, appointment: false})
+ 
+                                                                        //  await router.push(`/cdcs/appointments/${appParent._id}`)
+                                                                        //  window.location.reload();
+                                                                        window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${appParent._id}`, "_blank");
+                                                                     }}
+                                                                     style={{background:'#e9115bf0'}} 
+                                                                 
+                                                                 >View/Edit
+                                                                 </button>
+                                                             </div>
+                                                            
+                                                             
+                                                             )
+                                                             
+                                                             }</td>
+                                                         </tr>
+                                                     </tbody>
+                                                 </table>
+                                            </div>
+                                           {/* <div className='table-table2-container'>
                                                 <table className="table-table2-table margin-bottom-20">
                                                     <thead className='table-table2-table-thead-search2'>
-                                                    {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                        <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                        <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                        <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                        </th>
-                                                        <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                        <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                        <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                    </tr> */}
                                                     </thead>
                                                     <thead className='table-table2-table-thead'>
                                                     <tr className='table-table2-table-thead-tr'>
@@ -1228,7 +1394,7 @@ const AppointmentDetails = () => {
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                           </div>
+                                           </div> */}
                                            <span>Current Child Appointments</span>
                                             <table className="table-table2-table">
                                                 <thead className='table-table2-table-thead-search2'>

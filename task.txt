@@ -1,7 +1,2 @@
-add appointment parent payment summary deleting payment, balance, change
 
-add appointment proc_cost and payment in_package
-edit appointment proc_cost and payment in_package
-
-add appointment payment and parent payment summary
-edit appointment payment and parent payment summary, child payments
+edit appointment parent must not select self as parent, computations also
