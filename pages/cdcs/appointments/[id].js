@@ -1439,6 +1439,33 @@ const AppointmentDetails = () => {
                                                     }
                                                 </tbody>
                                             </table>
+                                            <h4 style={{'margin': '5px'}}>Payment Summary</h4>
+                                            <div style={{display: 'flex', width: '100%'}}>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Total Cost</span>
+                                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
+                                                </div>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Total Payment</span>
+                                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
+                                                </div>
+                                                {
+                                                    appChild.length>0? (
+                                                        <div className="details-details-modal-body-input-box">
+                                                            <span>Total Childs Payment</span>
+                                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPaymentChilds)}</span>
+                                                        </div>
+                                                    ):('')
+                                                }
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Balance</span>
+                                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
+                                                </div>
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Change</span>
+                                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
+                                                </div>
+                                            </div>
                                    </div>
                                    
                                    <div className='flex-end'> 
