@@ -29,9 +29,11 @@ const Register = () => {
   const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
 
   const getTkn = async ()=>{
+    console.log('getToken called')
     const getTknRes = await axios.get(
       "/api/amcs/register"
     );
+    console.log('getToken', getTknRes)
   }
  
   const verifyEmail = async (e) => {
