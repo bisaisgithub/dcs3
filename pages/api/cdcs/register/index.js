@@ -10,7 +10,7 @@ export default async function (req, res) {
   try {
     const token = sign(
       {
-        id: 'registration',
+        id: 'registration', 
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }

@@ -112,7 +112,9 @@ const Register = () => {
         alert('Email Already Exist')
         setDisableButton({...disableButton, register: false})
       }else if (response.data.message === 'no-token') {
-        router.push('/amcs/');
+        alert('Failed Registering, please trying clicking register again')
+        getTkn();
+        setDisableButton({...disableButton, register: false})
       }else {
         alert('Failed Adding User')
         setDisableButton({...disableButton, register: false})
