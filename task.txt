@@ -1,2 +1,2 @@
 
-edit appointment appoinmennt link parent total payment need add child appointments
+edit appointment payment link child appointment table need total payment

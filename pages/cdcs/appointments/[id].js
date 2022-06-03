@@ -91,6 +91,7 @@ const AppointmentDetails = () => {
       console.log('response is true', response.data);
       let totalMinutes = 0;
       let totalCost = 0
+      let totalPaymentChilds = 0 ;
       response.data.data.proc_fields.forEach((f)=>{
           totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
           if (f.proc_cost !== '' && f.in_package === 'No') {
@@ -109,23 +110,53 @@ const AppointmentDetails = () => {
       })
       if (response.data.childAppointments.length>0) {
           console.log('child appoitment not empty', response.data.childAppointments)
-          
-          const childAppointments = response.data.childAppointments.map((f)=>{
-               let totalCost = 0;
-                f.proc_fields.map((f2)=>{
-                totalCost = totalCost + parseFloat(f2.proc_cost)
-             })
-             f.totalCost = totalCost;
+        //   let childAppointments = [];
+        
+          const childAppointments = 
+          response.data.childAppointments.map((f)=>{
+               let totalCostParent = 0;
+               let totalCostChild = 0;
+               let totalPaymentParent = 0;
+               let totalPaymentChild = 0;
+               if (f.proc_fields.length>0) {
+                f.proc_fields.forEach((f2)=>{
+                    console.log('f2 proc fields', f2)
+                    if (f2.proc_cost !== '' && f2.in_package === 'Yes') {
+                        totalCostParent = totalCostParent + parseFloat(f2.proc_cost);
+                    }
+                    if (f2.proc_cost !== '' && f2.in_package === 'No') {
+                        totalCostChild = totalCostChild + parseFloat(f2.proc_cost);
+                    }
+                 })
+               }
+               if (f.app_pay_fields.length>0) {
+                f.app_pay_fields.forEach((f)=>{
+                    if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                        totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                    }
+                    if (f.pay_amount !== '' && f.in_package === 'No') {
+                        totalPaymentChild = totalPaymentChild + parseFloat(f.pay_amount);
+                    }
+                })
+               }
+             f.totalCostParent = totalCostParent;
+             f.totalCostChild = totalCostChild;
+             f.totalPaymentParent = totalPaymentParent;
+             f.totalPaymentChild = totalPaymentChild;
+             totalPaymentChilds = totalPaymentChilds + totalPaymentParent;
+            //  console.log('totalPaymentChilds', totalPaymentParent)
              return f;
+            // childAppointments = [...childAppointments, f]
           })
           setAppChild(childAppointments)
       }else{
-        console.log('empty child appoitment')
+        console.log('empty child appointment')
       }
-      if (totalCost - totalPayment < 0) {
-          change = totalPayment - totalCost;
-      } else {
-          balance = totalCost - totalPayment;
+      if (totalCost > (totalPayment + totalPaymentChilds)) {
+          balance = totalCost - (totalPayment + totalPaymentChilds);
+      }
+      if ((totalPayment + totalPaymentChilds)>totalCost) {
+          change = (totalPayment + totalPaymentChilds) - totalCost;
       }
       setApp({
           ...response.data.data, date: new Date(response.data.data.date),
@@ -137,19 +168,15 @@ const AppointmentDetails = () => {
             patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
             app_pay_fields
             });
-        // let responseCheck = {...response.data.data, date: new Date(response.data.data.date),
-        //     patient_id: {value: response.data.data.patient_id._id, label: response.data.data.patient_id.name},
-        //     app_pay_fields}
-        // console.log('rescheck', responseCheck)
       setApp2({
           ...app2,
           date_end: new Date(response.data.data.date).setMinutes(new Date(response.data.data.date).getMinutes()+totalMinutes),
-          payments: {...app2.payments, totalCost, totalPayment, change, balance}
+          payments: {...app2.payments, totalCost, totalPayment, change, balance, totalPaymentChilds}
         });
         if (response.data.data.parent_appointments) {
-            console.log('app.parent ok', response.data.data.parent_appointments)
+            // console.log('app.parent ok', response.data.data.parent_appointments)
             const responseParent = await axios.get(`/api/cdcs/appointments/${response.data.data.parent_appointments}`);
-            console.log('responseParent', responseParent)
+            // console.log('responseParent', responseParent)
             if (responseParent.data.success) {
                 let totalCostParent = 0;
                 let totalPaymentParent = 0;
@@ -167,8 +194,30 @@ const AppointmentDetails = () => {
                         }
                     })
                 }
+                if (responseParent.data.childAppointments.length>0) {
+                    // console.log('child ok')
+                    responseParent.data.childAppointments.forEach((f)=>{
+                        if (f.app_pay_fields.length>0) {
+                            f.app_pay_fields.forEach((f)=>{
+                                if (f.pay_amount !== '' && f.in_package === 'Yes') {
+                                    totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
+                                }
+                            })
+                        }
+                    })
+                }
                 console.log('totalCost for parent', totalCostParent)
-                setAppParent({...responseParent.data.data, totalCost: totalCostParent, totalPayment: totalPaymentParent})
+                let balance = 0;
+                let change = 0;
+                if (totalCostParent > totalPaymentParent) {
+                    balance = totalCostParent - totalPaymentParent;
+                }
+                if (totalPaymentParent > totalCostParent) {
+                    change = totalPaymentParent - totalCostParent;
+                }
+                setAppParent({...responseParent.data.data, 
+                    totalCost: totalCostParent, totalPayment: totalPaymentParent, balance, change,
+                    childAppointments: responseParent.data.childAppointments})
             }
             
         }else{
@@ -224,10 +273,10 @@ const AppointmentDetails = () => {
                     appParent.childAppointments.forEach((f)=>{
                         // console.log('pay fields', f.app_pay_fields)
                         if (f.app_pay_fields.length>0) {
-                            f.app_pay_fields.forEach((f)=>{
+                            f.app_pay_fields.forEach((f2)=>{
                                 // console.log('payamount', f.pay_amount)
-                                if (f.pay_amount !== '' && f.in_package === 'Yes') {
-                                    totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount)
+                                if (f2.pay_amount !== '' && f2.in_package === 'Yes' && app._id !== f._id) {
+                                    totalPaymentParent = totalPaymentParent + parseFloat(f2.pay_amount)
                                 }
                             })
                         }
@@ -657,19 +706,6 @@ const AppointmentDetails = () => {
                                                                         new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
                                                                         ), payments: {...app2.payments, totalCost, change, balance}
                                                                     }); 
-                                                                    // set_app_total_proc_cost(totalCost);
-                                                                    // setApp2({...app2, payments: {...app.payments, totalCost}})
-                                                                    // if (app_pay_amount) {
-                                                                    //     if (parseFloat(totalCost-app_pay_amount)>0) {
-                                                                    //     set_app_pay_change(0);
-                                                                    //     set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
-                                                                    //     }else{
-                                                                    //         set_app_pay_change(parseFloat(app_pay_amount-totalCost));
-                                                                    //         set_app_pay_balance(0)
-                                                                    //     }
-                                                                    // }else{
-                                                                    //     set_app_pay_balance(totalCost);
-                                                                    // }
                                                                     setApp({...app, proc_fields: values})
                                                                 }
                                                             }else{
@@ -736,8 +772,10 @@ const AppointmentDetails = () => {
                                     <span>Type</span>
                                     <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
                                         <option value="">-Select Type-</option>
-                                        <option value="Portal">Phone Call</option>
-                                        <option value="Portal">FB Messenger</option>
+                                        <option value="Follow-up">Follow-up</option>
+                                        <option value="Phone Call">Phone Call</option>
+                                        <option value="SMS">SMS</option>
+                                        <option value="FB Messenger">FB Messenger</option>
                                         <option value="Walk-in">Walk-in</option>
                                         <option value="Portal">Portal</option>
                                     </select>       
@@ -863,6 +901,14 @@ const AppointmentDetails = () => {
                                             <span>Total Payment</span>
                                             <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
                                         </div>
+                                        {
+                                            appChild.length>0? (
+                                                <div className="details-details-modal-body-input-box">
+                                                    <span>Total Childs Payment</span>
+                                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPaymentChilds)}</span>
+                                                </div>
+                                            ):('')
+                                        }
                                         <div className="details-details-modal-body-input-box">
                                             <span>Balance</span>
                                             <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
@@ -975,11 +1021,11 @@ const AppointmentDetails = () => {
                                                                             if (appParent.childAppointments && appParent.childAppointments.length>0) {
                                                                                 appParent.childAppointments.forEach((f)=>{
                                                                                     if (f.app_pay_fields.length>0) {
-                                                                                        f.app_pay_fields.forEach((f)=>{
-                                                                                            if (f.pay_amount !== '' && f.in_package === 'Yes') {
-                                                                                                totalPaymentParent = totalPaymentParent + parseFloat(f.pay_amount);
+                                                                                        f.app_pay_fields.forEach((f2)=>{
+                                                                                            if (f2.pay_amount !== '' && f2.in_package === 'Yes' && app._id !== f._id) {
+                                                                                                totalPaymentParent = totalPaymentParent + parseFloat(f2.pay_amount);
                                                                                             }
-                                                                                        })
+                                                                                        })  
                                                                                     }
                                                                                 })
                                                                             }
@@ -1347,7 +1393,10 @@ const AppointmentDetails = () => {
                                                 </thead>
                                                 <thead className='table-table2-table-thead'>
                                                 <tr className='table-table2-table-thead-tr'>
-                                                    <th>Total Cost</th>
+                                                    <th>Parent Cost</th>
+                                                    <th>Child Cost</th>
+                                                    <th>Parent Payment</th>
+                                                    <th>Child Payment</th>
                                                     <th>Patient</th>
                                                     <th>Doctor</th>
                                                     <th>Date</th>
@@ -1362,7 +1411,10 @@ const AppointmentDetails = () => {
                                                         
                                                         return(
                                                             <tr key={i} className='table-table2-table-tbody-tr'>
-                                                                <td>{f.totalCost}</td>
+                                                                <td>{f.totalCostParent}</td>
+                                                                <td>{f.totalCostChild}</td>
+                                                                <td>{f.totalPaymentParent}</td>
+                                                                <td>{f.totalPaymentChild}</td>
                                                                 <td>{f.patient_id.name}</td>
                                                                 <td>{f.doctor_id.name}</td>
                                                                 <td>{f.date === '' ? '' : formatDate(f.date)}</td>

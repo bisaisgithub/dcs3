@@ -599,8 +599,10 @@ const AppointmentDetails = () => {
                                     <span>Type</span>
                                     <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
                                         <option value="">-Select Type-</option>
-                                        <option value="Portal">Phone Call</option>
-                                        <option value="Portal">FB Messenger</option>
+                                        <option value="Follow-up">Follow-up</option>
+                                        <option value="Phone Call">Phone Call</option>
+                                        <option value="SMS">SMS</option>
+                                        <option value="FB Messenger">FB Messenger</option>
                                         <option value="Walk-in">Walk-in</option>
                                         <option value="Portal">Portal</option>
                                     </select>       
