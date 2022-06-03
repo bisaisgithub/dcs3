@@ -113,6 +113,7 @@ const Register = () => {
         setDisableButton({...disableButton, register: false})
       }else if (response.data.message === 'no-token') {
         alert('Failed Registering, please trying clicking register again')
+        console.log('before getToken')
         getTkn();
         setDisableButton({...disableButton, register: false})
       }else {
