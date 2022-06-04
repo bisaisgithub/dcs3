@@ -56,7 +56,12 @@ const Login = () => {
           <div className="details-details-modal-body-button">
             <button type="submit">Login</button>
           </div>
-          <p>You do not have an account? Register <Link href={`/amcs/register`}>Here</Link></p>
+          <p>You do not have an account? Register 
+            <span className="link"
+            onClick={()=>{
+              // window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${appParent._id}`, "_blank");
+              window.open(`${process.env.NEXT_PUBLIC_SERVER}amcs/register`, '_self');
+            }}> Here</span></p>
         </div>
         
       </form>

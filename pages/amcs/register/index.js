@@ -154,7 +154,7 @@ const Register = () => {
               {/* {emailVerified? (<button type="button" onClick={()=>{setStep({one: false, two: true})}}>Next</button>) : (<button type="submit">Verify</button>)} */}
             </div>
             <p>Do you have an account? Login 
-              <Link href={`/cdcs/login`}> Here</Link>
+              <Link href={`/amcs/login`}> Here</Link>
               </p>
           </div>
         </form>

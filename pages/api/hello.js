@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     //   .sort({ type: -1 });
     // // console.log('user:', user);
     // // const username = await CDCSUsers7.findOne({_id: })
-    res.json({ sucess: true, data: drop });
+    // res.json({ sucess: true, data: drop });
   } catch (error) {
     console.log("cath error admin", error);
     res.json({ success: false, error: `get error: ${error}` });
