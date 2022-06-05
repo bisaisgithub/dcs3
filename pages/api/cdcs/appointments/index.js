@@ -16,20 +16,18 @@ export default async (req, res) => {
         // return { redirect: { destination: "/cdcs/login" } };
         res.json({success: false, message: 'tkn_e'})
     } else {
-      const verified = await jwt.verify(token, process.env.JWT_SECRET);
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
-          const response = await Appointments.find(
-            {
-            // $or:[
-            //   {
-                status: {$nin: ['Closed', 'Closed No Show', 'Closed w/ Balance']},
-                // status: {$ne: 'Closed No Show'},
-              // }]
-            }
-          )
+          const query = 
+          {
+              status: {$nin: ['Closed', 'Closed No Show', 'Closed w/ Balance']}
+          }
+          const count = await Appointments.estimatedDocumentCount(query);
+          console.log('count', count);
+          const response = await Appointments.find(query)
           .populate("created_by", "name")
           .populate("patient_id", "name")
           .populate("doctor_id", "name")
