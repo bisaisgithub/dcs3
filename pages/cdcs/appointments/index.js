@@ -241,7 +241,19 @@ const AppointmentTable = ({user}) => {
                     </tbody>
                 </table>
                 <div className='display-flex'>
-                    <span className='color-white-13-bold'>Page: {page}</span>
+                    <span className='color-white-13-bold'>Page: 
+                        <select value={page}
+                        onChange={(e)=>{
+                            setPage(e.target.value)
+                        }}
+                        >
+                            {
+                                Array(pageCount).fill(null).map((_,index)=>{
+                                    return <option key={index}>{index+1}</option>
+                                })
+                            }
+                        </select>
+                    </span>
                     <span className='color-white-13-bold'>Total Page: {pageCount}</span>
                 </div>
                 <div className='display-flex-center'>
