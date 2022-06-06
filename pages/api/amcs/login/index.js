@@ -4,10 +4,11 @@ import dbConnect from "../../../../utils/dbConnect";
 import AMCSUsers from "../../../../models/amcs/Users";
 const bcrypt = require("bcrypt");
 
-dbConnect();
+
 
 export default async function (req, res) {
   try {
+    await dbConnect();
     // console.log("req.body.email:", req.body.email);
     const user = await AMCSUsers.findOne(
       { email: req.body.email },
