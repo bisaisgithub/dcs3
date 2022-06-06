@@ -4,10 +4,11 @@ import dbConnect from "../../../../utils/dbConnect";
 import CDCSUsers7 from '../../../../models/cdcs/Users'
 const bcrypt = require("bcrypt");
 
-dbConnect();
+
 
 export default async function (req, res) {
   try {
+    await dbConnect();
     const token = sign(
       {
         id: 'registration',
