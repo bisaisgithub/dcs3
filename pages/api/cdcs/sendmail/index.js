@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 
 export default async function (req, res) {
   try {
-  console.log('req.body: ', req.body)
-  console.log(`${process.env.EMAIL_USER} + ${process.env.EMAIL_PASS}` )
+  // console.log('req.body: ', req.body)
+  // console.log(`${process.env.EMAIL_USER} + ${process.env.EMAIL_PASS}` )
   let mailTransporter = nodemailer.createTransport({
     // service:'gmail',
     host: 'smtp.gmail.com',
