@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Image from "next/dist/client/image";
+import { useRouter } from "next/router";
 
 const Navbaramcs = ({ user }) => {
+  const router = useRouter();
   return (
     // <div className="navbar-container">
     //   <div className="links">
@@ -68,7 +70,7 @@ const Navbaramcs = ({ user }) => {
           <span>Dashboard</span>
         </a>
       </Link>
-      <Link href="/amcs/logout" passHref>
+      {/* <Link href="/amcs/logout" passHref>
         <a className="nav__link">
           <div>
             <Image
@@ -80,7 +82,24 @@ const Navbaramcs = ({ user }) => {
           </div>
           <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
         </a>
-      </Link>
+      </Link> */}
+      <a className="nav__link" 
+          onClick={()=>{
+            let input = confirm('Are you sure you want to Logout?')
+            if (input) {
+              router.push('/amcs/logout');
+            }
+          }}>
+            <div>
+              <Image
+                src="/navbar/exit-smalllikeart-flaticon.png"
+                alt="Logout"
+                width={40}
+                height={40}
+              />
+            </div>
+            <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
+          </a>
     </div>
   );
 };

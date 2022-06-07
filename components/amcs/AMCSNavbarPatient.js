@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {useState} from 'react';
-import styles from '../../styles/NavbarHome.module.css';
+import styles from '../../styles/Navbar2.module.css';
 
 const AMCSNavbarPatient = () => {
   const [navActive, setNavActive] = useState(styles.nav_home_menu);
@@ -25,11 +25,11 @@ const AMCSNavbarPatient = () => {
               <a className={styles.nav_home_a}>Home</a></Link>
         </li>
         <li onClick={navToggle}  className={styles.nav_home_li}>
-          <Link href={'#'} passHref>
-            <a className={styles.nav_home_a}>Services</a></Link>
+          <Link href={'/amcs/login'} passHref>
+            <a className={styles.nav_home_a}>Appointment</a></Link>
         </li>
         <li onClick={navToggle}  className={styles.nav_home_li}>
-          <Link href={'#'} passHref>
+          <Link href={'/amcs/about'} passHref>
             <a className={styles.nav_home_a}>About</a></Link>
         </li>
         <li onClick={navToggle}  className={styles.nav_home_li}>

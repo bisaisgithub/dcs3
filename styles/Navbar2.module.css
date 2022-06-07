@@ -1,0 +1,85 @@
+/* *::before{
+  margin: 0;
+  box-sizing: border-box;
+} */
+/* html{
+  font-size: 62.5%;
+} */
+/* body{
+  font-size: 1.6rem;
+} */
+.nav_home_li{
+  list-style: none;
+}
+.company{
+  text-decoration: none;
+  color: black;
+}
+.nav_home_a{
+  text-decoration: none;
+  color: black;
+}
+.nav_home{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 8vh;
+  background: pink;
+  top: 0;
+  z-index: 2;
+  position: sticky;
+}
+.nav_home .company{
+  text-transform: uppercase;
+}
+.nav_home_menu{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2em;
+}
+.nav_home_toggler {
+  /* cursor: pointer; */
+  display: none;
+}
+.nav_home_toggler_div{
+  width: 2rem;
+  height: 0.15rem;
+  margin: 0.4rem;
+  background: black;
+  transition: 0.4s ease-in;
+}
+
+@media screen and (max-width: 768px){
+  .nav_home_toggler {
+    display: block;
+    cursor: pointer;
+  }
+  .nav_home_menu{
+    /* display: none; */
+    position: fixed;
+    top: 5vh;
+    right: 0;
+    width: 50%;
+    height: 93vh;
+    background: pink;
+    flex-direction: column;
+    transform: translate(100%);
+    transition: 0.5s ease-in;
+    z-index: 2;
+  }
+}
+/* Nav Active Class */
+.nav_home_active{
+  transform: translate(0%);
+}
+/* Toggler  Icon Animation*/
+.toggle .line1{
+  transform: rotate(-45deg) translate(-7px, 5px);
+}
+.toggle .line2{
+  opacity: 0;
+}
+.toggle .line3{
+  transform: rotate(45deg) translate(-7px,-5px);
+}
