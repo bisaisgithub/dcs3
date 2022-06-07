@@ -241,8 +241,8 @@ const AppointmentTable = ({user}) => {
                     </tbody>
                 </table>
                 <div className='display-flex'>
-                    <span className='color-white-13-bold'>Page: 
-                        <select value={page}
+                    <span className='color-white-13-bold'>Page: {page}
+                        {/* <select value={page}
                         onChange={(e)=>{
                             setPage(e.target.value)
                         }}
@@ -252,9 +252,9 @@ const AppointmentTable = ({user}) => {
                                     return <option key={index}>{index+1}</option>
                                 })
                             }
-                        </select>
+                        </select> */}
                     </span>
-                    <span className='color-white-13-bold'>Total Page: {pageCount}</span>
+                    <span className='color-white-13-bold'>Last Page: {pageCount}</span>
                 </div>
                 <div className='display-flex-center'>
                     <button onClick={()=>{
