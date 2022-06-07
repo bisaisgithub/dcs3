@@ -1,14 +1,14 @@
 import { sign } from "jsonwebtoken";
 import { serialize } from "cookie";
-import dbConnect from "../../../../utils/dbConnect";
-import CDCSUsers7 from '../../../../models/cdcs/Users'
-const bcrypt = require("bcrypt");
+// import dbConnect from "../../../../utils/dbConnect";
+// import CDCSUsers7 from '../../../../models/cdcs/Users'
+// const bcrypt = require("bcrypt");
 
 
 
 export default async function (req, res) {
   try {
-    await dbConnect();
+    // await dbConnect();
     const token = sign(
       {
         id: 'registration', 

@@ -2,13 +2,13 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import Link from 'next/link';
 import { useState, useEffect } from "react";
-import { getCookie, removeCookies } from "cookies-next";
-import dbConnect from "../../../utils/dbConnect";
-import CDCSUsers7 from "../../../models/cdcs/Users";
-import jwt from "jsonwebtoken";
+// import { getCookie, removeCookies, setCookies } from "cookies-next";
+// import dbConnect from "../../../utils/dbConnect";
+// import CDCSUsers7 from "../../../models/cdcs/Users";
+// import jwt from "jsonwebtoken";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { verify } from "jsonwebtoken";
+// import { verify } from "jsonwebtoken";
 import AMCSNavbarPatient from "../../../components/amcs/AMCSNavbarPatient";
 
 const Register = () => {
@@ -29,11 +29,11 @@ const Register = () => {
   const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
 
   const getTkn = async ()=>{
-    console.log('getToken called')
+    // console.log('getToken called')
     const getTknRes = await axios.get(
       "/api/amcs/register"
     );
-    console.log('getToken', getTknRes)
+    // console.log('getToken', getTknRes)
   }
  
   const verifyEmail = async (e) => {
