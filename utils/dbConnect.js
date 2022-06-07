@@ -29,7 +29,7 @@ async function dbConnect() {
       bufferCommands: false,
     }
 
-    cached.promise = mongoose.connect(MONGO_URL, opts).then((mongoose) => {
+    cached.promise = await mongoose.connect(MONGO_URL, opts).then((mongoose) => {
       return mongoose
     })
   }

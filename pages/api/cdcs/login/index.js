@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 
 
 export default async function (req, res) {
+  console.log('cdcs login')
   try {
     await dbConnect();
     // console.log("req.body.email:", req.body.email);
