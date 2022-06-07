@@ -9,25 +9,26 @@ import jwt from "jsonwebtoken";
 import Link from "next/link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import AMCSUsers from "../../../models/amcs/Users";
 
 const AddUser = ({user}) => {
   const router = useRouter();
   const [userInput, setUserInput] = useState({
     name: "",email: "",password: "",dob: "",type: "",
-    allergen: "",mobile:"",status:'',gender:"",
+    guardian: "",mobile:"",status:'',gender:"",
   });
   const addUser = async (e) => {
     e.preventDefault();
     // userInput.created_by = user.id;
     // console.log("user:", userInput);
     const response = await axios.post(
-      "/api/cdcs/users",
+      "/api/amcs/users",
       {...userInput, created_by:user.id, post:30}
     );
     console.log("user:", response);
     if (response.data.success) {
       alert('Adding User Successful');
-      router.push('/cdcs/users');
+      router.push('/amcs/users');
     } else {
       if (response.data.message === 'exist_name') {
         alert('Name Already Exist')
@@ -46,7 +47,7 @@ const AddUser = ({user}) => {
           </div>
         <div className='details-details-modal-body'>
           <div className='details-details-modal-body-input-box'>
-              <span>Full Name</span>
+              <span>Patient Full Name</span>
               <input type="text" placeholder="Enter name" value={userInput.name} required onChange={e=>setUserInput(prev=>({...prev,name:e.target.value}))} />
           </div>
           <div className='details-details-modal-body-input-box'>
@@ -65,11 +66,17 @@ const AddUser = ({user}) => {
           </div>
           <div className="details-details-modal-body-input-box">
               <span>Mobile</span>
-              <input type="text" placeholder="Enter mobile" value={userInput.mobile} required onChange={e=>setUserInput(p=>({...p,mobile:e.target.value}))}/>
+              <input type="text" placeholder="Enter mobile" value={userInput.mobile}
+              pattern="[0-9]{10}"
+              title="must be 10 digit number"
+              required onChange={e=>setUserInput(p=>({...p,mobile:e.target.value}))}/>
           </div>                       
           <div className="details-details-modal-body-input-box">
-              <span>Allergen</span>
-              <input type="text" placeholder="Enter allergens" value={userInput.allergen} required onChange={e=>setUserInput(p=>({...p,allergen:e.target.value}))}/>
+              <span>Guardian</span>
+              <input type="text" 
+              placeholder="Enter guardian name"
+              title="Enter guardian name"
+              value={userInput.guardian} required onChange={e=>setUserInput(p=>({...p,guardian:e.target.value}))}/>
           </div>
           <div className="details-details-modal-body-status-gender">
             <div className="details-details-modal-body-input-box">
@@ -87,7 +94,7 @@ const AddUser = ({user}) => {
               <select value={userInput.type} onChange={(e)=>{setUserInput(p=>({...p,type:e.target.value}))}}>
                   <option value="_Patient">Patient</option>
                   <option value="Receptionist">Receptionist</option>
-                  <option value="Dentist">Dentist</option>
+                  <option value="Pedia">Pedia</option>
                   {/* <option value="Admin">Admin</option> */}
                   <option value="">-Select Status-</option>
               </select>
@@ -112,7 +119,7 @@ const AddUser = ({user}) => {
             // onClick={addUser}
             type='submit'
             >Add</button>                               
-            <button><Link href="/cdcs/users">Close</Link></button>
+            <button><Link href="/amcs/users">Close</Link></button>
         </div>
           
       </form>
@@ -123,20 +130,20 @@ const AddUser = ({user}) => {
 export async function getServerSideProps({ req, res }) {
   try {
     await dbConnect();
-    const token = getCookie("cdcsjwt", { req, res });
+    const token = getCookie("amcsjwt", { req, res });
     if (!token) {
-      return { redirect: { destination: "/cdcs/login" } };
+      return { redirect: { destination: "/amcs/login" } };
     } else {
-      const verified = await jwt.verify(token, process.env.JWT_SECRET);
+      const verified = jwt.verify(token, process.env.JWT_SECRETAMCS);
       // console.log("verified.id:", verified);
-      const obj = await CDCSUsers7.findOne(
+      const obj = await AMCSUsers.findOne(
         { _id: verified.id },
         { type: 1, name: 1 }
       );
-      // console.log("user obj:", obj);
-      // console.log("user obj.type:", obj.type);
+      console.log("user obj:", obj);
+      console.log("user obj.type:", obj.type);
       if (
-        obj
+        obj.type === 'Admin' || obj.type === 'Receptionist'
         // true
       ) {
         return {
@@ -146,14 +153,14 @@ export async function getServerSideProps({ req, res }) {
         };
       } else {
         console.log("user obj false:", obj);
-        removeCookies("cdcsjwt", { req, res });
-        return { redirect: { destination: "/cdcs/login" } };
+        removeCookies("amcsjwt", { req, res });
+        return { redirect: { destination: "/amcs/login" } };
       }
     }
   } catch (error) {
     console.log("user obj error:", error);
-    removeCookies("cdcsjwt", { req, res });
-    return { redirect: { destination: "/cdcs/login" } };
+    removeCookies("amcsjwt", { req, res });
+    return { redirect: { destination: "/amcs/login" } };
   }
 }
 

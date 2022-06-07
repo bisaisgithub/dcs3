@@ -19,19 +19,19 @@
 } */
 
 /* new */
-.nav {
+.nav_amcs {
   position: fixed;
   bottom: 0;
   width: 100%;
   height: 55px;
   box-shadow: 0 0 2px rgb(0, 0, 0, 0.5);
   /* background-color: #023b96; */
-  background-color: #034c81;
+  background-color: pink;
   display: flex;
   overflow-x: auto;
 }
 
-.nav__link {
+.nav__link_amcs {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -43,7 +43,7 @@
   white-space: nowrap;
   font-family: sans-serif;
   font-size: 9px;
-  color: #eeeeee;
+  color: black;
   /* color: #c9bbaa; */
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;

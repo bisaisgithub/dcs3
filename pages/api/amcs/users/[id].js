@@ -1,26 +1,26 @@
 import dbConnect from "../../../../utils/dbConnect";
-import CDCSUsers7 from "../../../../models/cdcs/Users";
-import CDCSModifications from "../../../../models/cdcs/CDCSModifications";
 import bcrypt from "bcrypt";
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
+import AMCSUsers from "../../../../models/amcs/Users";
+import AMCSModifications from "../../../../models/amcs/AMCSModifications";
 
 export default async (req, res) => {
   // console.log('api dynamic req.query', req.query);
 
   try {
     await dbConnect();
-    const token = getCookie("cdcsjwt", { req, res });
+    const token = getCookie("amcsjwt", { req, res });
     if (!token) {
       res.json({ success: false, message: "no-token" });
     } else {
-      const verified = jwt.verify(token, process.env.JWT_SECRET);
+      const verified = jwt.verify(token, process.env.JWT_SECRETAMCS);
       // console.log("verified.id:", verified);
-      const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
+      const obj = await AMCSUsers.findOne({ _id: verified.id }, { type: 1 });
       // console.log("obj:", obj);
       if (obj.type === 'Admin' || obj.type === 'Receptionist'){
         if (req.method === "GET") {
-          const user = await CDCSUsers7.findOne(
+          const user = await AMCSUsers.findOne(
             {_id: req.query.id},
             {
               name: 1,
@@ -28,7 +28,7 @@ export default async (req, res) => {
               mobile: 1,
               type: 1,
               dob: 1,
-              allergen: 1,
+              guardian: 1,
               created_by: 1,
               status: 1,
               gender: 1,
@@ -41,10 +41,10 @@ export default async (req, res) => {
             res.json({ sucess: true, data: user });
         }else if (req.method === "POST") {
           // console.log('req.body post update user: ', req.body)
-            const user = await CDCSUsers7.updateOne(
+            const user = await AMCSUsers.updateOne(
               {_id: req.query.id}, req.body.new
             );
-            const userModification = await CDCSModifications.create({
+            const userModification = await AMCSModifications.create({
               new: req.body.new, old: req.body.old, type: 'UserModification', modified_by: obj._id
             });
             // console.log('user:', user);

@@ -203,7 +203,8 @@ const Register = () => {
             </div>                       
             <div className="details-details-modal-body-input-box">
                 <span>Guardian</span>
-                <input type="text" placeholder="Enter guardian name"
+                <input type="text" 
+                placeholder="Enter guardian name"
                 title="Enter guardian name"
                 value={userInput.allergen} required onChange={e=>setUserInput(p=>({...p,guardian:e.target.value}))}/>
             </div>

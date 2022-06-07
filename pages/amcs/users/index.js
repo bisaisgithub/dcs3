@@ -28,7 +28,6 @@ const Users = ({ user }) => {
         post:1,data
         });
       if (response.data) {
-        
         setUsersData(response.data.data);
           // console.log('response',response.data);
       }else{
@@ -57,8 +56,28 @@ const Users = ({ user }) => {
               <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
                 <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
               </th>
-              <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-              <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+              <th>
+                {/* <input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/>   */}
+                <select className="appointment-filter-select" value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}>
+                  <option value="">-Select Status-</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>  
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Deleted">Deleted</option>
+                </select>
+              </th>
+              <th>
+                {/* <input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/> */}
+                <select className="appointment-filter-select" value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}>
+                <option value="">-Select Type-</option>
+                  <option value="_Patient">Patient</option>
+                  <option value="Receptionist">Receptionist</option>
+                  <option value="Pedia">Pedia</option>
+                  {
+                    user.type === "Admin"? <option value="Admin">Admin</option> : ''
+                  }
+                </select>
+              </th>
               <th><Link href="/amcs/users/add-user" passHref><p>New</p></Link></th>
             </tr>
           </thead>
@@ -113,7 +132,7 @@ export async function getServerSideProps({ req, res }) {
       // console.log("user obj:", obj);
       // console.log("user obj.type:", obj.type);
       if (
-        obj.type === 'Admin'  || 'Receptionist'
+        obj.type === 'Admin'  || obj.type === 'Receptionist'
       ) {
         return {
           props: {

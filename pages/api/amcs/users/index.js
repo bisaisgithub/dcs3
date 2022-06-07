@@ -104,11 +104,14 @@ export default async (req, res) => {
             }
           } else if (method === "POST") {
             if (req.body.post === 1) { 
-              // console.log('req.body.data', req.body.data.name)
+              // console.log('req.body.data', req.body.data)
               switch (obj.type) {
                 case "Admin":
                     const userAdmin = await AMCSUsers.find(
-                      {name: new RegExp(`.*${req.body.data.name}.*`,'i'), type: new RegExp(`.*${req.body.data.type}.*`,'i'),
+                      {name: new RegExp(`.*${req.body.data.name}.*`,'i'), 
+                      type: new RegExp(`.*${req.body.data.type}.*`,'i'),
+                      status:
+                      {$regex: `.*${req.body.data.status}.*`, $options: 'i'} ,
                       //  status: /.*.*/i,
                       },
                       {
@@ -136,7 +139,7 @@ export default async (req, res) => {
                         new RegExp(`.*${req.body.data.name}.*`,'i'),
                       type: 
                       {$regex: `.*${req.body.data.type}.*`, $options: 'i', $ne: "Admin"} ,
-                      status: 
+                      status:
                       {$regex: `.*${req.body.data.status}.*`, $options: 'i'} ,
                       },
                       {
@@ -144,7 +147,7 @@ export default async (req, res) => {
                         email: 1,
                         type: 1,
                         dob: 1,
-                        allergen: 1,
+                        guardian: 1,
                         created_by: 1,
                         status: 1,
                       }

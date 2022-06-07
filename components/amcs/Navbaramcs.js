@@ -5,24 +5,12 @@ import { useRouter } from "next/router";
 const Navbaramcs = ({ user }) => {
   const router = useRouter();
   return (
-    // <div className="navbar-container">
-    //   <div className="links">
-    //     <Link href="/cdcs/dashboard">Dashboard</Link>
-    //     <Link href="/cdcs/appointment">Appointment</Link>
-    //     <Link href="/cdcs/users">Users</Link>
-    //   </div>
-    //   <div className="user">
-    //     <p>{`${user.type}: ${user.name}`}</p>
-    //     <Link href="/cdcs/logout">Logout</Link>
-    //   </div>
-    // </div>
-    /* New */
-    <div className="nav">
+    <div className="nav_amcs">
       <Link href="/amcs/appointments" passHref>
-        <a className="nav__link">
+        <a className="nav__link_amcs">
           <div>
             <Image
-              src="/navbar/appointment-Freepik.png"
+              src="/navbarAMCS/appointment.png"
               alt="appointment"
               width={40}
               height={40}
@@ -32,10 +20,10 @@ const Navbaramcs = ({ user }) => {
         </a>
       </Link>
       <Link href="/amcs/users" passHref>
-        <a className="nav__link">
+        <a className="nav__link_amcs">
           <div>
             <Image
-              src="/navbar/user-Freepik.png"
+              src="/navbarAMCS/user.png"
               alt="users"
               width={40}
               height={40}
@@ -45,10 +33,10 @@ const Navbaramcs = ({ user }) => {
         </a>
       </Link>
       <Link href="/amcs/users" passHref>
-        <a className="nav__link">
+        <a className="nav__link_amcs">
           <div>
             <Image
-              src="/navbar/user-Freepik.png"
+              src="/navbarAMCS/user.png"
               alt="users"
               width={40}
               height={40}
@@ -58,10 +46,10 @@ const Navbaramcs = ({ user }) => {
         </a>
       </Link>
       <Link href="/amcs/dashboard" passHref>
-        <a className="nav__link">
+        <a className="nav__link_amcs">
           <div>
             <Image
-              src="/navbar/dashboard-Eucalyp.png"
+              src="/navbarAMCS/dashboard.png"
               alt="dashboard"
               width={40}
               height={40}
@@ -71,10 +59,10 @@ const Navbaramcs = ({ user }) => {
         </a>
       </Link>
       {/* <Link href="/amcs/logout" passHref>
-        <a className="nav__link">
+        <a className="nav__link_amcs">
           <div>
             <Image
-              src="/navbar/exit-smalllikeart-flaticon.png"
+              src="/navbarAMCS/exit-smalllikeart-flaticon.png"
               alt="Logout"
               width={40}
               height={40}
@@ -83,7 +71,7 @@ const Navbaramcs = ({ user }) => {
           <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
         </a>
       </Link> */}
-      <a className="nav__link" 
+      <a className="nav__link_amcs" 
           onClick={()=>{
             let input = confirm('Are you sure you want to Logout?')
             if (input) {
@@ -92,7 +80,7 @@ const Navbaramcs = ({ user }) => {
           }}>
             <div>
               <Image
-                src="/navbar/exit-smalllikeart-flaticon.png"
+                src="/navbarAMCS/logout.png"
                 alt="Logout"
                 width={40}
                 height={40}
