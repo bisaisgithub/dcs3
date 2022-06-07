@@ -520,7 +520,9 @@ input[type="text"] {
   top: 50%;
   transform: translate(-50%, -50%);
 }
-
+.cursor-pointer{
+  cursor: pointer;
+}
 /* add-appointment ends */
 
 /* amcs about start*/

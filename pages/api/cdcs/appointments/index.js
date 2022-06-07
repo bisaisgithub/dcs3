@@ -6,7 +6,7 @@ import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 
 export default async (req, res) => {
-  // console.log('req.query', req.query)
+  console.log('req.query', req.query)
   try {
     // console.log('appointment api index')
     await dbConnect();
@@ -21,14 +21,14 @@ export default async (req, res) => {
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
-          const items_per_page = 15;
+          const items_per_page = req.query.itemsPerPage || 10;
           const page = req.query.page || 1;
-          const skip = (page-1) * 15;
+          const skip = (page-1) * items_per_page;
           const query = 
           {
               status: {$nin: ['Closed', 'Closed No Show', 'Closed w/ Balance']}
           }
-          const count = await Appointments.estimatedDocumentCount(query);
+          const count = await Appointments.countDocuments(query);
           // console.log('page', page);
           // console.log('skip', skip);
           const response = await Appointments.find(query)

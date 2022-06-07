@@ -17,13 +17,15 @@ const AppointmentTable = ({user}) => {
         doctor: '', patient: '', status: '', date:''
       });
     const [page, setPage]= useState(1)
-    const [pageCount, setPageCount] = useState(0)
+    const [count, setCount] = useState(0);
+    const [pageCount, setPageCount] = useState(0);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
     const [loading, setLoading] = useState(false)
     useEffect(()=>{
         setLoading(true);
         getAppointments();
     }, 
-    [page]);
+    [page, itemsPerPage]);
     const getAppointments = async (data)=>{
         if (data) {
             if (data.filterType === 'filterNormal' || data.filterType === 'filterClosed') {
@@ -68,13 +70,15 @@ const AppointmentTable = ({user}) => {
                 // }else{
                 //     alert('Failed getting appointments without filter')
                 // }
-            }
+            }   
         } else {
             // console.log('empty data', data)
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}`);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
+            console.log('response', response)
             if (response.data.data) {
                 setAppointmentsData(response.data.data)
-                setPageCount(Math.ceil(response.data.pagination.pageCount))
+                setPageCount(Math.ceil(response.data.pagination.pageCount));
+                setCount(response.data.pagination.count)
                 setLoading(false)
             }else{
                 alert('Failed getting appointments without filter')
@@ -117,7 +121,9 @@ const AppointmentTable = ({user}) => {
                                     setSearch({
                                         doctor: '', patient: '', status: '', date:''
                                     })
-                                    }}>X</button>
+                                    }}
+                                    className='cursor-pointer'
+                                    >X</button>
                             </th>
                             
                             <th>
@@ -136,38 +142,42 @@ const AppointmentTable = ({user}) => {
                             </th>
                             <th>
                                 <p onClick={()=>{
-                                    // console.log('search',search)
-                                    const asArray = Object.entries(search);
-                                    //   console.log('asArray',asArray)
-                                    const filtered = asArray.filter(([key, value]) => value !== '');
-                                    //   console.log('filtered',filtered)
-                                    const justStrings = Object.fromEntries(filtered);
-                                    //   console.log('justStrings',justStrings)
-                                    if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
-                                        // console.log('empty true');
-                                        getAppointments({filterType: 'filterClosed'});
-                                    } else {
-                                        // console.log('empty false');
-                                        getAppointments({...justStrings, filterType: 'filterClosed'});
-                                    }
-                                }}>Find Closed</p>
+                                        // console.log('search',search)
+                                        const asArray = Object.entries(search);
+                                        //   console.log('asArray',asArray)
+                                        const filtered = asArray.filter(([key, value]) => value !== '');
+                                        //   console.log('filtered',filtered)
+                                        const justStrings = Object.fromEntries(filtered);
+                                        //   console.log('justStrings',justStrings)
+                                        if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
+                                            // console.log('empty true');
+                                            getAppointments({filterType: 'filterClosed'});
+                                        } else {
+                                            // console.log('empty false');
+                                            getAppointments({...justStrings, filterType: 'filterClosed'});
+                                        }
+                                    }}
+                                    className='cursor-pointer'
+                                >Find Closed</p>
                             </th>
                                 <th><p onClick={()=>{
-                                    // console.log('search',search)
-                                    const asArray = Object.entries(search);
-                                    //   console.log('asArray',asArray)
-                                    const filtered = asArray.filter(([key, value]) => value !== '');
-                                    //   console.log('filtered',filtered)
-                                    const justStrings = Object.fromEntries(filtered);
-                                    //   console.log('justStrings',justStrings)
-                                    if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
-                                        // console.log('empty true');
-                                        getAppointments();
-                                    } else {
-                                        // console.log('empty false');
-                                        getAppointments({...justStrings, filterType: 'filterNormal'});
-                                    }
-                                }}>Find</p></th>
+                                        // console.log('search',search)
+                                        const asArray = Object.entries(search);
+                                        //   console.log('asArray',asArray)
+                                        const filtered = asArray.filter(([key, value]) => value !== '');
+                                        //   console.log('filtered',filtered)
+                                        const justStrings = Object.fromEntries(filtered);
+                                        //   console.log('justStrings',justStrings)
+                                        if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
+                                            // console.log('empty true');
+                                            getAppointments();
+                                        } else {
+                                            // console.log('empty false');
+                                            getAppointments({...justStrings, filterType: 'filterNormal'});
+                                        }
+                                    }}
+                                    className='cursor-pointer'
+                                >Find</p></th>
                             <th>
                                 {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
                                 <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
@@ -182,7 +192,7 @@ const AppointmentTable = ({user}) => {
                                             <option value="In Request">In Request</option>
                                         </select>
                                 </th>
-                            <th><Link href="/cdcs/appointments/add-appointment" passHref><p>New</p></Link></th>
+                            <th><Link href="/cdcs/appointments/add-appointment" passHref><p className='cursor-pointer'>New</p></Link></th>
                             
                         </tr>
                     </thead>
@@ -231,7 +241,8 @@ const AppointmentTable = ({user}) => {
                                         <Link href={`/cdcs/appointments/${appointment._id}`} passHref>
                                             <button style={{background:'#e9115bf0'}} 
                                             // onClick={()=>{AppointmentDetailsFunction(appointment.app_id, appointment.patient_name)}}
-                                            >{(page-1)*15+index+1}
+                                            className='cursor-pointer'
+                                            >{(page-1)*itemsPerPage+index+1}
                                             </button>
                                         </Link>
                                     </td>
@@ -241,7 +252,7 @@ const AppointmentTable = ({user}) => {
                     </tbody>
                 </table>
                 <div className='display-flex'>
-                    <span className='color-white-13-bold'>Page: {page}
+                    {/* <span className='color-white-13-bold'>Page: {page} */}
                         {/* <select value={page}
                         onChange={(e)=>{
                             setPage(e.target.value)
@@ -253,33 +264,50 @@ const AppointmentTable = ({user}) => {
                                 })
                             }
                         </select> */}
-                    </span>
-                    <span className='color-white-13-bold'>Last Page: {pageCount}</span>
+                    {/* </span> */}
+                    
+                    {/* <span className='color-white-13-bold'>Last Page: {pageCount}</span> */}
                 </div>
                 <div className='display-flex-center'>
+                    <span className='color-white-13-bold' style={{margin: '5px 30px'}}>Number of Items: 
+                        <select value={itemsPerPage}
+                        style={{margin: '5px 10px'}}
+                        onChange={(e)=>{setItemsPerPage(e.target.value)}}
+                        >
+                            <option value='10'>10</option>
+                            <option value='15'>15</option>
+                            <option value='20'>20</option>
+                            <option value='25'>25</option>
+                        </select>
+                    </span>
                     <button onClick={()=>{
                         setPage((p)=>{
                             if (page === 1) {
                                 return p;
                             }
-                            // getAppointments();
                             return p - 1;
                         })
                         }}
                         disabled={page === 1}
-                    >Previous</button>
+                        style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
+                        className='button-disabled'
+                    >&lt;</button>
+                    <span className='color-white-13-bold'
+                        style={{margin: '5px 10px'}}
+                        >{`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + appointmentsData.length} of ${count}`}
+                    </span> 
                     <button onClick={()=>{
                         setPage((p)=>{
                             if (p === pageCount) {
                                 return p
                             }
-                            // getAppointments();
                             return p + 1;
-                            
                         })
                         }}
                         disabled={page === pageCount}
-                    >Next</button>
+                        style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
+                        className='button-disabled'
+                    >&gt;</button>
                 </div>
              </div>
              {

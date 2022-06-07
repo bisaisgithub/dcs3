@@ -38,7 +38,7 @@ const Navbarcdcs = ({ user }) => {
           <a className="nav__link">
             <div>
               <Image
-                src="/navbar/user-Freepik.png"
+                src="/navbar/inventory.png"
                 alt="users"
                 width={40}
                 height={40}
@@ -64,7 +64,7 @@ const Navbarcdcs = ({ user }) => {
           <a className="nav__link">
             <div>
               <Image
-                src="/navbar/dashboard-Eucalyp.png"
+                src="/navbar/setting.png"
                 alt="dashboard"
                 width={40}
                 height={40}
@@ -128,7 +128,7 @@ const Navbarcdcs = ({ user }) => {
           <a className="nav__link">
             <div>
               <Image
-                src="/navbar/user-Freepik.png"
+                src="/navbar/inventory.png"
                 alt="users"
                 width={40}
                 height={40}
