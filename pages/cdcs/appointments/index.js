@@ -20,6 +20,7 @@ const AppointmentTable = ({user}) => {
     const [count, setCount] = useState(0);
     const [pageCount, setPageCount] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(15);
+    const [closedFilter, setClosedFilter] = useState('noClosed')
     const [loading, setLoading] = useState(false)
     useEffect(()=>{
         setLoading(true);
@@ -27,62 +28,30 @@ const AppointmentTable = ({user}) => {
     }, 
     [page, itemsPerPage]);
     const getAppointments = async (data)=>{
-        if (data) {
-            if (data.filterType === 'filterNormal' || data.filterType === 'filterClosed') {
-                let responseData = []
-                if (data.filterType === 'filterNormal') {
-                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments`);
-                    responseData = response.data.data;
-                }else if (data.filterType === 'filterClosed') {
-                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed`);
-                    responseData = response.data.data;
-                } else {
-                    alert('failed getting filtered appointments')
-                }
-                // if (responseData) {
-                //     let finalArray =  responseData;
-                //     if ('status' in data) {
-                //         finalArray = finalArray.filter((a)=>{
-                //             return a.status.toLowerCase().includes(data.status.toLowerCase());
-                //         })
-                //     }
-                //     if ('patient' in data) {
-                //         finalArray = finalArray.filter((a)=>{
-                //             return a.patient_id.name.toLowerCase().includes(data.patient.toLowerCase());
-                //         })
-                //     }
-                //     if ('doctor' in data) {
-                //         finalArray = finalArray.filter((a)=>{
-                //             return a.doctor_id.name.toLowerCase().includes(data.doctor.toLowerCase());
-                //         })
-                //     }
-                //     if ('date' in data) {
-                //         data.date = formatDate(data.date)
-                //         finalArray = finalArray.filter((a)=>{
-                //             return formatDate(a.date) === data.date;
-                //         })
-                //     }
-                //     // console.log('finalArray', finalArray)
-                //     setAppointmentsData(finalArray);
-                    
-                //     // console.log(response.data);
-                //     // setAppointmentsData(response.data.data)
-                // }else{
-                //     alert('Failed getting appointments without filter')
-                // }
-            }   
-        } else {
-            // console.log('empty data', data)
+        if (closedFilter === 'noClosed') {
+            console.log('search', search)
             const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
-            console.log('response', response)
+            // console.log('response', response)
             if (response.data.data) {
                 setAppointmentsData(response.data.data)
                 setPageCount(Math.ceil(response.data.pagination.pageCount));
                 setCount(response.data.pagination.count)
                 setLoading(false)
             }else{
-                alert('Failed getting appointments without filter')
+                alert('Failed getting appointments')
             }
+        }else if (closedFilter === 'includeClosed') {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
+            if (response.data.data) {
+                setAppointmentsData(response.data.data)
+                setPageCount(Math.ceil(response.data.pagination.pageCount));
+                setCount(response.data.pagination.count)
+                setLoading(false)
+            }else{
+                alert('Failed getting appointments with closed')
+            }
+        }else {
+            alert('Failed getting appointments with closed and without closed')
         }    
     };
     const formatDate = (app_date)=>{
@@ -141,40 +110,25 @@ const AppointmentTable = ({user}) => {
                                     onChange={date=>setSearch({...search, date: date})} />
                             </th>
                             <th>
-                                <p onClick={()=>{
-                                        // console.log('search',search)
+                                {/* <p onClick={()=>{
                                         const asArray = Object.entries(search);
-                                        //   console.log('asArray',asArray)
                                         const filtered = asArray.filter(([key, value]) => value !== '');
-                                        //   console.log('filtered',filtered)
                                         const justStrings = Object.fromEntries(filtered);
-                                        //   console.log('justStrings',justStrings)
                                         if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
-                                            // console.log('empty true');
                                             getAppointments({filterType: 'filterClosed'});
                                         } else {
-                                            // console.log('empty false');
                                             getAppointments({...justStrings, filterType: 'filterClosed'});
                                         }
                                     }}
                                     className='cursor-pointer'
-                                >Find Closed</p>
+                                >Find Closed</p> */}
+                                <select  className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{setClosedFilter(e.target.value)}}>
+                                            <option value="noClosed">-No Closed-</option>
+                                            <option value="includeClosed">Include Closed</option>
+                                        </select>
                             </th>
                                 <th><p onClick={()=>{
-                                        // console.log('search',search)
-                                        const asArray = Object.entries(search);
-                                        //   console.log('asArray',asArray)
-                                        const filtered = asArray.filter(([key, value]) => value !== '');
-                                        //   console.log('filtered',filtered)
-                                        const justStrings = Object.fromEntries(filtered);
-                                        //   console.log('justStrings',justStrings)
-                                        if (justStrings && Object.keys(justStrings).length === 0 && Object.getPrototypeOf(justStrings) === Object.prototype) {
-                                            // console.log('empty true');
-                                            getAppointments();
-                                        } else {
-                                            // console.log('empty false');
-                                            getAppointments({...justStrings, filterType: 'filterNormal'});
-                                        }
+                                    getAppointments();
                                     }}
                                     className='cursor-pointer'
                                 >Find</p></th>
@@ -294,7 +248,8 @@ const AppointmentTable = ({user}) => {
                     >&lt;</button>
                     <span className='color-white-13-bold'
                         style={{margin: '5px 10px'}}
-                        >{`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + appointmentsData.length} of ${count}`}
+                        >{count? (`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + appointmentsData.length} of ${count}`):
+                            (`Results: 0 - ${(page-1)*itemsPerPage + appointmentsData.length} of ${count}`)}
                     </span> 
                     <button onClick={()=>{
                         setPage((p)=>{
