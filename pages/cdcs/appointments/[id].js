@@ -499,7 +499,7 @@ const AppointmentDetails = () => {
                                 onChange={(value)=>{
                                     setApp({...app, doctor_id: value.value})
                                     }}/> */}
-                                <input type="text" disabled value={'Dentist 1'} />
+                                <input type="text" disabled value={'AGC'} />
                                 
                             </div>
                             

@@ -4,7 +4,7 @@ import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../models/cdcs/Users";
 
-const Home = () => {
+const Home = ({landingPage}) => {
   return (
     <div>
       <NavbarHome />
@@ -46,13 +46,13 @@ export async function getServerSideProps({ req, res }) {
       } else {
         console.log("user obj false:", obj);
         removeCookies("cdcsjwt", { req, res });
-        // return { redirect: { destination: "/cdcs/login" } };
+        return { redirect: { destination: "/cdcs/login" } };
       }
     }
   } catch (error) {
     console.log("user obj error:", error);
     removeCookies("cdcsjwt", { req, res });
-    // return { redirect: { destination: "/cdcs/login" } };
+    return { redirect: { destination: "/cdcs/login" } };
   }
 }
 

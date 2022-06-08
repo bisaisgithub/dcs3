@@ -6,7 +6,7 @@ import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 
 export default async (req, res) => {
-  console.log('req.query', req.query)
+  // console.log('req.query', req.query)
   try {
     // console.log('appointment api index')
     await dbConnect();
