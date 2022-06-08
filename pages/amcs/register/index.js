@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState, useEffect } from "react";
 // import { getCookie, removeCookies, setCookies } from "cookies-next";
 // import dbConnect from "../../../utils/dbConnect";
-// import CDCSUsers7 from "../../../models/cdcs/Users";
 // import jwt from "jsonwebtoken";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -22,67 +21,46 @@ const Register = () => {
     name: "",email: "",password: "",dob: "",type: "_Patient",
     mobile:"",status:'',gender:"",status:"Active", guardian:''
   });
-  const [emailVerified, setEmailVerified] = useState(false);
+  // const [emailVerified, setEmailVerified] = useState(false);
   const [step, setStep] = useState({one: true, two: false, three: false});
   const [inputCode, setInputCode] = useState('');
   const [receivedCode, setReceivedCode] = useState('');
   const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
 
   const getTkn = async ()=>{
-    // console.log('getToken called')
     const getTknRes = await axios.get(
       "/api/amcs/register"
     );
-    // console.log('getToken', getTknRes)
   }
  
   const verifyEmail = async (e) => {
     e.preventDefault();
     setDisableButton({...disableButton, verify: true})
-    // console.log('userInput: ', userInput)
     const credentials = { email };
-    const sendEmailResponse = await axios.post(
-      "/api/amcs/verifyemail",
-      credentials
-    );
-    
-    if (sendEmailResponse.data.success) {
       const sendEmailResponse = await axios.post(
         "/api/amcs/sendmail",
         credentials
       );
-      // console.log('sendEmailResponse: ',sendEmailResponse);
-      if (sendEmailResponse.data.success) {
-        // let inputCode = prompt('Enter the code you receive in your email');
-        // console.log('inputCode: ', inputCode)
-        // console.log('reponsecode: ', sendEmailResponse.data.c.toString())
-        // if (sendEmailResponse.data.c.toString() === inputCode) {
-        //   // alert('code is correct')
-        //   setEmailVerified(true);
-        //   setUserInput(prev=>({...prev,email}))
-        // } else {
-        //   alert('incorrect code')
-        // }
-        setReceivedCode(sendEmailResponse.data.c);
+      console.log('sendEmailResponse: ',sendEmailResponse);
+      if (sendEmailResponse.data.message === 'existEmail') {
+        alert('You email is already registered, try to login or reset password')
+        setDisableButton({...disableButton, verify: false});
+      }else if(sendEmailResponse.data.message === 'emailSentCodeUpdated' || 
+        sendEmailResponse.data.message === 'emailSentCodeCreated'){
         setStep({one: false, two: false, three: true});
       }else{
-        alert('Failed sending email, you try again');
+        alert('Failed sending email, try to refresh the page and try again')
         setDisableButton({...disableButton, verify: false})
-        // setRender(prev=>prev + 1);
-        // console.log('render: ', render)
       }
-    } else {
-      alert('Your email is already registered')
-      setDisableButton({...disableButton, submitCode: false});
-    }
   };
   const verifyCode = async (e)=>{
     e.preventDefault();
     setDisableButton({...disableButton, submitCode: true});
-    // alert(`verify code function inputCode: ${inputCode}, receivedCode: ${receivedCode}`);
-    // console.log('inputCode', inputCode)
-    // console.log('received Code', receivedCode)
-    if (receivedCode.toString()===inputCode) {
+    const verifyCode = await axios.post(
+      "/api/amcs/verifycode",
+      {email, code: inputCode}
+    );
+    if (verifyCode.data.message === 'codeOk') {
       // alert('Code is correct')
       setUserInput(prev=>({...prev,email}))
       setStep({one: false, two: true, three: false});
