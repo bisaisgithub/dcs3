@@ -68,9 +68,15 @@ export default async (req, res) => {
               }
               // res.json({success: true, data: 'create test'})
             }else if(req.body.data.filterType === 'search'){
-              // console.log('req.body', req.body)
-
-              let patient_id;
+              // console.log('index req.body', req.body)
+              let query = {
+                $or: [ 
+                  {status: {$nin: [
+                    'Closed', 'Closed No Show', 'Closed w/ Balance',
+                    'Next Appointment',
+                  ]}},
+                ], 
+              }
               if (req.body.data.search.patient !== '') {
                 const users = await CDCSUsers7.find(
                   {name: new RegExp(`.*${req.body.data.search.patient}.*`,'i'), },
@@ -79,39 +85,39 @@ export default async (req, res) => {
                   }
                 )
                 if (users) {
-                  const patient_id2 = ()=>{
-                    return {$in: users }
+                  // console.log('users true')
+                  query = {...query,
+                    patient_id: {$in: users }
                   }
-                  patient_id = patient_id2();
                 }else{
                   console.log('users false line 78')
                 }
-              }else{
-                console.log('empty patient')
-                const patient_id2 = ()=>{
-                  return {$gte: ObjectId("000000000000000000000000")}
+              }
+              if (req.body.data.search.status !== '') {
+                query = {...query,
+                  status: req.body.data.search.status
+                      // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
                 }
-                patient_id = patient_id2();
+              }if (req.body.data.search.dateStart !== '') {
+                query = {...query,
+                  $and: [
+                    {
+                      // date : {$gte: req.body.data.search.date.ISODate}
+                      date: { $gte: new Date(req.body.data.search.dateStart) }
+                      // { $gte : {$subtract : [x.ISODate,(1 * 24 * 60 * 60 * 1000)]} } // Here i need to subtract one day
+                    }, 
+                    {
+                      date: { $lt: new Date(req.body.data.search.dateEnd).setDate(new Date(req.body.data.search.dateEnd).getDate() + 1) }
+                    }
+                    // {
+                    //   date: { $lt : {$subtract : [x.ISODate,(-1 * 24 * 60 * 60 * 1000)]}} // Here i need to add one day
+                    // }
+                      ]
+                }
               }
               const items_per_page = req.query.itemsPerPage || 10;
               const page = req.query.page || 1;
               const skip = (page-1) * items_per_page;
-              const query = 
-              {
-                // patient_id: {$in: patient_id },
-                patient_id: patient_id,
-                status: 
-                      {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
-                $or: [ 
-                  {status: {$nin: [
-                    'Closed', 'Closed No Show', 'Closed w/ Balance',
-                    'Next Appointment',
-                  ]}},
-                ]  
-                  // patient_id: {$in: ['62876da7fd8c3cf8c585a0b4']},
-                  // name: 
-                  //     {$regex: `.*${req.body.data.search.patient}.*`, $options: 'i'} ,
-              }
               const count = await Appointments.countDocuments(query);
               // console.log('page', page);
               // console.log('skip', skip);
@@ -121,6 +127,7 @@ export default async (req, res) => {
               .populate("created_by", "name")
               .populate("patient_id", "name")
               .populate("doctor_id", "name")
+              .sort({date: 1})
               res.json({success: true, data: response, pagination:{count, pageCount: count/items_per_page}})
             }else {
               res.json({success: false, message: 'filterType_x'})

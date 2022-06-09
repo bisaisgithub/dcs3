@@ -14,7 +14,7 @@ import Image from 'next/image';
 const AppointmentTable = ({user}) => {
     const [appointmentsData, setAppointmentsData] = useState([]);
     const [search, setSearch] = useState({
-        doctor: '', patient: '', status: '', date:''
+        doctor: '', patient: '', status: '', dateStart:'', dateEnd:'',
       });
     const [page, setPage]= useState(1)
     const [count, setCount] = useState(0);
@@ -29,11 +29,12 @@ const AppointmentTable = ({user}) => {
     [
         page, itemsPerPage, 
         search.status, 
-        closedFilter
+        closedFilter,
+        search.dateEnd,
     ]);
     const getAppointments = async (data)=>{
         if (closedFilter === 'notClosed') {
-            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.date !== '') {
+            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
                     {data: {filterType: 'search', search}}
                 );
@@ -60,7 +61,7 @@ const AppointmentTable = ({user}) => {
             }
             
         }else if (closedFilter === 'closedOnly') {
-            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.date !== '') {
+            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`,
                     {data: {filterType: 'search', search}}
                 );
@@ -131,7 +132,7 @@ const AppointmentTable = ({user}) => {
                                 <button onClick={()=>{
                                     console.log('clear')
                                     setSearch({
-                                        doctor: '', patient: '', status: '', date:''
+                                        doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
                                     })
                                     setClosedFilter('notClosed')
                                     }}
@@ -149,9 +150,23 @@ const AppointmentTable = ({user}) => {
                                     // dateFormat="dd-MMM-yyyy"
                                     dateFormat="dd-MMM-yy"
                                     // className='date-picker' 
-                                    placeholderText="Date" 
-                                    selected={search.date} 
-                                    onChange={date=>setSearch({...search, date: date})} />
+                                    placeholderText="Start Date" 
+                                    selected={search.dateStart} 
+                                    onChange={date=>setSearch({...search, dateStart: date, dateEnd: date})} />
+                            </th>
+                            <th>
+                                <DatePicker 
+                                    // minDate={new Date()} 
+                                    yearDropdownItemNumber={90} 
+                                    showYearDropdown 
+                                    scrollableYearDropdown={true} 
+                                    // dateFormat='MMMM d, yyyy' 
+                                    // dateFormat="dd-MMM-yyyy"
+                                    dateFormat="dd-MMM-yy"
+                                    // className='date-picker' 
+                                    placeholderText="End Date" 
+                                    selected={search.dateEnd} 
+                                    onChange={date=>setSearch({...search, dateEnd: date})} />
                             </th>
                             <th>
                                 {/* <p onClick={()=>{
@@ -171,11 +186,12 @@ const AppointmentTable = ({user}) => {
                                             <option value="closedOnly">All Closed</option>
                                         </select>
                             </th>
-                                <th><p onClick={()=>{
+                            {/* <th><p onClick={()=>{
                                     getAppointments();
                                     }}
                                     className='cursor-pointer'
-                                >Find</p></th>
+                                >Find</p>
+                            </th> */}
                             <th>
                                 {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
                                 <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
