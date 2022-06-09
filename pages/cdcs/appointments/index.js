@@ -20,39 +20,80 @@ const AppointmentTable = ({user}) => {
     const [count, setCount] = useState(0);
     const [pageCount, setPageCount] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(15);
-    const [closedFilter, setClosedFilter] = useState('noClosed')
+    const [closedFilter, setClosedFilter] = useState('notClosed')
     const [loading, setLoading] = useState(false)
     useEffect(()=>{
         setLoading(true);
         getAppointments();
     }, 
-    [page, itemsPerPage]);
+    [
+        page, itemsPerPage, 
+        search.status, 
+        closedFilter
+    ]);
     const getAppointments = async (data)=>{
-        if (closedFilter === 'noClosed') {
-            console.log('search', search)
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
-            // console.log('response', response)
-            if (response.data.data) {
-                setAppointmentsData(response.data.data)
-                setPageCount(Math.ceil(response.data.pagination.pageCount));
-                setCount(response.data.pagination.count)
-                setLoading(false)
+        if (closedFilter === 'notClosed') {
+            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.date !== '') {
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
+                    {data: {filterType: 'search', search}}
+                );
+                // console.log('response', response)
+                if (response.data.data) {
+                    setAppointmentsData(response.data.data)
+                    setPageCount(Math.ceil(response.data.pagination.pageCount));
+                    setCount(response.data.pagination.count)
+                    setLoading(false)
+                }else{
+                    alert('Failed getting appointments with search')
+                }
             }else{
-                alert('Failed getting appointments')
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
+                // console.log('response', response)
+                if (response.data.data) {
+                    setAppointmentsData(response.data.data)
+                    setPageCount(Math.ceil(response.data.pagination.pageCount));
+                    setCount(response.data.pagination.count)
+                    setLoading(false)
+                }else{
+                    alert('Failed getting appointments no search')
+                }
             }
-        }else if (closedFilter === 'includeClosed') {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
-            if (response.data.data) {
-                setAppointmentsData(response.data.data)
-                setPageCount(Math.ceil(response.data.pagination.pageCount));
-                setCount(response.data.pagination.count)
-                setLoading(false)
+            
+        }else if (closedFilter === 'closedOnly') {
+            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.date !== '') {
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`,
+                    {data: {filterType: 'search', search}}
+                );
+                if (response.data.data) {
+                    setAppointmentsData(response.data.data)
+                    setPageCount(Math.ceil(response.data.pagination.pageCount));
+                    setCount(response.data.pagination.count)
+                    setLoading(false)
+                }else{
+                    alert('Failed getting appointments with closed no filter')
+                }
             }else{
-                alert('Failed getting appointments with closed')
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
+                if (response.data.data) {
+                    setAppointmentsData(response.data.data)
+                    setPageCount(Math.ceil(response.data.pagination.pageCount));
+                    setCount(response.data.pagination.count)
+                    setLoading(false)
+                }else{
+                    alert('Failed getting appointments with closed no filter')
+                }
             }
+            
         }else {
             alert('Failed getting appointments with closed and without closed')
         }    
+    };
+    const handleKeypress = e => {
+        //it triggers by pressing the enter key
+      if (e.key === 'Enter') {
+        getAppointments();
+        // console.log('enter true')
+      }
     };
     const formatDate = (app_date)=>{
         let d = new Date(app_date);
@@ -85,11 +126,14 @@ const AppointmentTable = ({user}) => {
                         
                             <th><input placeholder='Doctor Name' value={search.doctor} onChange={(e)=>{setSearch({...search, doctor: e.target.value})}}/></th>
                             <th><input placeholder='Patient Name' value={search.patient} 
+                                    onKeyPress={handleKeypress}
                                     onChange={(e)=>{setSearch({...search, patient: e.target.value})}}/>
                                 <button onClick={()=>{
+                                    console.log('clear')
                                     setSearch({
                                         doctor: '', patient: '', status: '', date:''
                                     })
+                                    setClosedFilter('notClosed')
                                     }}
                                     className='cursor-pointer'
                                     >X</button>
@@ -123,8 +167,8 @@ const AppointmentTable = ({user}) => {
                                     className='cursor-pointer'
                                 >Find Closed</p> */}
                                 <select  className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{setClosedFilter(e.target.value)}}>
-                                            <option value="noClosed">-No Closed-</option>
-                                            <option value="includeClosed">Include Closed</option>
+                                            <option value="notClosed">Not Closed</option>
+                                            <option value="closedOnly">All Closed</option>
                                         </select>
                             </th>
                                 <th><p onClick={()=>{
@@ -135,7 +179,7 @@ const AppointmentTable = ({user}) => {
                             <th>
                                 {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
                                 <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
-                                            <option value="">-Select Status-</option>
+                                            <option value="">All Status</option>
                                             <option value="On Schedule">On Schedule</option>
                                             <option value="In Waiting Area">In Waiting Area</option>
                                             <option value="In Procedure Room">In Procedure Room</option>
