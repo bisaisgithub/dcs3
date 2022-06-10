@@ -10,11 +10,13 @@ let inventoryAdd = [
     items:[
       {
         description: 'd1',
-        quantity: 10
+        quantity: 10,
+        unit_price: 100
       },
       {
         description: 'd2',
-        quantity: 10
+        quantity: 10,
+        unit_price: 200
       },
     ]
   }
@@ -32,11 +34,13 @@ let inventoryDeduct = [
     items:[
       {
         description: 'd1',
-        quantity: 10
+        quantity: 10,
+        unit_price: 100
       },
       {
         description: 'd2',
-        quantity: 10
+        quantity: 10,
+        unit_price: 200
       },
     ]
   }
