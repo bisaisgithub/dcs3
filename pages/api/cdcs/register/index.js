@@ -14,13 +14,13 @@ export default async function (req, res) {
         id: 'registration', 
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1h" }
     );
     const serialised = serialize("cdcsjwt", token, {
       httpOnly: true,
       secure: false,
       sameSite: "strict",
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 60,
       path: "/",
     });
     res.setHeader("Set-Cookie", serialised);

@@ -11,6 +11,7 @@ import jwt from "jsonwebtoken";
 import Link from "next/link";
 import Image from 'next/image';
 
+
 const AppointmentTable = ({user}) => {
     const [appointmentsData, setAppointmentsData] = useState([]);
     const [search, setSearch] = useState({
@@ -23,7 +24,7 @@ const AppointmentTable = ({user}) => {
     const [closedFilter, setClosedFilter] = useState('notClosed')
     const [loading, setLoading] = useState(false)
     useEffect(()=>{
-        setLoading(true);
+        // setLoading(true);
         getAppointments();
     }, 
     [
@@ -33,6 +34,7 @@ const AppointmentTable = ({user}) => {
         search.dateEnd,
     ]);
     const getAppointments = async (data)=>{
+        setLoading(true)
         if (closedFilter === 'notClosed') {
             if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
@@ -45,7 +47,8 @@ const AppointmentTable = ({user}) => {
                     setCount(response.data.pagination.count)
                     setLoading(false)
                 }else{
-                    alert('Failed getting appointments with search')
+                    alert('Failed getting appointments with search');
+                    setLoading(false)
                 }
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
@@ -56,7 +59,8 @@ const AppointmentTable = ({user}) => {
                     setCount(response.data.pagination.count)
                     setLoading(false)
                 }else{
-                    alert('Failed getting appointments no search')
+                    alert('Failed getting appointments no search');
+                    setLoading(false)
                 }
             }
             
@@ -71,7 +75,8 @@ const AppointmentTable = ({user}) => {
                     setCount(response.data.pagination.count)
                     setLoading(false)
                 }else{
-                    alert('Failed getting appointments with closed no filter')
+                    alert('Failed getting appointments with closed no filter');
+                    setLoading(false)
                 }
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
@@ -81,20 +86,23 @@ const AppointmentTable = ({user}) => {
                     setCount(response.data.pagination.count)
                     setLoading(false)
                 }else{
-                    alert('Failed getting appointments with closed no filter')
+                    alert('Failed getting appointments with closed no filter');
+                    setLoading(false)
                 }
             }
             
         }else {
             alert('Failed getting appointments with closed and without closed')
+            setLoading(false)
         }    
     };
     const handleKeypress = e => {
         //it triggers by pressing the enter key
-      if (e.key === 'Enter') {
+        // console.log('e',e)
+      if (e.key === 'Enter' || e.key === ',') {
         getAppointments();
-        // console.log('enter true')
       }
+        
     };
     const formatDate = (app_date)=>{
         let d = new Date(app_date);
@@ -104,13 +112,13 @@ const AppointmentTable = ({user}) => {
         // console.log(`${da}-${mo}-${ye}`);
         return `${da}-${mo}-${ye}`
     }
-    const formatDateYYYYMMDD = (dt)=>{
-        let year  = dt.getFullYear();
-        let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-        let day   = dt.getDate().toString().padStart(2, "0");
-        // console.log(year + '-' + month + '-' + day);
-        return year + '-' + month + '-' + day;
-    }
+    // const formatDateYYYYMMDD = (dt)=>{
+    //     let year  = dt.getFullYear();
+    //     let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+    //     let day   = dt.getDate().toString().padStart(2, "0");
+    //     // console.log(year + '-' + month + '-' + day);
+    //     return year + '-' + month + '-' + day;
+    // }
     var timeOptions = {
         hour: 'numeric',
         minute: 'numeric',
@@ -128,12 +136,20 @@ const AppointmentTable = ({user}) => {
                             <th><input placeholder='Doctor Name' value={search.doctor} onChange={(e)=>{setSearch({...search, doctor: e.target.value})}}/></th>
                             <th><input placeholder='Patient Name' value={search.patient} 
                                     onKeyPress={handleKeypress}
-                                    onChange={(e)=>{setSearch({...search, patient: e.target.value})}}/>
+                                    onChange={(e)=>{
+                                        // console.log('change')
+                                        // setSearch({...search, patient: e.target.value})
+                                        setSearch((p)=>{
+                                            let n = {...p, patient: e.target.value.replace(',', '')}
+                                            return n;
+                                        })
+                                        }}/>
                                 <button onClick={()=>{
-                                    console.log('clear')
+                                    // console.log('clear')
                                     setSearch({
                                         doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
                                     })
+                                    setPatientInput('')
                                     setClosedFilter('notClosed')
                                     }}
                                     className='cursor-pointer'
