@@ -23,6 +23,7 @@ const AppointmentTable = ({user}) => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [closedFilter, setClosedFilter] = useState('notClosed')
     const [loading, setLoading] = useState(false)
+    const [statusList, setStatusList] = useState([])
     useEffect(()=>{
         // setLoading(true);
         getAppointments();
@@ -40,8 +41,9 @@ const AppointmentTable = ({user}) => {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
                     {data: {filterType: 'search', search}}
                 );
-                // console.log('response', response)
                 if (response.data.data) {
+                    let statusList = response.data.data.map(r=> r.status)
+                    setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -52,8 +54,10 @@ const AppointmentTable = ({user}) => {
                 }
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
-                // console.log('response', response)
+                // console.log('response', response.data.data)
                 if (response.data.data) {
+                    let statusList = response.data.data.map(r=> r.status)
+                    setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -70,6 +74,8 @@ const AppointmentTable = ({user}) => {
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
+                    let statusList = response.data.data.map(r=> r.status)
+                    setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -81,6 +87,8 @@ const AppointmentTable = ({user}) => {
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
                 if (response.data.data) {
+                    let statusList = response.data.data.map(r=> r.status)
+                    setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -119,6 +127,11 @@ const AppointmentTable = ({user}) => {
     //     // console.log(year + '-' + month + '-' + day);
     //     return year + '-' + month + '-' + day;
     // }
+    function uniq(a) {
+        return a.sort().filter(function(item, pos, ary) {
+            return !pos || item != ary[pos - 1];
+        });
+    }
     var timeOptions = {
         hour: 'numeric',
         minute: 'numeric',
@@ -149,7 +162,6 @@ const AppointmentTable = ({user}) => {
                                     setSearch({
                                         doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
                                     })
-                                    setPatientInput('')
                                     setClosedFilter('notClosed')
                                     }}
                                     className='cursor-pointer'
@@ -197,7 +209,12 @@ const AppointmentTable = ({user}) => {
                                     }}
                                     className='cursor-pointer'
                                 >Find Closed</p> */}
-                                <select  className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{setClosedFilter(e.target.value)}}>
+                                <select  className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{
+                                    setSearch({
+                                        doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
+                                    })
+                                    setClosedFilter(e.target.value);
+                                    }}>
                                             <option value="notClosed">Not Closed</option>
                                             <option value="closedOnly">All Closed</option>
                                         </select>
@@ -212,14 +229,21 @@ const AppointmentTable = ({user}) => {
                                 {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
                                 <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
                                             <option value="">All Status</option>
-                                            <option value="On Schedule">On Schedule</option>
+                                            {
+                                               statusList && statusList.map((f, i)=>{
+                                                return (
+                                                    <option key={i} value={f}>{f}</option>
+                                                )
+                                               })
+                                            }
+                                            {/* <option value="On Schedule">On Schedule</option>
                                             <option value="In Waiting Area">In Waiting Area</option>
                                             <option value="In Procedure Room">In Procedure Room</option>
                                             <option value="Next Appointment">Next Appointment</option>
                                             <option value="Closed">Closed</option>
                                             <option value="Closed No Show">Closed No Show</option>
                                             <option value="Closed w/ Balance">Closed w/ Balance</option>
-                                            <option value="In Request">In Request</option>
+                                            <option value="In Request">In Request</option> */}
                                         </select>
                                 </th>
                             <th><Link href="/cdcs/appointments/add-appointment" passHref><p className='cursor-pointer'>New</p></Link></th>
