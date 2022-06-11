@@ -11,15 +11,16 @@ let inventoryAdd = [
         description: 'd1',
         quantity: 10,
         unit_price: 100,
-        used: 0
+        remaining: 10
       },
       {
         description: 'd2',
         quantity: 10,
         unit_price: 200,
-        used: 0
+        remaining: 0
       },
-    ]
+    ],
+    deduct_id: []
   }
 ]
 
@@ -28,7 +29,7 @@ let inventoryAdd = [
 let inventoryDeduct = [
   {
     name: 'd1',
-    code: 'id1',
+    code: '1',
     qty: 5
   }
 ]
