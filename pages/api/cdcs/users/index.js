@@ -73,8 +73,8 @@ export default async (req, res) => {
                       status: 1,
                     }
                   )
-                    .skip(3)
-                    .limit(10)
+                    // .skip(3)
+                    // .limit(10)
                     .populate("created_by", "name")
                     .sort({ type: -1, name: 1 });
                   // console.log('user:', user);
