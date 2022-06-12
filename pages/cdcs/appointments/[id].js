@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
+import dbConnect from "../../../utils/dbConnect";
 
 const AppointmentDetails = () => {
   const [isLoading, setLoading] = useState(false);
@@ -1487,7 +1488,7 @@ const AppointmentDetails = () => {
 
 export async function getServerSideProps({ req, res }) {
     try {
-    //   await dbConnect();
+      await dbConnect();
       const token = getCookie("cdcsjwt", { req, res });
       if (!token) {
         return { redirect: { destination: "/cdcs/login" } };

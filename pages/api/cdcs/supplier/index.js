@@ -1,9 +1,8 @@
 import dbConnect from "../../../../utils/dbConnect";
 import CDCSUsers7 from "../../../../models/cdcs/Users";
-// import bcrypt from "bcrypt";
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
-import CDCSFields from "../../../../models/cdcs/Fields";
+import CDCSSupplier from "../../../../models/cdcs/CDCSSupplier";
 
 export default async (req, res) => {
   
@@ -24,29 +23,22 @@ export default async (req, res) => {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
+      if (obj.type === 'Admin') {
         if (req.method === 'GET') {
-          const response = await CDCSFields.findOne({'fields.postType': 'procedure'})
+          const response = await CDCSSupplier.findOne()
           .sort({ createdAt: -1 });
-          // console.log('response',response)
           res.json({success: true, data: response})
         } else if(req.method === 'POST' && obj.type === 'Admin'){
-          if (req.body.postType === 'procedure') {
             // console.log('req.body', req.body)
-            let data = { fields: req.body, modified_by: obj._id}
-            // console.log('data', data);
+            let data = { ...req.body.supplier, created_by: obj._id}
+            console.log('data', data);
             // console.log('req.body, ', req.body)
-              const response = await CDCSFields.create(data);
+              const response = await CDCSSupplier.create(data);
               if (response) {
                 res.json({ success: true, data: response });
               } else {
                 res.json({success: false, message: 'failed mdb'})
               }
-          }else if (req.body.postType === 'getItemName') {
-            console.log('test getitemname')
-          }else {
-            res.json({success: false, message: `postT ${req.body.postType} _x`})
-          }
               // res.json({success: true, message: 'test'})
         }else {
           res.json({success: false, message: `mthd ${req.method} _x and nt a`})

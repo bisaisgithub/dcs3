@@ -2,6 +2,7 @@ html,
 body {
   padding: 0;
   margin: 0;
+  top: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   /* background: #000; */
@@ -424,9 +425,17 @@ input[type="text"] {
   display: flex;
   justify-content: center;
 }
+.display-flex-center-column {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
 .flex-end{
   display: flex;
   justify-content: flex-end;
+}
+.margin-10{
+  margin: 10px;
 }
 .height-80p {
   height: 80%;
@@ -590,6 +599,47 @@ iframe {
 }
 /* amcs home end */
 
+.inventory-tab-container{
+  max-height: 80vh;
+  width: 95%;
+  background-color: #eee;
+  max-width: 873px;
+  padding: 3px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* padding: 50px; */
+  z-index: -1;
+  border-radius: 10px;
+}
 
+/* add-edit supplier starts*/
+.supplier-modal-body{
+  display: flex;
+  /* flex-wrap: wrap; */
+  /* justify-content: space-between; */
+  margin: 10px -10px 0 -2px;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+.supplier-modal-body-input{
+  margin: 0 10px 7px 10px;
+  font-size: 12px;
+  color: grey;
+  width: 85%;
+}
+/* add-edit supplier starts*/
 
+/* setting index start */
+.settings-button{
+  width: 90%;
+  padding: 10px;
+  font-size: 20px;
+  background: #e9115bf0;
+  color: white;
+  border-radius: 15px;
+}
+/* setting index end */
 

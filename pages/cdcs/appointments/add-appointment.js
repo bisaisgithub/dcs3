@@ -15,8 +15,9 @@ import Link from 'next/link'
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
+import dbConnect from "../../../utils/dbConnect";
 
-const AppointmentDetails = () => {
+const AddAppointment = () => {
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const [fields, setFields] = useState({
@@ -53,7 +54,7 @@ const AppointmentDetails = () => {
     setLoading(true);
     getPatientDoctorList();
     getFields();
-    console.log('appParent', appParent)
+    // console.log('appParent', appParent)
   }, [])
   if (isLoading){
     return (
@@ -279,10 +280,6 @@ const AppointmentDetails = () => {
                                 }
                             }}>Appointment Links
                         </button>
-                        {/* <button className='add-payment-button height-80p' onClick={()=>{
-                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
-                            }}>{`isPaymentOpen: ${isPaymentOpen}`}
-                        </button> */}
                     </div>
                     
                     <div className='details-details-modal-body-container'>
@@ -458,19 +455,10 @@ const AppointmentDetails = () => {
                                                         (
                                                             <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
                                                             onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                                {/* <option value='Yes'>Yes</option> */}
-                                                                {/* <option value='No'>No</option> */}
-                                                                {/* <option value='Yes'>Yes</option> */}
                                                                 <option value='No'>No</option>
-                                                                {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
                                                             </select>
                                                         )
                                                     }
-                                                    {/* <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
-                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                        <option value='No'>No</option>
-                                                        <option value='Yes'>Yes</option>
-                                                    </select> */}
                                                     <button className='add-remove-button' 
                                                     onClick={async ()=>{
                                                         // console.log('app: ', app)
@@ -506,19 +494,6 @@ const AppointmentDetails = () => {
                                                                         new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
                                                                         ), payments: {...app2.payments, totalCost, change, balance}
                                                                     }); 
-                                                                    // set_app_total_proc_cost(totalCost);
-                                                                    // setApp2({...app2, payments: {...app.payments, totalCost}})
-                                                                    // if (app_pay_amount) {
-                                                                    //     if (parseFloat(totalCost-app_pay_amount)>0) {
-                                                                    //     set_app_pay_change(0);
-                                                                    //     set_app_pay_balance(parseFloat(totalCost-app_pay_amount))
-                                                                    //     }else{
-                                                                    //         set_app_pay_change(parseFloat(app_pay_amount-totalCost));
-                                                                    //         set_app_pay_balance(0)
-                                                                    //     }
-                                                                    // }else{
-                                                                    //     set_app_pay_balance(totalCost);
-                                                                    // }
                                                                     setApp({...app, proc_fields: values})
                                                                 }
                                                             }else{
@@ -544,14 +519,8 @@ const AppointmentDetails = () => {
                                             if (app.proc_fields) {
                                                 app.proc_fields.map((proc)=>{
                                                     if(proc.proc_name === ''){
-                                                        // console.log('true')
-                                                        
                                                         checkProcNotSelected = false;
-                                                        // return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                                        // // proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0
-                                                        // }] } 
                                                     }
-                                                    // console.log('checkProcNotSelected:', checkProcNotSelected)
                                                 })
                                             }
                                             if (checkProcNotSelected) {
@@ -790,11 +759,7 @@ const AppointmentDetails = () => {
                                                                     (
                                                                         <select name="in_package"  value={payfield.in_package} 
                                                                         onChange={(event)=>{handleChangeInputPayment(index, event)}}>
-                                                                            {/* <option value='Yes'>Yes</option> */}
-                                                                            {/* <option value='No'>No</option> */}
-                                                                            {/* <option value='Yes'>Yes</option> */}
                                                                             <option value='No'>No</option>
-                                                                            {/* <option value='No'>{`id: ${app.parent_appointments}`}</option> */}
                                                                         </select>
                                                                     )
                                                                 }
@@ -878,7 +843,6 @@ const AppointmentDetails = () => {
                                                         {pay_amount: '', pay_date: new Date(), in_package: 'Yes', pay_note:''}
                                                     ]
                                                 })
-                                                // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
                                                 }}>Add Payment Field
                                             </button>  
                                         ):
@@ -891,7 +855,6 @@ const AppointmentDetails = () => {
                                                         {pay_amount: '', pay_date: new Date(), in_package: 'No'}
                                                     ]
                                                 })
-                                                // setApp([...app.app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
                                                 }}>Add Payment Field
                                             </button>
                                         )
@@ -918,7 +881,6 @@ const AppointmentDetails = () => {
                                     }
                                     
                             }} className='button-w20'>Close</button>
-                            {/* <button onClick={()=>{setIsOpen({...isOpen, payment: false})}} className='button-w20'>Close</button> */}
                             </div>
                         </div>
                     </div>
@@ -941,15 +903,6 @@ const AppointmentDetails = () => {
                                             <div className='table-table2-container'>
                                             <table className="table-table2-table">
                                                 <thead className='table-table2-table-thead-search2'>
-                                                {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                    <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                    <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                    <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                    </th>
-                                                    <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                    <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                    <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                </tr> */}
                                                 </thead>
                                                 
                                                 <thead className='table-table2-table-thead'>
@@ -1041,13 +994,6 @@ const AppointmentDetails = () => {
                                                                     >Select
                                                                 </button>
                                                              </td>
-                                                            {/* <td>
-                                                                <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
-                                                            </td>
-                                                            <td>{user.type}</td>
-                                                            <td className='table-table2-table-body-tr-td'>
-                                                                <Link href={`/cdcs/users/${user._id}`} passHref><button>Details</button></Link>
-                                                            </td> */}
                                                         </tr>
                                                         )
                                                     })
@@ -1102,15 +1048,6 @@ const AppointmentDetails = () => {
                                             <div className='table-table2-container'>
                                                  <table className="table-table2-table margin-bottom-20">
                                                      <thead className='table-table2-table-thead-search2'>
-                                                     {/* <tr className='table-table2-table-thead-tr-search2'>
-                                                         <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                         <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                         <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                         </th>
-                                                         <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                         <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                         <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                     </tr> */}
                                                      </thead>
                                                      <thead className='table-table2-table-thead'>
                                                      <tr className='table-table2-table-thead-tr'>
@@ -1199,66 +1136,6 @@ const AppointmentDetails = () => {
                                                      </tbody>
                                                  </table>
                                             </div>
-                                            {/* <span>Current Child Appointments</span>
-                                             <table className="table-table2-table">
-                                                 <thead className='table-table2-table-thead-search2'>
-                                                 <tr className='table-table2-table-thead-tr-search2'>
-                                                     <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                                                     <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                                                     <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                                                     </th>
-                                                     <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                                                     <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                                                     <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                                                 </tr>
-                                                 </thead>
-                                                 <thead className='table-table2-table-thead'>
-                                                 <tr className='table-table2-table-thead-tr'>
-                                                     <th>Total Cost</th>
-                                                     <th>Total Payment</th>
-                                                     <th>Patient</th>
-                                                     <th>Doctor</th>
-                                                     <th>Date</th>
-                                                     <th>Time</th>
-                                                     <th>Status</th>
-                                                     <th>Option</th>
-                                                 </tr>
-                                                 </thead>
-                                                 <tbody className='table-table2-table-tbody'>
-                                                     {
-                                                     appChild && appChild.map((f, i)=>{
-                                                         
-                                                         return(
-                                                             <tr key={i} className='table-table2-table-tbody-tr'>
-                                                                 <td>{f.totalCost}</td>
-                                                                 <td>{f.totalPayment}</td>
-                                                                 <td>{f.patient_id.name}</td>
-                                                                 <td>{f.doctor_id.name}</td>
-                                                                 <td>{f.date === '' ? '' : formatDate(f.date)}</td>
-                                                                 <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                                 <td>{f.status}</td>
-                                                                 <td>{f.status === ''? '' : 
-                                                                     // <Link href={`/cdcs/appointments/${f._id}`} passHref>
-                                                                         <button
-                                                                         onClick={async ()=>{
-                                                                             // setIsOpen({...isOpen, appointment: false})
- 
-                                                                             await router.push(`/cdcs/appointments/${f._id}`)
-                                                                             window.location.reload();
-                                                                         }}
-                                                                         style={{background:'#e9115bf0'}} 
-                                                                         
-                                                                         >View/Edit
-                                                                         </button>
-                                                                     // </Link>
-                                                                 }</td>
-                                                             </tr>
-                                                         )
-                                                         
-                                                     })
-                                                     }
-                                                 </tbody>
-                                             </table> */}
                                     </div>
                                     
                                     <div className='flex-end'> 
@@ -1269,113 +1146,6 @@ const AppointmentDetails = () => {
                             </div>
                             
                         )
-                        // (
-                        //     <div className='details-details-container'>
-                        //         <div className='details-details-modal-container'>
-                        //             <div className='details-details-modal-body-button margin-bottom-20'> 
-                        //             </div>
-                        //             <h1>Current Parent Appointment</h1>
-                        //             <button onClick={ async ()=>{
-                        //                 console.log('app.patient_id', app.patient_id)
-                        //                 const response = await axios.post(`/api/cdcs/appointments`,{                            
-                        //                   data: {filterType: 'getParent', patient_id: app.patient_id.value}
-                        //                 });
-                        //                 //   console.log('response',response.data);
-                        //                 if (response.data) {
-                        //                   console.log('response',response.data);
-                        //                   setAppParentsSearched(response.data.data);
-                        //                 }else{
-                        //                   console.log('Failed getting parents appointments')
-                        //                 }
-                        //                 setIsOpen({...isOpen, appointmentSelectParent: true})
-                        //                 }}>Search Parent</button> 
-                        //             <div className='details-details-modal-body-container'>
-                        //                 <div>
-                        //                     {
-                        //                     <div className='table-table2-container'>
-                        //                     <table className="table-table2-table">
-                        //                         <thead className='table-table2-table-thead-search2'>
-                        //                         {/* <tr className='table-table2-table-thead-tr-search2'>
-                        //                             <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-                        //                             <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
-                        //                             <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
-                        //                             </th>
-                        //                             <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-                        //                             <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
-                        //                             <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
-                        //                         </tr> */}
-                        //                         </thead>
-                        //                         <thead className='table-table2-table-thead'>
-                        //                         <tr className='table-table2-table-thead-tr'>
-                        //                             <th>Total Cost</th>
-                        //                             <th>Patient</th>
-                        //                             <th>Doctor</th>
-                        //                             <th>Date</th>
-                        //                             <th>Time</th>
-                        //                             <th>Status</th>
-                        //                             <th>Option</th>
-                        //                         </tr>
-                        //                         </thead>
-                        //                         <tbody className='table-table2-table-tbody'>
-                        //                             <tr className='table-table2-table-tbody-tr'>
-                        //                                 <td>{appParent.totalCost}</td>
-                        //                                 <td>{appParent.patient_id.name}</td>
-                        //                                 <td>{appParent.doctor_id.name}</td>
-                        //                                 <td>{appParent.date === '' ? '' : formatDate(appParent.date)}</td>
-                        //                                 <td>{appParent.date === '' ? '' : new Date(appParent.date).toLocaleString('en-PH', timeOptions)}</td>
-                        //                                 <td>{appParent.status}</td>
-                        //                                 <td>{appParent.status === ''? '' : 
-                        //                                 (
-                        //                                     <div>
-                        //                                         <button onClick={()=>{
-                        //                                             setAppParent({
-                        //                                             patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                        //                                             })
-                        //                                             //    delete app.parent_appointments
-                        //                                             setApp({...app, parent_appointments: null});
-                        //                                             }} 
-                        //                                             style={{background:'#e9115bf0'}} 
-                        //                                             >Remove
-                        //                                             </button>
-                        //                                         {/* <button
-                        //                                             onClick={async ()=>{
-                        //                                                 // setIsOpen({...isOpen, appointment: false})
-
-                        //                                                 await router.push(`/cdcs/appointments/${appParent._id}`)
-                        //                                                 window.location.reload();
-                        //                                             }}
-                        //                                             style={{background:'#e9115bf0'}} 
-                                                                
-                        //                                         >View/Edit
-                        //                                         </button> */}
-                        //                                     </div>
-                        //                                 )
-                        //                                 // <button onClick={()=>{
-                        //                                 //     setAppParent({
-                        //                                 //     patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
-                        //                                 //     })
-                        //                                 //     setApp({...app, parent_appointments:''});
-                        //                                 // }} 
-                        //                                 // >Remove</button>
-                        //                                 }</td>
-                        //                             </tr>
-                        //                         </tbody>
-                        //                     </table>
-                        //                     </div>
-                        //                     }
-                        //                 </div>
-
-                        //             </div>
-                                    
-                        //             <div className='flex-end'> 
-
-                        //             <button onClick={()=>{setIsOpen({...isOpen, appointment: false})}} className='button-w20'>Back</button>
-                        //             </div>
-                        //         </div>
-                        //     </div>
-                            
-                        // )
-                    
                     )
                 }
             </div>
@@ -1386,7 +1156,7 @@ const AppointmentDetails = () => {
 
 export async function getServerSideProps({ req, res }) {
     try {
-    //   await dbConnect();
+      await dbConnect();
       const token = getCookie("cdcsjwt", { req, res });
       if (!token) {
         return { redirect: { destination: "/cdcs/login" } };
@@ -1422,4 +1192,4 @@ export async function getServerSideProps({ req, res }) {
     }
   }
 
-export default AppointmentDetails;
+export default AddAppointment;

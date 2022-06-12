@@ -4,19 +4,20 @@ let inventoryAdd = [
     _id: 1,
     supplier: 's1',
     invoice: 'inv1',
-    date_received: 'd1',
-    type: 'add',
+    date: 'd1',
+    status: 'add',
     items:[
       {
-        description: 'd1',
-        quantity: 10,
-        unit_price: 100,
+        name: 'd1',
+        qty: 10,
+        unit_cost: 100,
+        received: 10,
         remaining: 10
       },
       {
-        description: 'd2',
-        quantity: 10,
-        unit_price: 200,
+        name: 'd2',
+        qty: 10,
+        unit_cost: 200,
         remaining: 0
       },
     ],
