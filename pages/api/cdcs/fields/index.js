@@ -43,7 +43,27 @@ export default async (req, res) => {
                 res.json({success: false, message: 'failed mdb'})
               }
           }else if (req.body.postType === 'getItemName') {
-            console.log('test getitemname')
+            // console.log('test getitemname req.body', req.body)
+            const response = await CDCSFields.findOne({'fields.postType': 'getItemName'})
+            .sort({ createdAt: -1 });
+            // console.log('response',response)
+            if (response) {
+              res.json({success: true, data: response})
+            } else {
+              res.json({success: false, message: 'failed mdb'})
+            }
+            
+          }else if (req.body.postType === 'updateItemName') {
+            // console.log('test getitemname req.body', req.body)
+            let data = { fields:{app: {...req.body.app}, postType: 'getItemName'} , modified_by: obj._id}
+            // console.log('data', data);
+            // console.log('req.body, ', req.body)
+              const response = await CDCSFields.create(data);
+              if (response) {
+                res.json({ success: true, data: response });
+              } else {
+                res.json({success: false, message: 'failed mdb'})
+              }
           }else {
             res.json({success: false, message: `postT ${req.body.postType} _x`})
           }

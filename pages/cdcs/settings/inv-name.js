@@ -10,27 +10,27 @@ import CDCSUsers7 from "../../../models/cdcs/Users";
 const CDCSInventoryName = () => {
     const router = useRouter();
     const [app, setApp] = useState({
-        proc_fields: [{
-            proc_name: '', proc_duration_minutes: '', proc_cost: '',
-          },],
-        inventory_names:['1','2']
+        // proc_fields: [{
+        //     proc_name: '', proc_duration_minutes: '', proc_cost: '',
+        //   },],
+        inventory_names:['']
       });
     useEffect(()=>{
-        // getFields();
+        getFields();
     }, [])
     const getFields = async ()=>{
         const getFields = await axios.post('/api/cdcs/fields',{postType: 'getItemName'})
         // console.log('getFields', getFields.data.data.fields.app)
         if (getFields.data.success) {
-            // console.log('getFields Ok')
-            // setApp(getFields.data.data.fields.app)
+            console.log('getFields Ok', getFields.data.data.fields)
+            setApp(getFields.data.data.fields.app)
         }else{
             console.log('getFields Empty')
         }
     }
     const handleChangeInput =(index, event)=>{
-        console.log('index: ',index)
-        console.log('event: ',event)
+        // console.log('index: ',index)
+        // console.log('event: ',event)
             // const values = [...app_proc_fields];
             const values = [...app.inventory_names];
             // let checkSameProcName = false;
@@ -132,22 +132,31 @@ const CDCSInventoryName = () => {
                 <button className='button-w70 button-disabled' 
                     onClick={async()=>{
                             let checkEmptyField = false;
-                            app.inventory_names.forEach((item, index))
-                            const response = await axios.post(
-                                "/api/cdcs/fields",
-                                {app});
-                            console.log('app', app)
-                            console.log('response add/update Fields', response)
-                            if (response.data.message === 'tkn_e') {
-                                alert('token empty')
-                                router.push("/cdcs/login");
-                            } else if(response.data.success === true){
-                                alert('Procedure Fields Succesffuly Updated')
-                                // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/dashboard`);
-                            }else {
-                                // alert('token ok')
-                                alert('Failed Updating Procedure Fields')
+                            app.inventory_names.forEach((item, index)=>{
+                                if (item === '') {
+                                    checkEmptyField = true;
+                                }
+                            })
+                            if (checkEmptyField) {
+                                alert('Please fill up empty fields first')
+                            } else {
+                                const response = await axios.post(
+                                    "/api/cdcs/fields",
+                                    {app, postType: 'updateItemName'});
+                                // console.log('app', app)
+                                // console.log('response add/update Fields', response)
+                                if (response.data.message === 'tkn_e') {
+                                    alert('You session expires, please login');
+                                    router.push("/cdcs/login");
+                                } else if(response.data.success === true){
+                                    alert('Item names updated succesffuly updated');
+                                    // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/dashboard`);
+                                }else {
+                                    // alert('token ok')
+                                    alert('Failed Updating Procedure Fields')
+                                }
                             }
+                            
                         
                     
                     }}>Update Procedure Fields</button>
