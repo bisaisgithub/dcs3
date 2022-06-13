@@ -268,6 +268,9 @@ const AddInventory = () => {
                         <span>Status</span>
                         <select value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
                             <option value="">-Select Status-</option>
+                            <option value="In Request">In Request</option>
+                            <option value="In Shipping">In Shipping</option>
+                            <option value="Received">Received</option>
                         </select>       
                     </div>
                     <div className='details-details-modal-body-input-box'>
@@ -331,16 +334,26 @@ const AddInventory = () => {
                 </div>
                 
                 <div style={{display: 'flex', width: '100%'}}>
-                    <div className="details-details-modal-body-input-box"   >
+                    {/* <div className="details-details-modal-body-input-box"   >
                         <span>Supplier</span>
                         <select  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
                             <option value="">-Select Supplier-</option>
+                            
                         </select>       
-                    </div>
+                    </div> */}
                     {/* <div className="details-details-modal-body-input-box">
                         <span>Name</span>
                         <input className="span-total">{}</input>
                     </div> */}
+                    <div className="details-details-modal-body-input-box" style={{width: 'calc(30% - 10px)'}}>
+                                    <span >Supplier</span>
+                                    <button className="add_inventory_item_button">Select Supplier</button>
+                                    {/* <select name="proc_name" value={app_proc_field.proc_name} 
+                                    onChange={(event)=>{handleChangeInput(index, event)}}>
+                                        <option value="">-Select Item Name-</option>
+                                        <option value="item1">Item1</option>
+                                    </select>        */}
+                                </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Contact</span>
                         <span className="span-total">{}</span>
@@ -362,14 +375,15 @@ const AddInventory = () => {
                             <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
                                 <div className="details-details-modal-body-input-box3" style={{width: 'calc(30% - 10px)'}}>
                                     <span style={index? {display: 'none'}:{}}>Item Name</span>
-                                    <select name="proc_name" value={app_proc_field.proc_name} 
+                                    <button className="add_inventory_item_button">Select Item</button>
+                                    {/* <select name="proc_name" value={app_proc_field.proc_name} 
                                     onChange={(event)=>{handleChangeInput(index, event)}}>
                                         <option value="">-Select Item Name-</option>
                                         <option value="item1">Item1</option>
-                                    </select>       
+                                    </select>        */}
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input">
-                                        <span style={index? {display: 'none'}:{}}>Qty Ordered</span>
+                                        <span style={index? {display: 'none'}:{}}>Qty Ord</span>
                                         <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
                                             onChange={(event)=>{
                                                 handleChangeInput(index, event)
@@ -377,12 +391,39 @@ const AddInventory = () => {
                                         />                               
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input">
-                                        <span style={index? {display: 'none'}:{}}>Qty Received</span>
+                                        <span style={index? {display: 'none'}:{}}>Qty Rcvd</span>
                                         <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
                                             onChange={(event)=>{
                                                 handleChangeInput(index, event)
                                             }}
                                         />                               
+                                </div>
+                                <div className='details-details-modal-body-input-box3 add-inventory-item-input'>
+                                    <span>Expiry Date</span>
+                                    <DatePicker 
+                                    disabled={app.patient_id === ''}
+                                    showTimeSelect
+                                    minDate={new Date()} 
+                                    yearDropdownItemNumber={90} 
+                                    showYearDropdown 
+                                    scrollableYearDropdown={true} 
+                                    dateFormat='MMMM d, yyyy' 
+                                    className='date-picker' 
+                                    placeholderText="Select Date" 
+                                    selected={app.date} 
+                                    onChange={(date)=>{
+                                        let totalMinutes = 0;
+                                        app.proc_fields.map((app_proc_field)=>{
+                                            totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
+                                            return null;
+                                        });
+                                        setApp2(
+                                            {...app2,
+                                            date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
+                                                )});
+                                        setApp({...app, date});
+                                    }} />
+                                    
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input">
                                         <span style={index? {display: 'none'}:{}}>Unit Cost</span>
