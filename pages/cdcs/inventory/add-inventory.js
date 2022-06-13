@@ -245,20 +245,7 @@ const AddInventory = () => {
       <div className='details-details-modal-container'>
         <div className='details-details-modal-body-button margin-bottom-20'> 
         </div>
-        <div className="details-details-modal-body-input-box">
-                        <span>Status</span>
-                        <select disabled={app.date === ''}  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
-                            <option value="">-Select Status-</option>
-                            <option value="On Schedule">On Schedule</option>
-                            <option value="In Waiting Area">In Waiting Area</option>
-                            <option value="In Procedure Room">In Procedure Room</option>
-                            <option value="Next Appointment">Next Appointment</option>
-                            <option value="Closed">Closed</option>
-                            <option value="Closed No Show">Closed No Show</option>
-                            <option value="Closed w/ Balance">Closed w/ Balance</option>
-                            <option value="In Request">In Request</option>
-                        </select>       
-                    </div>
+        
         
         <div className='details-details-modal-body-container'>
             <div className='details-details-modal-body'>
@@ -277,8 +264,14 @@ const AddInventory = () => {
                 </div> */}
                 
                 <div style={{display: 'flex', width: '100%'}}>
-                    {/* <div className='details-details-modal-body-input-box'>
-                        <span>Date</span>
+                    <div className="details-details-modal-body-input-box">
+                        <span>Status</span>
+                        <select value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
+                            <option value="">-Select Status-</option>
+                        </select>       
+                    </div>
+                    <div className='details-details-modal-body-input-box'>
+                        <span>Date Ordered</span>
                         <DatePicker 
                         disabled={app.patient_id === ''}
                         showTimeSelect
@@ -288,7 +281,7 @@ const AddInventory = () => {
                         scrollableYearDropdown={true} 
                         dateFormat='MMMM d, yyyy' 
                         className='date-picker' 
-                        placeholderText="Select Date" 
+                        placeholderText="Select Date Ordered" 
                         selected={app.date} 
                         onChange={(date)=>{
                             let totalMinutes = 0;
@@ -305,168 +298,160 @@ const AddInventory = () => {
                         
                     </div>
                     <div className='details-details-modal-body-input-box'>
-                        <span>Start Time</span>
-                        <DatePicker
-                            disabled
-                            selected={app.date}
-                            showTimeSelect
-                            showTimeSelectOnly
-                            timeIntervals={15}
-                            minTime={setHours(setMinutes(new Date(), 0), 8)}
-                            maxTime={setHours(setMinutes(new Date(), 30), 18)}
-                            placeholderText="Select Start Time"
-                            timeCaption="Time"
-                            dateFormat="h:mm aa"
-                        />
+                        <span>Date Received</span>
+                        <DatePicker 
+                        disabled={app.patient_id === ''}
+                        showTimeSelect
+                        minDate={new Date()} 
+                        yearDropdownItemNumber={90} 
+                        showYearDropdown 
+                        scrollableYearDropdown={true} 
+                        dateFormat='MMMM d, yyyy' 
+                        className='date-picker' 
+                        placeholderText="Select Date Received" 
+                        selected={app.date} 
+                        onChange={(date)=>{
+                            let totalMinutes = 0;
+                            app.proc_fields.map((app_proc_field)=>{
+                                totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
+                                return null;
+                            });
+                            setApp2(
+                                {...app2,
+                                date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
+                                    )});
+                            setApp({...app, date});
+                        }} />
+                        
                     </div>
                     <div className="details-details-modal-body-input-box">
-                        <span>End Time</span>
-                        <div className='duration-minutes-container'>
-                            <DatePicker
-                                selected={app2.date_end}
-                                showTimeSelect
-                                showTimeSelectOnly
-                                timeCaption="Time"
-                                dateFormat="h:mm aa"
-                                disabled
-                            />
-                        </div> 
-                    </div> */}
+                        <span>Invoice Number</span>
+                        <input className="span-total">{}</input>
+                    </div>
                 </div>
+                
                 <div style={{display: 'flex', width: '100%'}}>
+                    <div className="details-details-modal-body-input-box"   >
+                        <span>Supplier</span>
+                        <select  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
+                            <option value="">-Select Supplier-</option>
+                        </select>       
+                    </div>
+                    {/* <div className="details-details-modal-body-input-box">
+                        <span>Name</span>
+                        <input className="span-total">{}</input>
+                    </div> */}
                     <div className="details-details-modal-body-input-box">
-                        <span>Total Cost</span>
-                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
+                        <span>Contact</span>
+                        <span className="span-total">{}</span>
                     </div>
                     <div className="details-details-modal-body-input-box">
-                        <span>Total Payment</span>
-                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
-                    </div>
-                    <div className="details-details-modal-body-input-box">
-                        <span>Balance</span>
-                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
-                    </div>
-                    <div className="details-details-modal-body-input-box">
-                        <span>Change</span>
-                        <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
+                        <span>Address</span>
+                        <span className="span-total">{}</span>
                     </div>
                 </div>
             </div>
 
             <div>
+                
                 {
                     app.proc_fields &&
                     app.proc_fields.map((app_proc_field, index)=>{
                         return (
                             
                             <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
-                                <div className="details-details-modal-body-input-box3">
-                                    <span style={index? {display: 'none'}:{}}>Procedure</span>
-                                    <select name="proc_name" value={app_proc_field.proc_name} disabled={app.date === ''}
+                                <div className="details-details-modal-body-input-box3" style={{width: 'calc(30% - 10px)'}}>
+                                    <span style={index? {display: 'none'}:{}}>Item Name</span>
+                                    <select name="proc_name" value={app_proc_field.proc_name} 
                                     onChange={(event)=>{handleChangeInput(index, event)}}>
-                                        <option value="">-Select Procedure-</option>
-                                        {
-                                            fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
-                                                // console.log('f', f)
-                                                return (
-                                                    <option key={k} value={f.proc_name}>{f.proc_name}</option>
-                                                )
-                                            })
-                                        }
+                                        <option value="">-Select Item Name-</option>
+                                        <option value="item1">Item1</option>
                                     </select>       
                                 </div>
-                                <div className="details-details-modal-body-input-box3">
-                                    <span style={index? {display: 'none'}:{}}>Duration Minutes</span>
-                                        <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
-                                        onChange={(event)=>{handleChangeInput(index, event)}}>
-                                            <option value={0}>-Select Minutes-</option>
-                                            {
-                                                fields.app.proc_fields.map((f, k)=>{
-                                                    // console.log('f', f)
-                                                    return (
-                                                        <option key={k} value={f.proc_duration_minutes}>{f.proc_duration_minutes}</option>
-                                                    )
-                                                })
-                                            }
-                                        </select>
-                                </div>
-                                <div className="details-details-modal-body-input-box3">
-                                    <div className="display-flex">
-                                        <span style={index? {display: 'none'}:{}}>Cost</span>
-                                        <span style={index? {display: 'none'}:{}}>To Parent?</span>
-                                        <span style={index? {display: 'none'}:{}}>Delete</span>
-                                    </div>
-                                    
-                                    <div className='duration-minutes-container'>
-                                        <input type='number' name="proc_cost" value={app_proc_field.proc_cost} disabled={app_proc_field.proc_name === ''}
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                        <span style={index? {display: 'none'}:{}}>Qty Ordered</span>
+                                        <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
                                             onChange={(event)=>{
                                                 handleChangeInput(index, event)
                                             }}
-                                        />
-                                        {
-                                            app.parent_appointments?
-                                            (
-                                                <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
-                                                onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                    <option value='Yes'>Yes</option>
-                                                    <option value='No'>No</option>
-                                                    {/* <option value='No'>{app.parent_appointments}</option> */}
-                                                </select>
-                                            )
-                                            :
-                                            (
-                                                <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
-                                                onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                    <option value='No'>No</option>
-                                                </select>
-                                            )
-                                        }
-                                        <button className='add-remove-button' 
-                                        onClick={async ()=>{
-                                            // console.log('app: ', app)
-                                            if (app.proc_fields.length < 2) {
-                                                alert('Cannot delete remaining last procedure')
-                                            } else {
-                                                // console.log('false: ', app.proc_fields.length)
-                                                if(app.date){
-                                                    let input = confirm('Do you want to delete the procedure?')
-                                                    if (input) {
-                                                        let totalCost = 0;
-                                                        let totalMinutes = 0;
-                                                        const values = [...app.proc_fields];
-                                                        values.splice(index, 1);
-                                                        values.map((value)=>{
-                                                            if (value.proc_cost > -1 && value.in_package === 'No') {
-                                                            totalCost = totalCost+parseFloat(value.proc_cost); 
-                                                            }
-                                                            if (value.proc_duration_minutes> -1) {
-                                                                totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
-                                                            }
-                                                            return null;
-                                                        });
-                                                        let change = 0;
-                                                        let balance = 0;
-                                                        if (totalCost - parseFloat(app2.payments.totalPayment)<0) {
-                                                            change = parseFloat(app2.payments.totalPayment) - totalCost;
-                                                        } else {
-                                                            balance = totalCost - parseFloat(app2.payments.totalPayment);
-                                                        }
-
-                                                        setApp2({...app2, date_end: new Date(
-                                                            new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                                                            ), payments: {...app2.payments, totalCost, change, balance}
-                                                        }); 
-                                                        setApp({...app, proc_fields: values})
-                                                    }
-                                                }else{
-                                                    alert('Enter Date First')
-                                                }
-                                            }
-                                            
-                                        }}
-                                        >-</button>
-                                    </div>                                    
+                                        />                               
                                 </div>
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                        <span style={index? {display: 'none'}:{}}>Qty Received</span>
+                                        <input type='number' name="proc_cost" value={app_proc_field.proc_cost} 
+                                            onChange={(event)=>{
+                                                handleChangeInput(index, event)
+                                            }}
+                                        />                               
+                                </div>
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                        <span style={index? {display: 'none'}:{}}>Unit Cost</span>
+                                        <input type='number' name="proc_cost" value={app_proc_field.proc_cost}
+                                            onChange={(event)=>{
+                                                handleChangeInput(index, event)
+                                            }}
+                                        />                               
+                                </div>
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                        <span style={index? {display: 'none'}:{}}>Total Cost</span>
+                                        <input type='number' name="proc_cost" value={app_proc_field.proc_cost} disabled
+                                            onChange={(event)=>{
+                                                handleChangeInput(index, event)
+                                            }}
+                                        />                               
+                                </div>
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                        <span style={index? {display: 'none'}:{}}>Qty Remaining</span>
+                                        <input type='number' name="proc_cost" value={app_proc_field.proc_cost} disabled
+                                            onChange={(event)=>{
+                                                handleChangeInput(index, event)
+                                            }}
+                                        />                               
+                                </div>
+                                <button className='add-remove-button' 
+                                    onClick={async ()=>{
+                                        // console.log('app: ', app)
+                                        if (app.proc_fields.length < 2) {
+                                            alert('Cannot delete remaining last procedure')
+                                        } else {
+                                            // console.log('false: ', app.proc_fields.length)
+                                            if(app.date){
+                                                let input = confirm('Do you want to delete the procedure?')
+                                                if (input) {
+                                                    let totalCost = 0;
+                                                    let totalMinutes = 0;
+                                                    const values = [...app.proc_fields];
+                                                    values.splice(index, 1);
+                                                    values.map((value)=>{
+                                                        if (value.proc_cost > -1 && value.in_package === 'No') {
+                                                        totalCost = totalCost+parseFloat(value.proc_cost); 
+                                                        }
+                                                        if (value.proc_duration_minutes> -1) {
+                                                            totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
+                                                        }
+                                                        return null;
+                                                    });
+                                                    let change = 0;
+                                                    let balance = 0;
+                                                    if (totalCost - parseFloat(app2.payments.totalPayment)<0) {
+                                                        change = parseFloat(app2.payments.totalPayment) - totalCost;
+                                                    } else {
+                                                        balance = totalCost - parseFloat(app2.payments.totalPayment);
+                                                    }
+
+                                                    setApp2({...app2, date_end: new Date(
+                                                        new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
+                                                        ), payments: {...app2.payments, totalCost, change, balance}
+                                                    }); 
+                                                    setApp({...app, proc_fields: values})
+                                                }
+                                            }else{
+                                                alert('Enter Date First')
+                                            }
+                                        }
+                                        
+                                    }}
+                                    >-</button>
                             </div>
                         );
                     })
@@ -567,7 +552,7 @@ const AddInventory = () => {
                     
                 
                 }}>
-                    {disableButton.addAppointment? 'Adding...' : 'Add Appointment' }
+                    {disableButton.addAppointment? 'Adding...' : 'Add Inventory' }
                     
                     </button>     
 

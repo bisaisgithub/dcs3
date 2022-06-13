@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import NavbarHome from "../../../components/cdcs/navbarhome";
 import Link from 'next/link';
 
-const Login = () => {
+const ForgotPassword = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const resetPassword = async (e) => {
@@ -53,4 +53,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

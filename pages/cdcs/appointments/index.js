@@ -171,6 +171,7 @@ const AppointmentTable = ({user}) => {
                             <th>
                                 <DatePicker 
                                     // minDate={new Date()} 
+                                    todayButton="Today"
                                     yearDropdownItemNumber={90} 
                                     showYearDropdown 
                                     scrollableYearDropdown={true} 

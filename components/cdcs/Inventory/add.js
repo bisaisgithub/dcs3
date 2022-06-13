@@ -10,14 +10,15 @@ let inventoryAdd = [
       {
         name: 'd1',
         qty: 10,
-        unit_cost: 100,
         received: 10,
+        unit_cost: 100,
         remaining: 10
       },
       {
         name: 'd2',
         qty: 10,
         unit_cost: 200,
+        received: 10,
         remaining: 0
       },
     ],

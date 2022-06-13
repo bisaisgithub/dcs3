@@ -60,6 +60,19 @@ const Navbarcdcs = ({ user }) => {
             <span>Dashboard</span>
           </a>
         </Link>
+        <Link href="/cdcs/expenses" passHref>
+          <a className="nav__link">
+            <div>
+              <Image
+                src="/navbar/expenses.png"
+                alt="dashboard"
+                width={40}
+                height={40}
+              />
+            </div>
+            <span>Expenses</span>
+          </a>
+        </Link>
         <Link href="/cdcs/settings" passHref>
           <a className="nav__link">
             <div>

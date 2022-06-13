@@ -139,7 +139,7 @@ const CDCSInventoryName = () => {
                             })
                             if (checkEmptyField) {
                                 alert('Please fill up empty fields first')
-                            } else {
+                            } else {    
                                 const response = await axios.post(
                                     "/api/cdcs/fields",
                                     {app, postType: 'updateItemName'});
