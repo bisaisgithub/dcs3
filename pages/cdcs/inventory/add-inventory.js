@@ -18,13 +18,19 @@ import CDCSUsers7 from "../../../models/cdcs/Users";
 
 const AddInventory = () => {
   
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [inventory, setInventory] =useState({
-    status:'',date_ordered:'',date_received:'',invoice_no:'',supplier_id:'',
+    status:'',date_ordered:'',date_received:'',invoice_no:'',
+    supplier:{
+        id: '',
+        name: '',
+        contact: '',
+        address: '',
+    },
     items:[
         {
-            name:'',qty_ord:'',qty_rcvd:'',date_expiry:'',unit_cost:''
+            name:'',qty_ord:0,qty_rcvd:0,date_expiry:'',unit_cost:0
         }
     ]
   });
@@ -35,12 +41,13 @@ const AddInventory = () => {
   const [isOpen, setIsOpen] = useState({
     supplier: false, items: false
   });
-  const [supplier, setSupplier] = useState({});
+  const [suppliers, setSuppliers] = useState([]);
+  const [items, setItems] = useState([])
   useEffect(()=>{
     // console.log('appParent', appParent)
   }, [])
   if (isLoading){
-    return (
+    return (    
         <div className='details-details-container'>
             <h1>Loading...</h1>
         </div>
@@ -148,19 +155,45 @@ const AddInventory = () => {
                 <div style={{display: 'flex', width: '100%'}}>
                     <div className="details-details-modal-body-input-box" style={{width: 'calc(30% - 10px)'}}>
                         <span >Supplier</span>
-                        <button
-                        onClick={()=>{
-                            setIsOpen({...isOpen, supplier: true})
-                        }}
-                        className="add_inventory_item_button">Select Supplier</button>
+                        {
+                            inventory.supplier.id !== ''? (
+                                <button
+                                onClick={async()=>{
+                                    setIsLoading(true)
+                                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier`)
+                                    if (response) {
+                                        console.log('respose', response)
+                                        setSuppliers(response.data.data)
+                                        setIsOpen({...isOpen, supplier: true})
+                                        setIsLoading(false)
+                                    } else {
+                                        alert('Failed Getting Suppliers')
+                                        setIsLoading(false)
+                                    }
+                                    
+                                }}
+                                className="add_inventory_item_button"
+                                style={{background: 'white',  color: 'black'}}>{inventory.supplier.name}</button>
+                            ):(
+                                <button
+                                onClick={async()=>{
+                                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier`)
+                                    console.log('respose', response)
+                                    setSuppliers(response.data.data)
+                                    setIsOpen({...isOpen, supplier: true})
+                                }}
+                                className="add_inventory_item_button">Select Supplier</button>
+                            )
+                        }
+                        
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Contact</span>
-                        <span className="span-total">{}</span>
+                        <span className="span-total">{inventory.supplier.contact}</span>
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Address</span>
-                        <span className="span-total">{}</span>
+                        <span className="span-total">{inventory.supplier.address}</span>
                     </div>
                 </div>
             </div>
@@ -177,12 +210,20 @@ const AddInventory = () => {
                             <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
                                 <div className="details-details-modal-body-input-box3" style={{width: 'calc(30% - 10px)'}}>
                                     <span style={index? {display: 'none'}:{}}>Item Name</span>
-                                    <button className="add_inventory_item_button">Select Item</button>
-                                    {/* <select name="proc_name" value={app_proc_field.proc_name} 
-                                    onChange={(event)=>{handleChangeInput(index, event)}}>
-                                        <option value="">-Select Item Name-</option>
-                                        <option value="item1">Item1</option>
-                                    </select>        */}
+                                    <button 
+                                    onClick={async()=>{
+                                        const resp = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/fields`,
+                                        {postType: 'getItemName'})
+                                        console.log('resp', resp.data.data.fields.app.inventory_names)
+                                        if (resp.data.data.fields.app.inventory_names>0) {
+                                            const items = resp.data.data.fields.app.inventory_names;
+                                            
+                                        }else{
+                                            alert('List of items is empty')
+                                        }
+
+                                    }}  
+                                    className="add_inventory_item_button">Select Item</button>
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input-small">
                                         <span style={index? {display: 'none'}:{}}>Qty Ord</span>
@@ -420,112 +461,53 @@ const AddInventory = () => {
                 <div className='details-details-modal-body-container' >
                 
                     <div>
-                        {
-                        <div className='table-table2-container'>
-                        <table className="table-table2-table">
-                            <thead className='table-table2-table-thead-search2'>
-                            </thead>
-                            
-                            <thead className='table-table2-table-thead'>
-                            <tr className='table-table2-table-thead-tr'>
-                                <th>Name</th>
-                                <th>Contact</th>
-                                <th>Status</th>
-                                <th>Address</th>
-                            </tr>
-                            </thead>
-                            <tbody className='table-table2-table-tbody'>
-                            {/* { 
-                                appParentsSearched && appParentsSearched.map((f,i)=>{
-                                    let totalCost= 0;
-                                    let totalPayment = 0
-                                    f.proc_fields.forEach((f)=>{
-                                        totalCost = totalCost + parseFloat(f.proc_cost)
-                                    })
-                                    if (f.app_pay_fields.length>0) {
-                                        f.app_pay_fields.forEach((f)=>{
-                                            totalPayment = totalPayment + parseFloat(f.pay_amount)
+                        <div className='table-table2-container' style={{paddingBottom: '0px'}}>
+                            <table className="table-table2-table">
+                                <thead className='table-table2-table-thead-search2'>
+                                </thead>
+                                
+                                <thead className='table-table2-table-thead'>
+                                <tr className='table-table2-table-thead-tr'>
+                                    <th>Name</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Address</th>
+                                    <th>Option</th>
+                                </tr>
+                                </thead>
+                                <tbody className='table-table2-table-tbody'>
+                                    {
+                                        suppliers && suppliers.map((s,i)=>{
+                                            return (
+                                                <tr key={i} className='table-table2-table-tbody-tr'>
+                                                    <td>{s.name}</td>
+                                                    <td>{s.contact}</td>
+                                                    <td>{s.status}</td>
+                                                    <td>{s.address}</td>
+                                                    <td>
+                                                        <button
+                                                          onClick={(e)=>{
+                                                            setInventory({...inventory, 
+                                                                supplier: {id:s._id,name:s.name,contact:s.contact,address:s.address}})
+                                                            setIsOpen({...isOpen, supplier: false})
+                                                          }}
+                                                        >Select</button>
+                                                    </td>
+                                                </tr>
+                                            )
                                         })
                                     }
-                                    if (f.childAppointments.length>0) {
-
-                                        f.childAppointments.forEach((f)=>{
-                                            // console.log('f', f)
-                                            if (f.app_pay_fields.length>0) {
-                                                f.app_pay_fields.forEach((f)=>{
-                                                    if (f.pay_amount !== '' && f.in_package ==='Yes') {
-                                                        totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                                    }
-                                                })
-                                            }
-                                        })
-                                    }
-                                    return (
-                                        <tr key={i} className='table-table2-table-tbody-tr'>
-                                        <td>{new Intl.NumberFormat().format(totalCost)}</td>
-                                        <td>{new Intl.NumberFormat().format(totalPayment)}</td>
-                                        <td>{f.patient_id.name}</td>
-                                        <td>{f.doctor_id.name}</td>
-                                        <td>{formatDate(f.date)}</td>
-                                        <td>{new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
-                                        <td>{f.status}</td>
-                                        <td>
-                                            <button
-                                                onClick={async ()=>{
-                                                    if (app.app_pay_fields.length>0) {
-                                                        app.app_pay_fields.forEach((f)=>{
-                                                            if (f.pay_amount !== '') {
-                                                                totalPayment = totalPayment + parseFloat(f.pay_amount)
-                                                            }
-                                                        })
-                                                    }
-                                                    setApp((p)=>{
-                                                        let n = p.proc_fields.map((f)=>{
-                                                            f.in_package = 'Yes'
-                                                            return f;
-                                                        })
-                                                        let n2 =[];
-                                                        if (p.app_pay_fields.length>0) {
-                                                            p.app_pay_fields.forEach((f)=>{
-                                                                f.in_package = 'Yes'
-                                                                n2 = [...n2, f]
-                                                            })
-                                                        }
-                                                        // let test = {...p, proc_fields: n, parent_appointments: f._id};
-                                                        // console.log('select test', test)
-                                                        return {...p, app_pay_fields: n2, proc_fields: n, parent_appointments: f._id}
-                                                    })
-                                                    let change = 0;
-                                                    let balance = 0;
-                                                    if (totalCost > totalPayment) {
-                                                        balance = totalCost - totalPayment;
-                                                    }
-                                                    if (totalPayment > totalCost) {
-                                                        change = totalPayment - totalCost;
-                                                    }
-                                                    
-                                                    setAppParent({...f, totalCost, totalPayment, balance, change });
-                                                    setApp2({...app2, payments: {totalCost:0, totalPayment: 0, balance:0, change: 0} })
-                                                    setIsOpen({...isOpen, appointmentSelectParent: false});
-                                                }}
-                                                >Select
-                                            </button>
-                                         </td>
-                                    </tr>
-                                    )
-                                })
-                            } */}
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
                         </div>
-                        }
+                        
                     </div>
 
                 </div>
                 
                 <div className='flex-end'> 
 
-                <button onClick={()=>{setIsOpen({...isOpen, appointmentSelectParent: false})}} className='button-w20'>Back</button>
+                <button onClick={()=>{setIsOpen({...isOpen, supplier: false})}} className='button-w20'>Cancel</button>
                 </div>
             </div>
         </div>
@@ -533,6 +515,23 @@ const AddInventory = () => {
         (
             ''
         )
+      }
+      {
+            isLoading? (
+            <div className='overlay'>
+                <div className='center-div'>
+                    <Image
+                    src="/loading.gif"
+                    alt="users"
+                    width={40}
+                    height={40}
+                    />
+                </div>
+                
+            </div>
+            )
+            :
+            ('')
       }
     </div>
   )

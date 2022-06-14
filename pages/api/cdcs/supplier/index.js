@@ -24,11 +24,15 @@ export default async (req, res) => {
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin') {
-        if (req.method === 'GET') {
-          const response = await CDCSSupplier.findOne()
-          .sort({ createdAt: -1 });
-          res.json({success: true, data: response})
-        } else if(req.method === 'POST' && obj.type === 'Admin'){
+        if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Receptionist')){
+          const response = await CDCSSupplier.find()
+          console.log('response', response)
+          if (response) {
+            res.json({ success: true, data: response });
+          }else{
+            res.json({ success: false, message: 'failed mdb find'});
+          }
+        }else if(req.method === 'POST' && obj.type === 'Admin'){
             // console.log('req.body', req.body)
             let data = { ...req.body.supplier, created_by: obj._id}
             console.log('data', data);
