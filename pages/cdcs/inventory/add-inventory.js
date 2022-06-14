@@ -30,7 +30,7 @@ const AddInventory = () => {
     },
     items:[
         {
-            name:'',qty_ord:0,qty_rcvd:0,date_expiry:'',unit_cost:0
+            name:'',qty_ord:0,qty_rcvd:0,date_expiry:'',unit_cost:0,qty_remain:0
         }
     ]
   });
@@ -216,8 +216,14 @@ const AddInventory = () => {
                                         {postType: 'getItemName'})
                                         console.log('resp', resp.data.data.fields.app.inventory_names)
                                         if (resp.data.data.fields.app.inventory_names>0) {
-                                            const items = resp.data.data.fields.app.inventory_names;
-                                            
+                                            const stocks = {}; 
+                                            if (resp.data.data.fields.app.inventory_names.length>0) {
+                                                resp.data.data.fields.app.inventory_names.forEach((n)=>{
+                                                    // const res 
+                                                })
+                                            } else {
+                                                
+                                            }
                                         }else{
                                             alert('List of items is empty')
                                         }

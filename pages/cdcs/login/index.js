@@ -8,7 +8,9 @@ const Login = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [disabled, setDisabled] = useState(false);
   const login = async (e) => {
+    setDisabled(true)
     e.preventDefault();
     const credentials = { email, password };
     const user = await axios.post(
@@ -21,6 +23,7 @@ const Login = () => {
       router.push("/cdcs/dashboard");
     }else{
       alert('Invalid Email or Password');
+      setDisabled(false);
     }
   };
   return (
@@ -53,7 +56,7 @@ const Login = () => {
           </div>
           <p className="forgot_password">Forgot Password? Click <Link href={`/cdcs/forgotpassword`}>Here</Link></p>
           <div className="details-details-modal-body-button">
-            <button type="submit">Login</button>
+            <button disabled={disabled} type="submit">{disabled? 'Logging in...': 'Login'}</button>
           </div>
           <p>You do not have an account? Register 
             <span className="link"

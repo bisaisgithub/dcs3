@@ -109,20 +109,22 @@ const CDCSInventoryName = () => {
                         if (app.inventory_names) {
                             app.inventory_names.map((item, index)=>{
                                 if(item === ''){
-                                    // console.log('true')
-                                    
                                     checkProcNotSelected = false;
                                 }
-                                // console.log('checkProcNotSelected:', checkProcNotSelected)
                             })
                         }
                         if (checkProcNotSelected) {
-                            setApp((prev)=>{
-                                return {...app, inventory_names: [...prev.inventory_names, ''] } 
-                            })
+                            let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
+                            let array = findDuplicates(app.inventory_names)
+                            if (array.length>0) {
+                                alert('Duplicate Entry')
+                            } else {
+                                setApp((prev)=>{
+                                    return {...app, inventory_names: [...prev.inventory_names, ''] } 
+                                })
+                            }
                         }else{
                             alert('Fill empty field first')
-                            // console.log('app.proc_fieds:', app.proc_fields)
                         }
                     
                     }}>+</button>
@@ -140,21 +142,28 @@ const CDCSInventoryName = () => {
                             if (checkEmptyField) {
                                 alert('Please fill up empty fields first')
                             } else {    
-                                const response = await axios.post(
-                                    "/api/cdcs/fields",
-                                    {app, postType: 'updateItemName'});
-                                // console.log('app', app)
-                                // console.log('response add/update Fields', response)
-                                if (response.data.message === 'tkn_e') {
-                                    alert('You session expires, please login');
-                                    router.push("/cdcs/login");
-                                } else if(response.data.success === true){
-                                    alert('Item names updated succesffuly updated');
-                                    // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/dashboard`);
-                                }else {
-                                    // alert('token ok')
-                                    alert('Failed Updating Procedure Fields')
+                                let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
+                                let array = findDuplicates(app.inventory_names)
+                                if (array.length>0) {
+                                    alert('Duplicate Entry')
+                                } else {
+                                    const response = await axios.post(
+                                        "/api/cdcs/fields",
+                                        {app, postType: 'updateItemName'});
+                                    // console.log('app', app)
+                                    // console.log('response add/update Fields', response)
+                                    if (response.data.message === 'tkn_e') {
+                                        alert('You session expires, please login');
+                                        router.push("/cdcs/login");
+                                    } else if(response.data.success === true){
+                                        alert('Item names updated succesffuly updated');
+                                        // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/dashboard`);
+                                    }else {
+                                        // alert('token ok')
+                                        alert('Failed Updating Procedure Fields')
+                                    }
                                 }
+                                
                             }
                             
                         
