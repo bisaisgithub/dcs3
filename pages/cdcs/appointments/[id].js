@@ -1293,7 +1293,7 @@ const AppointmentDetails = () => {
                                         }}>Search Parent</button>
                                     </div>
                                    <div className='details-details-modal-body-container'>
-                                   <div className='table-table2-container'>
+                                        <div className='table-table2-container' style={{paddingBottom: '0px'}}>
                                                  <table className="table-table2-table margin-bottom-20">
                                                      <thead className='table-table2-table-thead-search2'>
                                                      </thead>
@@ -1325,7 +1325,6 @@ const AppointmentDetails = () => {
                                                                      setAppParent({
                                                                      patient_id: {name: ''}, doctor_id: {name: ''}, date: '', status: '', totalCost: ''
                                                                      })
-                                                                     //    delete app.parent_appointments
                                                                      let totalCost2 = 0;
                                                                      let totalPayment = 0;
                                                                      let change = 0;
@@ -1357,8 +1356,6 @@ const AppointmentDetails = () => {
                                                                                f.in_package = 'No'
                                                                             })
                                                                         }
-                                                                       //  const test = {...p, parent_appointments: null, proc_fields: n}
-                                                                       //  console.log('return', test)
                                                                         return {...p, parent_appointments: null, proc_fields: n}
                                                                     });
 
@@ -1368,10 +1365,6 @@ const AppointmentDetails = () => {
                                                                      </button>
                                                                  <button
                                                                      onClick={async ()=>{
-                                                                         // setIsOpen({...isOpen, appointment: false})
- 
-                                                                        //  await router.push(`/cdcs/appointments/${appParent._id}`)
-                                                                        //  window.location.reload();
                                                                         window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${appParent._id}`, "_blank");
                                                                      }}
                                                                      style={{background:'#e9115bf0'}} 
@@ -1422,7 +1415,6 @@ const AppointmentDetails = () => {
                                                                 <td>{f.date === '' ? '' : new Date(f.date).toLocaleString('en-PH', timeOptions)}</td>
                                                                 <td>{f.status}</td>
                                                                 <td>{f.status === ''? '' : 
-                                                                    // <Link href={`/cdcs/appointments/${f._id}`} passHref>
                                                                         <button
                                                                         onClick={async ()=>{
                                                                             window.open(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments/${f._id}`, "_blank");
@@ -1431,7 +1423,6 @@ const AppointmentDetails = () => {
                                                                         
                                                                         >View/Edit
                                                                         </button>
-                                                                    // </Link>
                                                                 }</td>
                                                             </tr>
                                                         )

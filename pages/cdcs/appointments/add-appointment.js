@@ -889,7 +889,7 @@ const AddAppointment = () => {
                 {
                     isOpen.appointment && 
                     (
-                        isOpen.appointmentSelectParent? 
+                        isOpen.appointmentSelectParent?
                         (
                             <div className='details-details-container'>
                                 <div className='details-details-modal-container'>
@@ -1018,8 +1018,8 @@ const AddAppointment = () => {
                             <div className='details-details-container'>
                                 <div className='details-details-modal-container'>
                                     <div className='details-details-modal-body-button align-items-flex-end'> 
-                                    <span>Current Parent Appointment</span>
-                                    <button onClick={ async ()=>{
+                                        <span>Current Parent Appointment</span>
+                                        <button onClick={ async ()=>{
                                      //    console.log('app.patient_id', app.patient_id)
                                         const response = await axios.post(`/api/cdcs/appointments`,{                            
                                           data: {filterType: 'getParent', patient_id: app.patient_id.value}
@@ -1043,9 +1043,9 @@ const AddAppointment = () => {
                                         }
                                         setIsOpen({...isOpen, appointmentSelectParent: true})
                                         }}>Search Parent</button>
-                                     </div>
+                                    </div>
                                     <div className='details-details-modal-body-container'>
-                                            <div className='table-table2-container'>
+                                            <div className='table-table2-container' style={{paddingBottom: '0px'}}>
                                                  <table className="table-table2-table margin-bottom-20">
                                                      <thead className='table-table2-table-thead-search2'>
                                                      </thead>

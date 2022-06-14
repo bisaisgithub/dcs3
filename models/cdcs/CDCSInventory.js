@@ -4,13 +4,13 @@ const mongoose = require("mongoose");
 const CDCSInventorySchema = new mongoose.Schema(
   {
     status: String,
-    items: [{}],
-    supplier_id: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSSupplier'
-    },
     date_ordered: Date,
     date_received: Date,
     invoice_no: String,
+    supplier_id: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSSupplier'
+    },
+    items: [{}],
   },
   { timestamps: true }
 );
