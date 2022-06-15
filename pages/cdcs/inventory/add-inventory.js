@@ -25,12 +25,13 @@ const AddInventory = () => {
     supplier:{
         id: '',
         name: '',
+        email: '',
         contact: '',
         address: '',
     },
     items:[
         {
-            name:'',qty_ord:0,qty_rcvd:0,date_expiry:'',unit_cost:0,qty_remain:0
+            name:'',qty_ord:'',qty_rcvd:'',date_expiry:'',unit_cost:'',total_cost:0,qty_remain:0
         }
     ]
   });
@@ -39,10 +40,12 @@ const AddInventory = () => {
       addAppointment: false 
   })
   const [isOpen, setIsOpen] = useState({
-    supplier: false, items: false
+    supplier: false, stocks: false
   });
   const [suppliers, setSuppliers] = useState([]);
-  const [items, setItems] = useState([])
+//   const [items, setItems] = useState([]);
+  const [stocks, setStocks] = useState([]);
+  const [itemIndex, setItemIndex] = useState(0)
   useEffect(()=>{
     // console.log('appParent', appParent)
   }, [])
@@ -53,25 +56,33 @@ const AddInventory = () => {
         </div>
     )
   }
-  const getPatientDoctorList = async()=>{
-    const response = await axios.post(`/api/cdcs/users`,{
-        post:20
-        });
-        setUserList(response.data.users)
-    if (!response) {
-        alert('Failed to get Patient List')
-    }
-  }
-    
     const handleChangeItem = async (index, event, date, ename)=>{
         if (event) {
             // console.log('handle change item called')
-            const values = [...inventory.items];
-            values[index][event.target.name] = event.target.value;
-            // console.log('values', values)
-
-            // set_app_pay_fields(values);
-            setInventory({...inventory, items: values})
+            // console.log('index', index)
+            if (date === null) {
+                const values = [...inventory.items];
+                values[index][ename] = event
+                setInventory({...inventory, items: values});
+            } else {
+                const values = [...inventory.items];
+                if (event.target.name === 'qty_rcvd' && values[index]['unit_cost'] !== '') {
+                    values[index][event.target.name] = event.target.value;
+                    values[index]['total_cost'] = event.target.value * parseInt(values[index]['unit_cost']);
+                    console.log('values true', values)
+                    setInventory({...inventory, items: values});
+                }else if (event.target.name === 'unit_cost' && values[index]['qty_rcvd'] !== '') {
+                    values[index][event.target.name] = event.target.value;
+                    values[index]['total_cost'] = event.target.value * parseInt(values[index]['qty_rcvd']);
+                    console.log('values true', values)
+                    setInventory({...inventory, items: values});
+                }else {
+                    console.log('values else', values)
+                    values[index][event.target.name] = event.target.value;
+                    setInventory({...inventory, items: values}); 
+                }
+            }
+            
         }else{
             const values = [...inventory.items];
             values[index][ename] = date;
@@ -129,10 +140,14 @@ const AddInventory = () => {
                         }} />
                         
                     </div>
+                    <div className="details-details-modal-body-input-box">
+                        <span>Invoice Number</span>
+                        <input disabled={inventory.status !== 'Received'} className="span-total" onChange={(e)=>{setInventory({...inventory, invoice_no: e.target.value})}}>{}</input>
+                    </div>
                     <div className='details-details-modal-body-input-box'>
                         <span>Date Received</span>
                         <DatePicker 
-                        // disabled={app.patient_id === ''}
+                        disabled={inventory.invoice_no === ''}
                         minDate={new Date()} 
                         yearDropdownItemNumber={90} 
                         showYearDropdown 
@@ -146,14 +161,11 @@ const AddInventory = () => {
                         }} />
                         
                     </div>
-                    <div className="details-details-modal-body-input-box">
-                        <span>Invoice Number</span>
-                        <input className="span-total" onChange={(e)=>{setInventory({...inventory, invoice_no: e.target.value})}}>{}</input>
-                    </div>
+                    
                 </div>
                 
                 <div style={{display: 'flex', width: '100%'}}>
-                    <div className="details-details-modal-body-input-box" style={{width: 'calc(30% - 10px)'}}>
+                    <div className="details-details-modal-body-input-box" style={{width: 'calc(50%x)'}}>
                         <span >Supplier</span>
                         {
                             inventory.supplier.id !== ''? (
@@ -170,10 +182,10 @@ const AddInventory = () => {
                                         alert('Failed Getting Suppliers')
                                         setIsLoading(false)
                                     }
-                                    
                                 }}
                                 className="add_inventory_item_button"
-                                style={{background: 'white',  color: 'black'}}>{inventory.supplier.name}</button>
+                                style={{background: 'white',  color: 'black'}}
+                                >{inventory.supplier.name}</button>
                             ):(
                                 <button
                                 onClick={async()=>{
@@ -188,12 +200,16 @@ const AddInventory = () => {
                         
                     </div>
                     <div className="details-details-modal-body-input-box">
+                        <span>Email</span>
+                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier.email}</span>
+                    </div>
+                    <div className="details-details-modal-body-input-box">
                         <span>Contact</span>
-                        <span className="span-total">{inventory.supplier.contact}</span>
+                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier.contact}</span>
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Address</span>
-                        <span className="span-total">{inventory.supplier.address}</span>
+                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier.address}</span>
                     </div>
                 </div>
             </div>
@@ -203,37 +219,74 @@ const AddInventory = () => {
                 {
                     inventory.items &&
                     inventory.items.map((item, index)=>{
-                        let total_cost = 0;
-                        let qty_remaining = 0;
                         return (
-                            
                             <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
                                 <div className="details-details-modal-body-input-box3" style={{width: 'calc(30% - 10px)'}}>
                                     <span style={index? {display: 'none'}:{}}>Item Name</span>
-                                    <button 
-                                    onClick={async()=>{
-                                        const resp = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/fields`,
-                                        {postType: 'getItemName'})
-                                        console.log('resp', resp.data.data.fields.app.inventory_names)
-                                        if (resp.data.data.fields.app.inventory_names>0) {
-                                            const stocks = {}; 
-                                            if (resp.data.data.fields.app.inventory_names.length>0) {
-                                                resp.data.data.fields.app.inventory_names.forEach((n)=>{
-                                                    // const res 
-                                                })
-                                            } else {
-                                                
-                                            }
-                                        }else{
-                                            alert('List of items is empty')
-                                        }
-
-                                    }}  
-                                    className="add_inventory_item_button">Select Item</button>
+                                    {
+                                        item.name !== ''? (
+                                            <button 
+                                            onClick={async()=>{
+                                                const resp = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/fields`,
+                                                {postType: 'getItemName'})
+                                                console.log('resp', resp.data.data.fields.app.inventory_names)
+                                                if (resp.data.data.fields.app.inventory_names.length>0) {
+                                                    setStocks([])
+                                                    await resp.data.data.fields.app.inventory_names.forEach(async(n)=>{
+                                                        const resp = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
+                                                        if (resp.data.data === null) {
+                                                            setStocks((p)=>{
+                                                                let newvalue = [...p, {name:n, qty_remain: 0}]
+                                                                console.log('newvalue', newvalue)
+                                                                return newvalue;
+                                                            })
+                                                        } else {
+                                                            console.log('resp for each else');
+                                                        }
+                                                    })
+                                                    setItemIndex(index)
+                                                    setIsOpen({...isOpen, stocks: true})
+                                                }else{
+                                                    alert('List of items is empty')
+                                                }
+                                            }}  
+                                            className="add_inventory_item_button"
+                                            style={{background: 'white',  color: 'black'}}
+                                            >{item.name}</button>
+                                        ):
+                                        (
+                                            <button 
+                                            onClick={async()=>{
+                                                const resp = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/fields`,
+                                                {postType: 'getItemName'})
+                                                // console.log('resp', resp.data.data.fields.app.inventory_names)
+                                                if (resp.data.data.fields.app.inventory_names.length>0) {
+                                                    setStocks([])
+                                                    await resp.data.data.fields.app.inventory_names.forEach(async(n)=>{
+                                                        const resp = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
+                                                        if (resp.data.data === null) {
+                                                            setStocks((p)=>{
+                                                                let newvalue = [...p, {name:n, qty_remain: 0}]
+                                                                // console.log('newvalue', newvalue)
+                                                                return newvalue;
+                                                            })
+                                                        } else {
+                                                            console.log('resp for each else');
+                                                        }
+                                                    })
+                                                    setItemIndex(index)
+                                                    setIsOpen({...isOpen, stocks: true})
+                                                }else{
+                                                    alert('List of items is empty')
+                                                }
+                                            }}  
+                                            className="add_inventory_item_button">Select Item</button>
+                                        )
+                                    }
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input-small">
                                         <span style={index? {display: 'none'}:{}}>Qty Ord</span>
-                                        <input type='text' name="qty_ord" value={item.qty_ord} 
+                                        <input disabled={item.name === ''} type='text' name="qty_ord" value={item.qty_ord} 
                                             onChange={(event)=>{
                                                 // console.log('e',event.target.value.replace(/[^0-9]/gi, ''))
                                                 event.target.value = event.target.value.replace(/[^0-9]/gi, '')
@@ -243,7 +296,7 @@ const AddInventory = () => {
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input-small">
                                         <span style={index? {display: 'none'}:{}}>Qty Rcvd</span>
-                                        <input type='number' name="qty_rcvd" value={item.qty_rcvd} 
+                                        <input disabled={inventory.date_received === '' || item.name === ''}  type='text' name="qty_rcvd" value={item.qty_rcvd} 
                                             onChange={(event)=>{
                                                 event.target.value = event.target.value.replace(/[^0-9]/gi, '')
                                                 handleChangeItem(index, event)
@@ -251,9 +304,10 @@ const AddInventory = () => {
                                         />                               
                                 </div>
                                 <div className='details-details-modal-body-input-box3 add-inventory-item-input'>
-                                    <span>Expiry Date</span>
+                                    <span style={index? {display: 'none'}:{}}>Expiry Date</span>
                                     <DatePicker 
-                                    // disabled={app.patient_id === ''}
+                                    style={{fontSize: '14px'}}
+                                    disabled={item.qty_rcvd=== ''} 
                                     name='date_expiry'
                                     minDate={new Date()} 
                                     yearDropdownItemNumber={90} 
@@ -271,7 +325,7 @@ const AddInventory = () => {
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input-small">
                                         <span style={index? {display: 'none'}:{}}>Unit Cost</span>
-                                        <input type='number' name="unit_cost" value={item.unit_cost}
+                                        <input disabled={item.qty_rcvd=== ''} type='text' name="unit_cost" value={item.unit_cost}
                                             onChange={(event)=>{
                                                 event.target.value = event.target.value.replace(/[^0-9]/gi, '')
                                                 handleChangeItem(index, event)
@@ -280,7 +334,7 @@ const AddInventory = () => {
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input">
                                         <span style={index? {display: 'none'}:{}}>Total Cost</span>
-                                        <input type='number' name="total_cost" value={total_cost} disabled
+                                        <input type='number' name="total_cost" value={item.total_cost} disabled
                                             // onChange={(event)=>{
                                             //     handleChangeItem(index, event)
                                             // }}
@@ -288,7 +342,7 @@ const AddInventory = () => {
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input">
                                         <span style={index? {display: 'none'}:{}}>Qty Remain</span>
-                                        <input type='number' name="qty_remaining" value={qty_remaining} disabled
+                                        <input type='number' name="qty_remaining" value={item.qty_remain} disabled
                                             // onChange={(event)=>{
                                             //     handleChangeItem(index, event)
                                             // }}
@@ -359,9 +413,10 @@ const AddInventory = () => {
                             if (checkItemNameEmpty) {
                                 alert('Please Select Item first and input Order quatity')
                             } else {
-                                alert('ok')
+                                setInventory({...inventory, items: [...inventory.items, 
+                                    {name:'',qty_ord:'',qty_rcvd:'',date_expiry:'',unit_cost:'',total_cost:'',qty_remain:0}]})
                             }
-                            
+                                
                                 // if (app.proc_fields) {
                                 //     app.proc_fields.map((proc)=>{
                                 //         if(proc.proc_name === ''){
@@ -475,6 +530,7 @@ const AddInventory = () => {
                                 <thead className='table-table2-table-thead'>
                                 <tr className='table-table2-table-thead-tr'>
                                     <th>Name</th>
+                                    <th>Email</th>
                                     <th>Contact</th>
                                     <th>Status</th>
                                     <th>Address</th>
@@ -487,6 +543,7 @@ const AddInventory = () => {
                                             return (
                                                 <tr key={i} className='table-table2-table-tbody-tr'>
                                                     <td>{s.name}</td>
+                                                    <td>{s.email}</td>
                                                     <td>{s.contact}</td>
                                                     <td>{s.status}</td>
                                                     <td>{s.address}</td>
@@ -494,9 +551,10 @@ const AddInventory = () => {
                                                         <button
                                                           onClick={(e)=>{
                                                             setInventory({...inventory, 
-                                                                supplier: {id:s._id,name:s.name,contact:s.contact,address:s.address}})
+                                                                supplier: {id:s._id,name:s.name,email:s.email,contact:s.contact,address:s.address}})
                                                             setIsOpen({...isOpen, supplier: false})
                                                           }}
+
                                                         >Select</button>
                                                     </td>
                                                 </tr>
@@ -514,6 +572,79 @@ const AddInventory = () => {
                 <div className='flex-end'> 
 
                 <button onClick={()=>{setIsOpen({...isOpen, supplier: false})}} className='button-w20'>Cancel</button>
+                </div>
+            </div>
+        </div>
+        ):
+        (
+            ''
+        )
+      }
+      {
+        isOpen.stocks? (
+            <div className='details-details-container'>
+            <div className='details-details-modal-container' style={{maxHeight: '100vh',width: '85%'}}>
+                <div className='details-details-modal-body-button margin-bottom-20'> 
+                </div>
+                <h3>Stock List</h3>
+                <div className='details-details-modal-body-container' >
+                
+                    <div>
+                        <div className='table-table2-container' style={{paddingBottom: '0px'}}>
+                            <table className="table-table2-table">
+                                <thead className='table-table2-table-thead-search2'>
+                                </thead>
+                                
+                                <thead className='table-table2-table-thead'>
+                                <tr className='table-table2-table-thead-tr'>
+                                    <th>Item Name</th>
+                                    <th>Quantity on Hand</th>
+                                    <th>Option</th>
+                                </tr>
+                                </thead>
+                                <tbody className='table-table2-table-tbody'>
+                                    {
+                                        stocks && stocks.map((s,i)=>{
+                                            return (
+                                                <tr key={i} className='table-table2-table-tbody-tr'>
+                                                    <td>{s.name}</td>
+                                                    <td>{s.qty_remain}</td>
+                                                    <td>
+                                                        <button
+                                                          onClick={(e)=>{
+                                                            let checkSameName = false
+                                                            inventory.items.forEach((i)=>{
+                                                                console.log('i.name', i.name)
+                                                                console.log('s.name', s.name)
+                                                                if (i.name === s.name) {
+                                                                    checkSameName = true;
+                                                                }
+                                                            })
+                                                            if (checkSameName) {
+                                                                alert('Item is already selected')
+                                                            } else {
+                                                                handleChangeItem(itemIndex, s.name, null, 'name')
+                                                                setIsOpen({...isOpen, stocks: false})
+                                                            }
+                                                            
+                                                          }}
+                                                        >Select</button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
+
+                </div>
+                
+                <div className='flex-end'> 
+
+                <button onClick={()=>{setIsOpen({...isOpen, stocks: false})}} className='button-w20'>Cancel</button>
                 </div>
             </div>
         </div>

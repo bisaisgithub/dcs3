@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const CDCSSupplierSchema = new mongoose.Schema(
   {
     name: String,
+    email: String,
     contact: String,
     address: String,
     status: String,
@@ -17,9 +18,9 @@ const CDCSSupplierSchema = new mongoose.Schema(
 let CDCSSupplier;
 
 try {
-  CDCSSupplier = mongoose.model("CDCSSupplier");
+  CDCSSupplier = mongoose.model("CDCSSupplier2");
 }catch(err){
-  CDCSSupplier = mongoose.model('CDCSSupplier', CDCSSupplierSchema);
+  CDCSSupplier = mongoose.model('CDCSSupplier2', CDCSSupplierSchema);
 }
 
 module.exports =

@@ -1,6 +1,6 @@
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
-import CDCSSupplier from "../../../../models/cdcs/CDCSSupplier";
+// import CDCSSupplier from "../../../../models/cdcs/CDCSSupplier";
 import CDCSUsers7 from "../../../../../models/cdcs/Users";
 import dbConnect from "../../../../../utils/dbConnect";
 import CDCSInventory from "../../../../../models/cdcs/CDCSInventory";
@@ -15,9 +15,11 @@ export default async (req, res) => {
     } else {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-      if (obj.type === 'Admin') {
+      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
-          const item = await CDCSInventory.findOne({ "items:": [{"qty_remain":{ $gte: 0}}] }, { type: 1 });
+          console.log('req.query.id', req.query.id);
+          const item = await CDCSInventory.findOne({ "items:": [{"qty_remain":{ $gte: 0}}] });
+          res.json({ success: true, data: item });
         } else {
           res.json({success: false, message: `mthd ${req.method} _x`})
         }

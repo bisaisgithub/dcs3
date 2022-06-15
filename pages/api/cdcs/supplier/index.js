@@ -26,7 +26,7 @@ export default async (req, res) => {
       if (obj.type === 'Admin') {
         if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Receptionist')){
           const response = await CDCSSupplier.find()
-          console.log('response', response)
+          // console.log('response', response)
           if (response) {
             res.json({ success: true, data: response });
           }else{
@@ -35,7 +35,7 @@ export default async (req, res) => {
         }else if(req.method === 'POST' && obj.type === 'Admin'){
             // console.log('req.body', req.body)
             let data = { ...req.body.supplier, created_by: obj._id}
-            console.log('data', data);
+            // console.log('data', data);
             // console.log('req.body, ', req.body)
               const response = await CDCSSupplier.create(data);
               if (response) {

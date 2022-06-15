@@ -19,7 +19,7 @@ import CDCSUsers7 from "../../../models/cdcs/Users";
 const AddInventory = () => {
   const [disableAdd, setDisableAdd] =useState(false);
   const [supplier, setSupplier]=useState({
-    name:'',contact:'',address:'',status:''
+    name:'',email:'',contact:'',address:'',status:''
   })
   return(
     <div className='details-details-container'>
@@ -32,6 +32,10 @@ const AddInventory = () => {
             <div className="details-details-modal-body-input-box supplier-modal-body-input">
               <span>Supplier Name</span>
               <input type="text" value={supplier.name} onChange={e=>setSupplier({...supplier, name:e.target.value})} />
+            </div>
+            <div className="details-details-modal-body-input-box supplier-modal-body-input">
+              <span>Supplier Email</span>
+              <input type="text" value={supplier.email} onChange={e=>setSupplier({...supplier, email:e.target.value})} />
             </div>
             <div className="details-details-modal-body-input-box supplier-modal-body-input">
               <span>Supplier Contact</span>
@@ -74,7 +78,7 @@ const AddInventory = () => {
                     }else if (response.data.success) {
                       alert('Supplier Succesfully Added');
                       setSupplier({
-                        name:'',contact:'',address:'',status:''
+                        name:'',email:'',contact:'',address:'',status:''
                       })
                       setDisableAdd(false)
                     }else {
