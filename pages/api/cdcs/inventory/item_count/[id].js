@@ -18,7 +18,16 @@ export default async (req, res) => {
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
           console.log('req.query.id', req.query.id);
-          const item = await CDCSInventory.findOne({ "items:": [{"qty_remain":{ $gte: 0}}] });
+          // ({awards: {$elemMatch: {award:'National Medal', year:1975}}})
+          const item = await CDCSInventory.findOne({
+            $and: [
+              // { items: {$elemMatch:{name: req.query.id}} },
+              { items: {$elemMatch:{name: req.query.id, qty_remain: {$gte: 1}}} },
+              // { "items:": [{"qty_remain":{ $gte: 0}}] }
+            ]
+          }
+            
+            );
           res.json({ success: true, data: item });
         } else {
           res.json({success: false, message: `mthd ${req.method} _x`})

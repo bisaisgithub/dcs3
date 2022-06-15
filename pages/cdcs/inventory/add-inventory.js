@@ -21,7 +21,7 @@ const AddInventory = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [inventory, setInventory] =useState({
-    status:'',date_ordered:'',date_received:'',invoice_no:'',
+    status:'',date_ordered: new Date(),date_received:'',invoice_no:'',
     supplier:{
         id: '',
         name: '',
@@ -37,7 +37,7 @@ const AddInventory = () => {
   });
 
   const [disableButton, setDisableButton] = useState({
-      addAppointment: false 
+      addInventory: false 
   })
   const [isOpen, setIsOpen] = useState({
     supplier: false, stocks: false
@@ -116,9 +116,16 @@ const AddInventory = () => {
                 <div style={{display: 'flex', width: '100%'}}>
                     <div className="details-details-modal-body-input-box">
                         <span>Status</span>
-                        <select value={inventory.status} onChange={(e)=>{setInventory({...inventory, status: e.target.value})}}>
+                        <select value={inventory.status} onChange={(e)=>{
+                            if ((e.target.value !== 'In Request') && inventory.supplier.id === '') {
+                                alert('Only In Request Status is applicable on Empty Supplier')
+                            } else {
+                                setInventory({...inventory, status: e.target.value})
+                            }
+                            }}>
                             <option value="">-Select Status-</option>
                             <option value="In Request">In Request</option>
+                            <option value="In Supplier">In Supplier</option>
                             <option value="In Shipping">In Shipping</option>
                             <option value="Received">Received</option>
                         </select>       
@@ -233,15 +240,28 @@ const AddInventory = () => {
                                                 if (resp.data.data.fields.app.inventory_names.length>0) {
                                                     setStocks([])
                                                     await resp.data.data.fields.app.inventory_names.forEach(async(n)=>{
-                                                        const resp = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
-                                                        if (resp.data.data === null) {
+                                                        const resp2 = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
+                                                        console.log('resp2', resp2)
+                                                        if (resp2.data.data === null) {
                                                             setStocks((p)=>{
                                                                 let newvalue = [...p, {name:n, qty_remain: 0}]
                                                                 console.log('newvalue', newvalue)
-                                                                return newvalue;
+                                                                return newvalue;    
                                                             })
                                                         } else {
-                                                            console.log('resp for each else');
+                                                            console.log(`resp for each else ${n}`, resp2.data);
+                                                            let count = 0
+                                                            resp2.data.data.items.forEach((i)=>{
+                                                                if (i.name === n) {
+                                                                    count = count + parseInt(i.qty_remain);
+                                                                }
+                                                            })
+                                                            // console.log('count', count)
+                                                            setStocks((p)=>{
+                                                                let newvalue = [...p, {name:n, qty_remain: count}]
+                                                                // console.log('newvalue', newvalue)
+                                                                return newvalue;
+                                                            })
                                                         }
                                                     })
                                                     setItemIndex(index)
@@ -263,15 +283,27 @@ const AddInventory = () => {
                                                 if (resp.data.data.fields.app.inventory_names.length>0) {
                                                     setStocks([])
                                                     await resp.data.data.fields.app.inventory_names.forEach(async(n)=>{
-                                                        const resp = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
-                                                        if (resp.data.data === null) {
+                                                        const resp2 = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
+                                                        if (resp2.data.data === null) {
                                                             setStocks((p)=>{
                                                                 let newvalue = [...p, {name:n, qty_remain: 0}]
                                                                 // console.log('newvalue', newvalue)
                                                                 return newvalue;
                                                             })
                                                         } else {
-                                                            console.log('resp for each else');
+                                                            console.log(`resp for each else ${n}`, resp2.data);
+                                                            let count = 0
+                                                            resp2.data.data.items.forEach((i)=>{
+                                                                if (i.name === n) {
+                                                                    count = count + parseInt(i.qty_remain);
+                                                                }
+                                                            })
+                                                            // console.log('count', count)
+                                                            setStocks((p)=>{
+                                                                let newvalue = [...p, {name:n, qty_remain: count}]
+                                                                // console.log('newvalue', newvalue)
+                                                                return newvalue;
+                                                            })
                                                         }
                                                     })
                                                     setItemIndex(index)
@@ -353,45 +385,16 @@ const AddInventory = () => {
                                     <button className='add-remove-button' 
                                         onClick={async ()=>{
                                             // console.log('app: ', app)
-                                            if (app.proc_fields.length < 2) {
+                                            if (inventory.items.length < 2) {
                                                 alert('Cannot delete remaining last procedure')
                                             } else {
-                                                // console.log('false: ', app.proc_fields.length)
-                                                if(app.date){
-                                                    let input = confirm('Do you want to delete the procedure?')
-                                                    if (input) {
-                                                        let totalCost = 0;
-                                                        let totalMinutes = 0;
-                                                        const values = [...app.proc_fields];
-                                                        values.splice(index, 1);
-                                                        values.map((value)=>{
-                                                            if (value.proc_cost > -1 && value.in_package === 'No') {
-                                                            totalCost = totalCost+parseFloat(value.proc_cost); 
-                                                            }
-                                                            if (value.proc_duration_minutes> -1) {
-                                                                totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
-                                                            }
-                                                            return null;
-                                                        });
-                                                        let change = 0;
-                                                        let balance = 0;
-                                                        if (totalCost - parseFloat(app2.payments.totalPayment)<0) {
-                                                            change = parseFloat(app2.payments.totalPayment) - totalCost;
-                                                        } else {
-                                                            balance = totalCost - parseFloat(app2.payments.totalPayment);
-                                                        }
-
-                                                        setApp2({...app2, date_end: new Date(
-                                                            new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                                                            ), payments: {...app2.payments, totalCost, change, balance}
-                                                        }); 
-                                                        setApp({...app, proc_fields: values})
-                                                    }
-                                                }else{
-                                                    alert('Enter Date First')
+                                                let input = confirm('Do you want to delete the item?')
+                                                if (input) {
+                                                    const values = [...inventory.items];
+                                                    values.splice(index, 1);
+                                                    setInventory({...inventory, items: values});
                                                 }
                                             }
-                                            
                                         }}
                                         >-</button>                            
                                 </div>
@@ -406,47 +409,16 @@ const AddInventory = () => {
                         <button className='add-remove-button height-80p' onClick={()=>{
                             let checkItemNameEmpty = false;
                             inventory.items.forEach((i)=>{
-                                if (i.name === '') {
+                                if (i.name === ''|| i.qty_ord === '') {
                                     checkItemNameEmpty = true;
                                 }
                             })
                             if (checkItemNameEmpty) {
-                                alert('Please Select Item first and input Order quatity')
+                                alert('Please Select Item first and input Order quantity')
                             } else {
                                 setInventory({...inventory, items: [...inventory.items, 
                                     {name:'',qty_ord:'',qty_rcvd:'',date_expiry:'',unit_cost:'',total_cost:'',qty_remain:0}]})
                             }
-                                
-                                // if (app.proc_fields) {
-                                //     app.proc_fields.map((proc)=>{
-                                //         if(proc.proc_name === ''){
-                                //             checkProcNotSelected = false;
-                                //         }
-                                //     })
-                                // }
-                                // if (checkProcNotSelected) {
-                                //     {
-                                //         app.parent_appointments? 
-                                //         (
-                                //             setApp((prev)=>{
-                                //                 return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                //                             proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
-                                //                             }] } 
-                                //             })
-                                //         )
-                                //         :
-                                //         (
-                                //             setApp((prev)=>{
-                                //                 return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                //                             proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
-                                //                             }] } 
-                                //             })
-                                //         )
-                                //     }
-                                    
-                                // }else{
-                                //     alert('Select Procedure first')
-                                // }
                             
                             }}>+</button>
                     </div>
@@ -461,51 +433,44 @@ const AddInventory = () => {
             <button className='button-w70 button-disabled' 
             disabled={
                 // app.type === '' || 
-                disableButton.addAppointment
+                disableButton.addInventory
                 // false
             } 
                 onClick={async()=>{ 
                     // console.log('app2', app2)
-                    let checkProcEmpty = true;
-                        app.proc_fields.map((fields)=>{
-                            if(fields.proc_name === ''){
-                                console.log('proc_fields empty')
-                                checkProcEmpty = false;
+                    let checkItemNameEmpty = false;
+                        inventory.items.forEach((i)=>{
+                            if (i.name === ''|| i.qty_ord === '') {
+                                checkItemNameEmpty = true;
                             }
                         })
-                    if (!checkProcEmpty) {
-                        alert('Please select procedure')
+                    if (checkItemNameEmpty) {
+                        alert('Please select item name and input order quantity')
                     } else {
-                        setDisableButton({...disableButton.addAppointment, addAppointment: true});
-                        // if (!checkProcEmpty) {
-                        //     alert('Please select procedure')
-                        // }else 
-                        if(!app.patient_id.value||!app.doctor_id||!app.date||!app.status ||!app.type){
-                            alert('Empty Field/s')
-                            console.log('app: ', app)
-                        }
-                        else{
-                            let data = {...app, filterType: 'create', patient_id: app.patient_id.value}
-                            // console.log('data: ', data)
-                            const response = await axios.post(
-                                "/api/cdcs/appointments",
+
+                        // setDisableButton({...disableButton, addInventory: true});
+                        if(inventory.date_ordered ==='' || inventory.status ===''){
+                            alert('Select status or date order is empty')
+                        }else{
+                            let data = {inventory, filterType: 'addInventory',}
+                            const resp = await axios.post(
+                                `${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory`,
                                 {data});
-                            console.log('response add appointment', response)
+                            console.log('response add inventory', response)
                             if (response.data.message === 'tkn_e') {
                                 router.push("/cdcs/login");
                             } else if(response.data.success === true){
-                                alert('Appointment Succesffuly Added')
-                                router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
+                                alert('Inventory Succesffuly Added')
+                                // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
                             }else {
-                                // alert('token ok')
-                                alert('Failed Adding Apppointment')
+                                alert('Failed Adding Inventory')
                             }
                         }
                     }
                     
                 
                 }}>
-                    {disableButton.addAppointment? 'Adding...' : 'Add Inventory' }
+                    {disableButton.addInventory? 'Adding...' : 'Add Inventory' }
                     
                     </button>     
 
@@ -561,6 +526,19 @@ const AddInventory = () => {
                                             )
                                         })
                                     }
+                                    <tr>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>
+                                        <button
+                                            onClick={(e)=>{
+                                                setInventory({...inventory, 
+                                                    supplier: {id:'',name:'',email:'',contact:'',address:''}})
+                                                setIsOpen({...isOpen, supplier: false})
+                                            }}
+                                        >De Select</button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
