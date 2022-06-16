@@ -113,7 +113,7 @@ export async function getServerSideProps({ req, res }) {
       // console.log("user obj:", obj);
       // console.log("user obj.type:", obj.type);
       if (
-        obj
+        obj.type === 'Admin'|| obj.type === 'Receptionist'
         // true
       ) {
         return {
