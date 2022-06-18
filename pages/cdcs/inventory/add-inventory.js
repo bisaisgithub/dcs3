@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
+import Image from "next/image";
 
 const AddInventory = () => {
   
