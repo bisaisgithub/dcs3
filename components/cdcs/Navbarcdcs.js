@@ -34,7 +34,7 @@ const Navbarcdcs = ({ user }) => {
             <span>Users</span>
           </a>
         </Link>
-        <Link href="/cdcs/users" passHref>
+        <Link href="/cdcs/inventory" passHref>
           <a className="nav__link">
             <div>
               <Image

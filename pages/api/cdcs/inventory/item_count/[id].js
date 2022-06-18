@@ -19,7 +19,7 @@ export default async (req, res) => {
         if (req.method === 'GET') {
           console.log('req.query.id', req.query.id);
           // ({awards: {$elemMatch: {award:'National Medal', year:1975}}})
-          const item = await CDCSInventory.findOne({
+          const item = await CDCSInventory.find({
             $and: [
               // { items: {$elemMatch:{name: req.query.id}} },
               { items: {$elemMatch:{name: req.query.id, qty_remain: {$gte: 1}}} },

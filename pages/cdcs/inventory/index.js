@@ -64,7 +64,7 @@ const Inventory = ({user}) => {
                 }
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory?page=${page}&itemsPerPage=${itemsPerPage}`);
-                console.log('response', response.data)
+                // console.log('response', response.data)
                 if (response.data.data) {
                     let statusList = response.data.data.map(r=> r.status)
                     setStatusList(uniq(statusList))
@@ -243,7 +243,7 @@ const Inventory = ({user}) => {
                                                         }
                                                     </select>
                                             </th>
-                                        <th><Link href="/cdcs/appointments/add-appointment" passHref><p className='cursor-pointer'>New</p></Link></th>
+                                        <th><Link href="/cdcs/inventory/add-inventory" passHref><p className='cursor-pointer'>New</p></Link></th>
                                     </tr>
                                 </thead>
                                 <thead className='table-table2-table-thead'>
@@ -259,14 +259,9 @@ const Inventory = ({user}) => {
                                 </thead>
                                 <tbody className='table-table2-table-tbody'>
                                     {inventoryData && inventoryData.map((inv, index)=>{
-                                        // let totalMinutes = 0;
-                                        // appointment.proc_fields.forEach((f)=>{
-                                        //     totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
-                                        // })
-                                        // let endTime = new Date(new Date(appointment.date).setMinutes(new Date(appointment.date).getMinutes()+totalMinutes))
                                         return (
                                             <tr key={index} className='table-table2-table-tbody-tr'>
-                                                <td>{inv.supplier_id.name}</td>
+                                                <td>{inv.supplier_id === undefined? '': inv.supplier_id.name}</td>
                                                 <td>{inv.status}</td>
                                                 <td className='maxW50px'>{
                                                     formatDate(new Date(inv.date_ordered))

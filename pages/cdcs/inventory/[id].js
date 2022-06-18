@@ -49,6 +49,7 @@ const AddInventory = () => {
   const [itemIndex, setItemIndex] = useState(0)
   useEffect(()=>{
     // console.log('appParent', appParent)
+    getInventory();
   }, [])
   if (isLoading){
     return (    
@@ -56,6 +57,28 @@ const AddInventory = () => {
             <h1>Loading...</h1>
         </div>
     )
+  }
+  const getInventory = async ()=>{
+    const response = await axios.get(`/api/cdcs/inventory/${router.query.id}`);
+    console.log('response', response)
+    if (response.data.data && response.data.success) {
+      setInventory(
+        (p)=>{
+          let received;
+          if (response.data.data.date_received === '' || response.data.data.date_received === null) {
+            received = ''
+          }else{
+            received = new Date(response.data.data.date_received)
+          }
+          let newValue = {...response.data.data, 
+            date_ordered: new Date(response.data.data.date_ordered),
+            date_received: received,
+            date_expiry: null,
+          }
+          console.log('newValue',newValue);
+          return newValue;
+        })
+    }
   }
     const handleChangeItem = async (index, event, date, ename)=>{
         if (event) {
@@ -179,7 +202,7 @@ const AddInventory = () => {
                     <div className="details-details-modal-body-input-box" style={{width: 'calc(50%x)'}}>
                         <span >Supplier</span>
                         {
-                            inventory.supplier_id._id !== ''? (
+                            inventory.supplier_id !== undefined && inventory.supplier_id._id !== ''? (
                                 <button
                                 onClick={async()=>{
                                     setIsLoading(true)
@@ -196,7 +219,7 @@ const AddInventory = () => {
                                 }}
                                 className="add_inventory_item_button"
                                 style={{background: 'white',  color: 'black'}}
-                                >{inventory.supplier_id.name}</button>
+                                >{inventory.supplier_id === undefined? '': inventory.supplier_id.name }</button>
                             ):(
                                 <button
                                 onClick={async()=>{
@@ -212,15 +235,15 @@ const AddInventory = () => {
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Email</span>
-                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier_id.email}</span>
+                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier_id === undefined? '': inventory.supplier_id.email}</span>
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Contact</span>
-                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier_id.contact}</span>
+                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier_id === undefined? '': inventory.supplier_id.contact}</span>
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Address</span>
-                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier_id.address}</span>
+                        <span style={{fontSize: '14px'}} className="span-total">{inventory.supplier_id === undefined? '':inventory.supplier_id.address}</span>
                     </div>
                 </div>
             </div>
@@ -230,6 +253,11 @@ const AddInventory = () => {
                 {
                     inventory.items &&
                     inventory.items.map((item, index)=>{
+                      // let expiry;
+                      if (item.date_expiry !== '' && item.date_expiry !== null) {
+                        item.date_expiry = new Date(item.date_expiry )
+                      }
+                      console.log('expiry',item.date_expiry)
                         return (
                             <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
                                 <div className="details-details-modal-body-input-box3" style={{width: 'calc(30% - 10px)'}}>
@@ -396,6 +424,7 @@ const AddInventory = () => {
                                     className='date-picker' 
                                     placeholderText="Select Date" 
                                     selected={item.date_expiry} 
+                                    // selected={new Date()} 
                                     onChange={(date)=>{
                                         handleChangeItem(index, false, date, 'date_expiry')
                                         // setApp({...app, date});
