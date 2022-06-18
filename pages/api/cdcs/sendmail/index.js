@@ -93,6 +93,7 @@ export default async function (req, res) {
       }
     }
   } catch (error) {
-    console.log('cdcs send email catch error: ', error)
+    console.log('cdcs send email catch error: ', error);
+    res.json({message: 'sendingEmailError'});
   }
 }

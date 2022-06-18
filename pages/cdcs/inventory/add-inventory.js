@@ -456,10 +456,10 @@ const AddInventory = () => {
                             const resp = await axios.post(
                                 `${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory`,
                                 {data});
-                            console.log('response add inventory', response)
-                            if (response.data.message === 'tkn_e') {
+                            // console.log('response add inventory', resp)
+                            if (resp.data.message === 'tkn_e') {
                                 router.push("/cdcs/login");
-                            } else if(response.data.success === true){
+                            } else if(resp.data.success === true){
                                 alert('Inventory Succesffuly Added')
                                 // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/appointments`);
                             }else {

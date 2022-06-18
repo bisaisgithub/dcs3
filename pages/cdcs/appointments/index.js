@@ -33,6 +33,7 @@ const AppointmentTable = ({user}) => {
         search.status, 
         closedFilter,
         search.dateEnd,
+        // search.patient,
     ]);
     const getAppointments = async (data)=>{
         setLoading(true)
@@ -149,15 +150,18 @@ const AppointmentTable = ({user}) => {
                             <th><input placeholder='Doctor Name' value={search.doctor} onChange={(e)=>{setSearch({...search, doctor: e.target.value})}}/></th>
                             <th><input placeholder='Patient Name' value={search.patient} 
                                     onKeyPress={handleKeypress}
-                                    onChange={(e)=>{
+                                    onChange={async (e)=>{
                                         // console.log('change')
                                         // setSearch({...search, patient: e.target.value})
-                                        setSearch((p)=>{
+                                        await setSearch((p)=>{
                                             let n = {...p, patient: e.target.value.replace(',', '')}
                                             return n;
                                         })
-                                        }}/>
-                                <button onClick={()=>{
+                                    }}/>
+                                        
+                                <button
+                                onKeyPress={handleKeypress}
+                                onClick={()=>{
                                     // console.log('clear')
                                     setSearch({
                                         doctor: '', patient: '', status: '', dateStart:'', dateEnd:''

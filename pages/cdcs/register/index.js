@@ -42,13 +42,16 @@ const Register = () => {
         "/api/cdcs/sendmail",
         credentials
       );
-      console.log('sendEmailResponse: ',sendEmailResponse);
+      // console.log('sendEmailResponse: ',sendEmailResponse);
       if (sendEmailResponse.data.message === 'existEmail') {
         alert('You email is already registered, try to login or reset password')
         setDisableButton({...disableButton, verify: false});
       }else if(sendEmailResponse.data.message === 'emailSentCodeUpdated' || 
         sendEmailResponse.data.message === 'emailSentCodeCreated'){
         setStep({one: false, two: false, three: true});
+      }else if(sendEmailResponse.data.message === 'sendingEmailError'){
+        alert('Failed sending email, try to refresh the page and try again')
+        setDisableButton({...disableButton, verify: false})
       }else{
         alert('Failed sending email, try to refresh the page and try again')
         setDisableButton({...disableButton, verify: false})

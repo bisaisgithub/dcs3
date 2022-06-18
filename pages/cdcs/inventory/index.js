@@ -14,6 +14,7 @@ import Image from 'next/image';
 
 const Inventory = ({user}) => {
     const [appointmentsData, setAppointmentsData] = useState([]);
+    const [inventoryData, setInventoryData] = useState([]);
     const [search, setSearch] = useState({
         doctor: '', patient: '', status: '', dateStart:'', dateEnd:'',
       });
@@ -27,7 +28,8 @@ const Inventory = ({user}) => {
     const [selectPage, setSelectPage] = useState('Inventory');
     useEffect(()=>{
         // setLoading(true);
-        getAppointments();
+        // getAppointments();
+        fetchData();
     }, 
     [
         page, itemsPerPage, 
@@ -35,7 +37,14 @@ const Inventory = ({user}) => {
         closedFilter,
         search.dateEnd,
     ]);
-    const getAppointments = async (data)=>{
+    const fetchData = async ()=>{
+        if (selectPage === 'Inventory') {
+            await getInventoryData();
+        }else {
+            
+        }
+    }
+    const getInventoryData = async (data)=>{
         setLoading(true)
         if (closedFilter === 'notClosed') {
             if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
@@ -54,12 +63,12 @@ const Inventory = ({user}) => {
                     setLoading(false)
                 }
             }else{
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
-                // console.log('response', response.data.data)
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory?page=${page}&itemsPerPage=${itemsPerPage}`);
+                console.log('response', response.data)
                 if (response.data.data) {
                     let statusList = response.data.data.map(r=> r.status)
                     setStatusList(uniq(statusList))
-                    setAppointmentsData(response.data.data)
+                    setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
                     setLoading(false)
@@ -239,35 +248,51 @@ const Inventory = ({user}) => {
                                 </thead>
                                 <thead className='table-table2-table-thead'>
                                     <tr className='table-table2-table-thead-tr'>
-                                        <th>Doctor</th>
-                                        <th>Patient</th>
-                                        <th>Date</th>
-                                        <th>Start</th>
-                                        <th>End</th>
+                                        <th>Supplier</th>
                                         <th>Status</th>
+                                        <th>Date Ordered</th>
+                                        <th>Date Received</th>
+                                        <th>Invoice</th>
+                                        <th style={{width: '20%'}}>Items</th>
                                         <th>No</th>
                                     </tr>
                                 </thead>
                                 <tbody className='table-table2-table-tbody'>
-                                    {appointmentsData && appointmentsData.map((appointment, index)=>{
-                                        let totalMinutes = 0;
-                                        appointment.proc_fields.forEach((f)=>{
-                                            totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
-                                        })
-                                        let endTime = new Date(new Date(appointment.date).setMinutes(new Date(appointment.date).getMinutes()+totalMinutes))
+                                    {inventoryData && inventoryData.map((inv, index)=>{
+                                        // let totalMinutes = 0;
+                                        // appointment.proc_fields.forEach((f)=>{
+                                        //     totalMinutes = totalMinutes + parseInt(f.proc_duration_minutes);
+                                        // })
+                                        // let endTime = new Date(new Date(appointment.date).setMinutes(new Date(appointment.date).getMinutes()+totalMinutes))
                                         return (
                                             <tr key={index} className='table-table2-table-tbody-tr'>
-                                                <td>{appointment.doctor_id.name}</td>
-                                                <td>{appointment.patient_id.name}</td>
+                                                <td>{inv.supplier_id.name}</td>
+                                                <td>{inv.status}</td>
                                                 <td className='maxW50px'>{
-                                                formatDate(appointment.date)
-                                                // appointment.date
+                                                    formatDate(new Date(inv.date_ordered))
                                                 }</td>
-                                                <td>{new Date(appointment.date).toLocaleString('en-PH', timeOptions)}</td>
-                                                <td>{new Date(endTime).toLocaleString('en-PH', timeOptions)}</td>
-                                                <td>{appointment.status}</td>
+                                                <td>{inv.date_received === null || inv.date_received === ''? 'None' : formatDate(new Date(inv.date_received))}</td>
+                                                <td>{inv.invoice_no === null || inv.invoice_no === ''? 'None': inv.invoice_no}</td>
                                                 <td>
-                                                    <Link href={`/cdcs/appointments/${appointment._id}`} passHref>
+                                                    {
+                                                        inv.items && inv.items.map((i, index)=>{
+                                                            if (i.qty_rcvd === '') {
+                                                                i.qty_rcvd = 0;
+                                                            }
+                                                            return (
+                                                                <div key={index}>
+                                                                    <span>{i.name}</span>
+                                                                    <span>{` Ord-${i.qty_ord}`}</span>
+                                                                    <span>{` Rcv-${i.qty_rcvd}`}</span>
+                                                                    <span>{` Rem-${i.qty_remain}`}</span>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                    
+                                                </td>
+                                                <td>
+                                                    <Link href={`/cdcs/inventory/${inv._id}`} passHref>
                                                         <button style={{background:'#e9115bf0'}} 
                                                         className='cursor-pointer'
                                                         >{(page-1)*itemsPerPage+index+1}
@@ -367,7 +392,7 @@ export async function getServerSideProps({ req, res }) {
         // console.log("user obj:", obj);
         // console.log("user obj.type:", obj.type);
         if (
-          obj
+          obj.type === 'Admin' || obj.type === 'Receptionist'
           // true
         ) {
           return {
