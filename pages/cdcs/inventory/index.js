@@ -30,7 +30,7 @@ const Inventory = ({user}) => {
     [
         page, itemsPerPage, 
         search.status, 
-        // closedFilter,
+        closedFilter,
         search.date_ordered,
         search.date_received,
     ]);
@@ -42,10 +42,10 @@ const Inventory = ({user}) => {
         }
     }
     const getInventoryData = async ()=>{
-        console.log('date_ordered', search.date_ordered)
+        // console.log('date_ordered', search.date_ordered)
         setLoading(true)
         if (closedFilter === 'notClosed') {
-            console.log('not closed filter')
+            // console.log('not closed filter')
             if (search.name !== '' || search.status !== '' 
                 || (search.date_ordered !== '' 
                 // && search.date_ordered !== null
@@ -70,7 +70,7 @@ const Inventory = ({user}) => {
                     setLoading(false)
                 }
             }else{
-                console.log('not closed no filter')
+                // console.log('not closed no filter')
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory?page=${page}&itemsPerPage=${itemsPerPage}`);
                 // console.log('response', response.data)
                 if (response.data.data) {
@@ -87,14 +87,24 @@ const Inventory = ({user}) => {
             }
             
         }else if (closedFilter === 'closedOnly') {
-            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
-                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`,
+            // console.log('closed only')
+            if (
+                search.name !== '' || search.status !== '' 
+                || (search.date_ordered !== '' 
+                // && search.date_ordered !== null
+                ) 
+                || (search.date_received !== ''
+                //  && search.date_received !== null 
+                 ) ||
+                search.invoice_no !== '' || search.item !== ''
+            ) {
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/closed?page=${page}&itemsPerPage=${itemsPerPage}`,
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
                     let statusList = response.data.data.map(r=> r.status)
                     setStatusList(uniq(statusList))
-                    setAppointmentsData(response.data.data)
+                    setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
                     setLoading(false)
@@ -103,11 +113,11 @@ const Inventory = ({user}) => {
                     setLoading(false)
                 }
             }else{
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
                 if (response.data.data) {
                     let statusList = response.data.data.map(r=> r.status)
                     setStatusList(uniq(statusList))
-                    setAppointmentsData(response.data.data)
+                    setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
                     setLoading(false)
@@ -126,7 +136,7 @@ const Inventory = ({user}) => {
         //it triggers by pressing the enter key
         // console.log('e',e)
       if (e.key === 'Enter' || e.key === ',') {
-        console.log('test')
+        // console.log('test')
         fetchData();
       }
         
@@ -166,7 +176,7 @@ const Inventory = ({user}) => {
                 style={{fontSize: '16px', height: '35px', borderRadius: '5px', }}>
                     <option value='Inventory'>Inventory</option>
                     <option value='Supplier'>Supplier</option>
-                    <option value=''>Inventory</option>
+                    <option value='Stocks'>Stocks</option>
                 </select>
             </div>
             {
@@ -239,14 +249,17 @@ const Inventory = ({user}) => {
                                                         <option value="closedOnly">All Closed</option>
                                                     </select>
                                         </th> */}
-                                        <th><input placeholder='Invoice' value={search.invoice_no} onChange={(e)=>{setSearch({...search, invoice_no: e.target.value})}}/></th>
+                                        <th><input 
+                                        onKeyPress={handleKeypress}
+                                        placeholder='Invoice' value={search.invoice_no} onChange={(e)=>{setSearch({...search, invoice_no: e.target.value})}}/></th>
                                         <th>
                                             <div style={{display: 'flex', justifyContent: 'center'}}>
                                                 <button 
+                                                    onKeyPress={handleKeypress}
                                                     style={{width: '19%', borderRadius: '5px', background: '#e9115bf0', color: 'white'}}
                                                     onClick={()=>{
                                                     setSearch({
-                                                        name: '', patient: '', status: '', date_ordered:'', date_received:'', invoice_no:'', item:''
+                                                        name: '', status: '', date_ordered:'', date_received:'', invoice_no:'', item:''
                                                     })
                                                     setClosedFilter('notClosed')
                                                     }}
@@ -254,19 +267,20 @@ const Inventory = ({user}) => {
                                                     >X</button>
                                                 <input
                                                 style={{width: '50%'}}
-                                                placeholder='Item Name' value={search.patient} 
+                                                placeholder='Item Name' value={search.item} 
                                                     onKeyPress={handleKeypress}
                                                     onChange={(e)=>{
                                                         setSearch((p)=>{
-                                                            let n = {...p, patient: e.target.value.replace(',', '')}
+                                                            let n = {...p, item: e.target.value}
+                                                            // let n = {...p, item: e.target.value.replace(',', '')}
                                                             return n;
                                                         })
                                                         }}/>
                                                 <select  
                                                 style={{width: '20%'}}
                                                 className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{setClosedFilter(e.target.value)}}>
-                                                <option value="Not Received">Not Received</option>
-                                                <option value="Received">Received</option>
+                                                <option value="notClosed">Not Received</option>
+                                                <option value="closedOnly">Received</option>
                                             </select>
                                                 
                                             </div>

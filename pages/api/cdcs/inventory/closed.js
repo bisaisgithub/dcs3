@@ -16,14 +16,15 @@ export default async (req, res) => {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
         if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Receptionist')){
+          console.log('get closed')
           const items_per_page = req.query.itemsPerPage || 10;
           const page = req.query.page || 1;
           const skip = (page-1) * items_per_page;
           const query = 
           {
               status: {$nin: [
-                // 'In Request', 'In Supplier', 'In Shipping',
-                'Received'
+                'In Request', 'In Supplier', 'In Shipping'
+                // 'Received'
               ]}
           }
           const count = await CDCSInventory.countDocuments(query);
@@ -37,6 +38,7 @@ export default async (req, res) => {
           .populate("supplier_id", "name")
           res.json({success: true, data: response, pagination:{count, pageCount: count/items_per_page}})
         }else if(req.method === 'POST' && obj.type === 'Admin'){
+          console.log('get closed filter')
           // console.log('req.body', req.body.data.inventory)
           if(req.body.data.filterType === 'addInventory'){
             if (req.body.data.inventory.supplier_id._id !=='' ) {
@@ -61,7 +63,7 @@ export default async (req, res) => {
             let query = {
               $or: [ 
                 {status: {$nin: [
-                  'Received'
+                  'In Request', 'In Supplier', 'In Shipping'
                 ]}},
               ], 
             }
@@ -128,14 +130,6 @@ export default async (req, res) => {
               const suppliers = await CDCSSupplier.find(
                 query = {...query, invoice_no: new RegExp(`.*${req.body.data.search.invoice_no}.*`,'i')}
               )
-            }
-            if (req.body.data.search.item !== '') {
-              query = {...query,
-                items: {$elemMatch:{name: new RegExp(`.*${req.body.data.search.item}.*`,'i')}}
-                // status: 
-                // req.body.data.search.status
-                    // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
-              }
             }
             const items_per_page = req.query.itemsPerPage || 10;
             const page = req.query.page || 1;
