@@ -142,7 +142,7 @@ const AddInventory = () => {
                     <div className="details-details-modal-body-input-box">
                         <span>Status</span>
                         <select value={inventory.status} onChange={(e)=>{
-                            if ((e.target.value !== 'In Request') && inventory.supplier_id._id === '') {
+                            if ((e.target.value !== 'In Request') && (inventory.supplier_id === undefined || inventory.supplier_id._id === '')) {
                                 alert('Only In Request Status is applicable on Empty Supplier')
                             } else {
                                 setInventory({...inventory, status: e.target.value})

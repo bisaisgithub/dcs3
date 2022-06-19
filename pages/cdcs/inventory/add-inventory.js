@@ -22,7 +22,7 @@ const AddInventory = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [inventory, setInventory] =useState({
-    status:'',date_ordered: new Date(),date_received:'',invoice_no:'',
+    status:'',date_ordered: new Date(),date_received:null,invoice_no:'',
     supplier_id:{
         _id: '',
         name: '',

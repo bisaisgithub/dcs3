@@ -98,7 +98,8 @@ export default async (req, res) => {
                   status: req.body.data.search.status
                       // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
                 }
-              }if (req.body.data.search.dateStart !== '') {
+              }
+              if (req.body.data.search.dateStart !== '') {
                 query = {...query,
                   $and: [
                     {

@@ -14,7 +14,7 @@ import Image from 'next/image';
 const Inventory = ({user}) => {
     const [inventoryData, setInventoryData] = useState([]);
     const [search, setSearch] = useState({
-        name: '', status: '', date_ordered:'', date_received:'',
+        name: '', status: '', date_ordered:'', date_received:'', invoice_no:'',item:''
       });
     const [page, setPage]= useState(1)
     const [count, setCount] = useState(0);
@@ -30,8 +30,9 @@ const Inventory = ({user}) => {
     [
         page, itemsPerPage, 
         search.status, 
-        closedFilter,
-        // search.date_ordered,
+        // closedFilter,
+        search.date_ordered,
+        search.date_received,
     ]);
     const fetchData = async ()=>{
         if (selectPage === 'Inventory') {
@@ -40,17 +41,27 @@ const Inventory = ({user}) => {
             
         }
     }
-    const getInventoryData = async (data)=>{
+    const getInventoryData = async ()=>{
+        console.log('date_ordered', search.date_ordered)
         setLoading(true)
         if (closedFilter === 'notClosed') {
-            if (search.name !== '' || search.status !== '' || search.date_ordered !== '' || search.date_received !== '') {
-                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
+            console.log('not closed filter')
+            if (search.name !== '' || search.status !== '' 
+                || (search.date_ordered !== '' 
+                // && search.date_ordered !== null
+                ) 
+                || (search.date_received !== ''
+                //  && search.date_received !== null 
+                 ) ||
+                search.invoice_no !== '' || search.item !== ''
+            ){
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory?page=${page}&itemsPerPage=${itemsPerPage}`,
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
                     let statusList = response.data.data.map(r=> r.status)
                     setStatusList(uniq(statusList))
-                    setAppointmentsData(response.data.data)
+                    setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
                     setLoading(false)
@@ -59,6 +70,7 @@ const Inventory = ({user}) => {
                     setLoading(false)
                 }
             }else{
+                console.log('not closed no filter')
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory?page=${page}&itemsPerPage=${itemsPerPage}`);
                 // console.log('response', response.data)
                 if (response.data.data) {
@@ -114,7 +126,8 @@ const Inventory = ({user}) => {
         //it triggers by pressing the enter key
         // console.log('e',e)
       if (e.key === 'Enter' || e.key === ',') {
-        getAppointments();
+        console.log('test')
+        fetchData();
       }
         
     };
@@ -164,7 +177,11 @@ const Inventory = ({user}) => {
                                 <thead className='table-table2-table-thead-search2'>
                                     <tr className='table-table2-table-thead-tr-search2'>
                                     
-                                        <th><input placeholder='Supplier Name' value={search.name} onChange={(e)=>{setSearch({...search, name: e.target.value})}}/></th>
+                                        <th>
+                                            <input 
+                                            onKeyPress={handleKeypress}
+                                            placeholder='Supplier Name' value={search.name} onChange={(e)=>{setSearch({...search, name: e.target.value})}}/>
+                                        </th>
                                         <th>
                                             {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
                                             <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
@@ -192,12 +209,14 @@ const Inventory = ({user}) => {
                                                 dateFormat="dd-MMM-yy"
                                                 // className='date-picker' 
                                                 placeholderText="Order Date" 
-                                                selected={search.dateStart} 
-                                                onChange={date=>setSearch({...search, dateStart: date, dateEnd: date})} />
+                                                selected={search.date_ordered} 
+                                                onChange={date=>setSearch({...search, date_ordered: date})} />
                                         </th>
                                         <th>
                                             <DatePicker 
                                                 // minDate={new Date()} 
+                                                // onKeyPress={handleKeypress}
+                                                // customInput={<input onKeyPress={handleKeypress}/>}
                                                 yearDropdownItemNumber={90} 
                                                 showYearDropdown 
                                                 scrollableYearDropdown={true} 
@@ -206,8 +225,8 @@ const Inventory = ({user}) => {
                                                 dateFormat="dd-MMM-yy"
                                                 // className='date-picker' 
                                                 placeholderText="Received Date" 
-                                                selected={search.dateEnd} 
-                                                onChange={date=>setSearch({...search, dateEnd: date})} />
+                                                selected={search.date_received} 
+                                                onChange={date=>setSearch({...search, date_received: date})} />
                                         </th>
                                         {/* <th>
                                             <select  className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{
@@ -220,21 +239,21 @@ const Inventory = ({user}) => {
                                                         <option value="closedOnly">All Closed</option>
                                                     </select>
                                         </th> */}
-                                        <th><input placeholder='Invoice' value={search.name} onChange={(e)=>{setSearch({...search, name: e.target.value})}}/></th>
+                                        <th><input placeholder='Invoice' value={search.invoice_no} onChange={(e)=>{setSearch({...search, invoice_no: e.target.value})}}/></th>
                                         <th>
                                             <div style={{display: 'flex', justifyContent: 'center'}}>
                                                 <button 
                                                     style={{width: '19%', borderRadius: '5px', background: '#e9115bf0', color: 'white'}}
                                                     onClick={()=>{
                                                     setSearch({
-                                                        doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
+                                                        name: '', patient: '', status: '', date_ordered:'', date_received:'', invoice_no:'', item:''
                                                     })
                                                     setClosedFilter('notClosed')
                                                     }}
                                                     className='cursor-pointer'
                                                     >X</button>
                                                 <input
-                                                style={{width: '75%'}}
+                                                style={{width: '50%'}}
                                                 placeholder='Item Name' value={search.patient} 
                                                     onKeyPress={handleKeypress}
                                                     onChange={(e)=>{
@@ -243,6 +262,12 @@ const Inventory = ({user}) => {
                                                             return n;
                                                         })
                                                         }}/>
+                                                <select  
+                                                style={{width: '20%'}}
+                                                className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{setClosedFilter(e.target.value)}}>
+                                                <option value="Not Received">Not Received</option>
+                                                <option value="Received">Received</option>
+                                            </select>
                                                 
                                             </div>
                                             
