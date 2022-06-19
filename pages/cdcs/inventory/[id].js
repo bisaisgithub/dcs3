@@ -51,16 +51,10 @@ const AddInventory = () => {
     // console.log('appParent', appParent)
     getInventory();
   }, [])
-  if (isLoading){
-    return (    
-        <div className='details-details-container'>
-            <h1>Loading...</h1>
-        </div>
-    )
-  }
   const getInventory = async ()=>{
+    setIsLoading(true);
     const response = await axios.get(`/api/cdcs/inventory/${router.query.id}`);
-    console.log('response', response)
+    // console.log('response', response)
     if (response.data.data && response.data.success) {
       setInventory(
         (p)=>{
@@ -75,9 +69,13 @@ const AddInventory = () => {
             date_received: received,
             date_expiry: null,
           }
-          console.log('newValue',newValue);
+        //   console.log('newValue',newValue);
           return newValue;
         })
+        setIsLoading(false);
+    }else{
+        alert('No Inventory Found');
+        setIsLoading(false);
     }
   }
     const handleChangeItem = async (index, event, date, ename)=>{
@@ -176,7 +174,8 @@ const AddInventory = () => {
                     </div>
                     <div className="details-details-modal-body-input-box">
                         <span>Invoice Number</span>
-                        <input disabled={inventory.status !== 'Received'} className="span-total" onChange={(e)=>{setInventory({...inventory, invoice_no: e.target.value})}}>{}</input>
+                        <input disabled={inventory.status !== 'Received'} className="span-total" value={inventory.invoice_no}
+                        onChange={(e)=>{setInventory({...inventory, invoice_no: e.target.value})}}>{}</input>
                     </div>
                     <div className='details-details-modal-body-input-box'>
                         <span>Date Received</span>
@@ -254,10 +253,14 @@ const AddInventory = () => {
                     inventory.items &&
                     inventory.items.map((item, index)=>{
                       // let expiry;
+                      let lockedQtyReceived = false;
+                      if (item.qty_rcvd > item.qty_remain) {
+                        lockedQtyReceived = true;
+                      }
                       if (item.date_expiry !== '' && item.date_expiry !== null) {
                         item.date_expiry = new Date(item.date_expiry )
                       }
-                      console.log('expiry',item.date_expiry)
+                    //   console.log('expiry',item.date_expiry)
                         return (
                             <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
                                 <div className="details-details-modal-body-input-box3" style={{width: 'calc(30% - 10px)'}}>
@@ -405,8 +408,14 @@ const AddInventory = () => {
                                         <span style={index? {display: 'none'}:{}}>Qty Rcvd</span>
                                         <input disabled={inventory.date_received === '' || item.name === ''}  type='text' name="qty_rcvd" value={item.qty_rcvd} 
                                             onChange={(event)=>{
-                                                event.target.value = event.target.value.replace(/[^0-9]/gi, '')
-                                                handleChangeItem(index, event)
+                                                if (lockedQtyReceived) {
+                                                    alert('cannot change the value as some items already deducted/used')
+                                                } else {
+                                                    console.log('locked?', lockedQtyReceived)
+                                                    event.target.value = event.target.value.replace(/[^0-9]/gi, '')
+                                                    handleChangeItem(index, event)
+                                                }
+                                                
                                             }}
                                         />                               
                                 </div>
@@ -528,25 +537,25 @@ const AddInventory = () => {
                         if(inventory.date_ordered ==='' || inventory.status ===''){
                             alert('Select status or date order is empty')
                         }else{
-                            let data = {inventory, filterType: 'addInventory',}
+                            let data = {inventory, filterType: 'editInventory',}
                             const resp = await axios.post(
-                                `${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory`,
+                                `${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/${router.query.id}`,
                                 {data});
                             // console.log('response add inventory', resp)
                             if (resp.data.message === 'tkn_e') {
                                 router.push("/cdcs/login");
                             } else if(resp.data.success === true){
-                                alert('Inventory Succesffuly Added')
+                                alert('Inventory Succesffuly Updated')
                                 router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/inventory`);
                             }else {
-                                alert('Failed Adding Inventory')
+                                alert('Failed Updating Inventory')
                             }
                         }
                     }
                     
                 
                 }}>
-                    {disableButton.addInventory? 'Adding...' : 'Add Inventory' }
+                    {disableButton.addInventory? 'Updating...' : 'Update Inventory' }
                     
                     </button>     
 
@@ -708,7 +717,9 @@ const AddInventory = () => {
         )
       }
       {
-            isLoading? (
+            isLoading?
+            // true?
+            (
             <div className='overlay'>
                 <div className='center-div'>
                     <Image

@@ -47,16 +47,8 @@ const AddInventory = () => {
 //   const [items, setItems] = useState([]);
   const [stocks, setStocks] = useState([]);
   const [itemIndex, setItemIndex] = useState(0)
-  useEffect(()=>{
-    // console.log('appParent', appParent)
-  }, [])
-  if (isLoading){
-    return (    
-        <div className='details-details-container'>
-            <h1>Loading...</h1>
-        </div>
-    )
-  }
+//   useEffect(()=>{
+//   }, [])
     const handleChangeItem = async (index, event, date, ename)=>{
         if (event) {
             // console.log('handle change item called')

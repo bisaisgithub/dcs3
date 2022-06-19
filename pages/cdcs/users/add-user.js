@@ -87,6 +87,7 @@ const AddUser = ({user}) => {
               <select value={userInput.type} onChange={(e)=>{setUserInput(p=>({...p,type:e.target.value}))}}>
                   <option value="_Patient">Patient</option>
                   <option value="Receptionist">Receptionist</option>
+                  <option value="Dental Assistant">Dental Assistant</option>
                   <option value="Dentist">Dentist</option>
                   {/* <option value="Admin">Admin</option> */}
                   <option value="">-Select Status-</option>

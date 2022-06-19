@@ -11,12 +11,10 @@ import jwt from "jsonwebtoken";
 import Link from "next/link";
 import Image from 'next/image';
 
-
 const Inventory = ({user}) => {
-    const [appointmentsData, setAppointmentsData] = useState([]);
     const [inventoryData, setInventoryData] = useState([]);
     const [search, setSearch] = useState({
-        doctor: '', patient: '', status: '', dateStart:'', dateEnd:'',
+        name: '', status: '', date_ordered:'', date_received:'',
       });
     const [page, setPage]= useState(1)
     const [count, setCount] = useState(0);
@@ -27,15 +25,13 @@ const Inventory = ({user}) => {
     const [statusList, setStatusList] = useState([])
     const [selectPage, setSelectPage] = useState('Inventory');
     useEffect(()=>{
-        // setLoading(true);
-        // getAppointments();
         fetchData();
     }, 
     [
         page, itemsPerPage, 
         search.status, 
         closedFilter,
-        search.dateEnd,
+        // search.date_ordered,
     ]);
     const fetchData = async ()=>{
         if (selectPage === 'Inventory') {
@@ -47,7 +43,7 @@ const Inventory = ({user}) => {
     const getInventoryData = async (data)=>{
         setLoading(true)
         if (closedFilter === 'notClosed') {
-            if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
+            if (search.name !== '' || search.status !== '' || search.date_ordered !== '' || search.date_received !== '') {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
                     {data: {filterType: 'search', search}}
                 );
@@ -168,27 +164,21 @@ const Inventory = ({user}) => {
                                 <thead className='table-table2-table-thead-search2'>
                                     <tr className='table-table2-table-thead-tr-search2'>
                                     
-                                        <th><input placeholder='Doctor Name' value={search.doctor} onChange={(e)=>{setSearch({...search, doctor: e.target.value})}}/></th>
-                                        <th><input placeholder='Patient Name' value={search.patient} 
-                                                onKeyPress={handleKeypress}
-                                                onChange={(e)=>{
-                                                    // console.log('change')
-                                                    // setSearch({...search, patient: e.target.value})
-                                                    setSearch((p)=>{
-                                                        let n = {...p, patient: e.target.value.replace(',', '')}
-                                                        return n;
-                                                    })
-                                                    }}/>
-                                            <button onClick={()=>{
-                                                // console.log('clear')
-                                                setSearch({
-                                                    doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
+                                        <th><input placeholder='Supplier Name' value={search.name} onChange={(e)=>{setSearch({...search, name: e.target.value})}}/></th>
+                                        <th>
+                                            {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
+                                            <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                                <option value="">All Status</option>
+                                                {
+                                                statusList && statusList.map((f, i)=>{
+                                                    return (
+                                                        <option key={i} value={f}>{f}</option>
+                                                    )
                                                 })
-                                                setClosedFilter('notClosed')
-                                                }}
-                                                className='cursor-pointer'
-                                                >X</button>
+                                                }
+                                            </select>
                                         </th>
+                                        
                                         
                                         <th>
                                             <DatePicker 
@@ -201,7 +191,7 @@ const Inventory = ({user}) => {
                                                 // dateFormat="dd-MMM-yyyy"
                                                 dateFormat="dd-MMM-yy"
                                                 // className='date-picker' 
-                                                placeholderText="Start Date" 
+                                                placeholderText="Order Date" 
                                                 selected={search.dateStart} 
                                                 onChange={date=>setSearch({...search, dateStart: date, dateEnd: date})} />
                                         </th>
@@ -215,11 +205,11 @@ const Inventory = ({user}) => {
                                                 // dateFormat="dd-MMM-yyyy"
                                                 dateFormat="dd-MMM-yy"
                                                 // className='date-picker' 
-                                                placeholderText="End Date" 
+                                                placeholderText="Received Date" 
                                                 selected={search.dateEnd} 
                                                 onChange={date=>setSearch({...search, dateEnd: date})} />
                                         </th>
-                                        <th>
+                                        {/* <th>
                                             <select  className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{
                                                 setSearch({
                                                     doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
@@ -229,20 +219,36 @@ const Inventory = ({user}) => {
                                                         <option value="notClosed">Not Closed</option>
                                                         <option value="closedOnly">All Closed</option>
                                                     </select>
-                                        </th>
+                                        </th> */}
+                                        <th><input placeholder='Invoice' value={search.name} onChange={(e)=>{setSearch({...search, name: e.target.value})}}/></th>
                                         <th>
-                                            {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
-                                            <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
-                                                        <option value="">All Status</option>
-                                                        {
-                                                        statusList && statusList.map((f, i)=>{
-                                                            return (
-                                                                <option key={i} value={f}>{f}</option>
-                                                            )
+                                            <div style={{display: 'flex', justifyContent: 'center'}}>
+                                                <button 
+                                                    style={{width: '19%', borderRadius: '5px', background: '#e9115bf0', color: 'white'}}
+                                                    onClick={()=>{
+                                                    setSearch({
+                                                        doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
+                                                    })
+                                                    setClosedFilter('notClosed')
+                                                    }}
+                                                    className='cursor-pointer'
+                                                    >X</button>
+                                                <input
+                                                style={{width: '75%'}}
+                                                placeholder='Item Name' value={search.patient} 
+                                                    onKeyPress={handleKeypress}
+                                                    onChange={(e)=>{
+                                                        setSearch((p)=>{
+                                                            let n = {...p, patient: e.target.value.replace(',', '')}
+                                                            return n;
                                                         })
-                                                        }
-                                                    </select>
-                                            </th>
+                                                        }}/>
+                                                
+                                            </div>
+                                            
+                                            
+                                        </th>
+                                        
                                         <th><Link href="/cdcs/inventory/add-inventory" passHref><p className='cursor-pointer'>New</p></Link></th>
                                     </tr>
                                 </thead>
@@ -253,7 +259,7 @@ const Inventory = ({user}) => {
                                         <th>Date Ordered</th>
                                         <th>Date Received</th>
                                         <th>Invoice</th>
-                                        <th style={{width: '20%'}}>Items</th>
+                                        <th style={{width: '5%'}}>Items</th>
                                         <th>No</th>
                                     </tr>
                                 </thead>
@@ -327,8 +333,8 @@ const Inventory = ({user}) => {
                                 >&lt;</button>
                                 <span className='color-white-13-bold'
                                     style={{margin: '5px 10px'}}
-                                    >{count? (`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + appointmentsData.length} of ${count}`):
-                                        (`Results: 0 - ${(page-1)*itemsPerPage + appointmentsData.length} of ${count}`)}
+                                    >{count? (`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + inventoryData.length} of ${count}`):
+                                        (`Results: 0 - ${(page-1)*itemsPerPage + inventoryData.length} of ${count}`)}
                                 </span> 
                                 <button onClick={()=>{
                                     setPage((p)=>{
