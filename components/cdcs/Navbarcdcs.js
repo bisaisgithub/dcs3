@@ -65,7 +65,7 @@ const Navbarcdcs = ({ user }) => {
             <div>
               <Image
                 src="/navbar/expenses.png"
-                alt="dashboard"
+                alt="expenses"
                 width={40}
                 height={40}
               />
