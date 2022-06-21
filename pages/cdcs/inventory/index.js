@@ -22,8 +22,13 @@ const Inventory = ({user}) => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [closedFilter, setClosedFilter] = useState('notClosed')
     const [loading, setLoading] = useState(false)
+    const [loading2, setLoading2] = useState(false)
     const [statusList, setStatusList] = useState([])
     const [selectPage, setSelectPage] = useState('Inventory');
+
+    const [searchSupplier, setSearchSupplier] = useState({
+        name: '', email: '', contact:'', address:'', status:''
+      });
     useEffect(()=>{
         fetchData();
     }, 
@@ -33,12 +38,15 @@ const Inventory = ({user}) => {
         closedFilter,
         search.date_ordered,
         search.date_received,
+        selectPage
     ]);
     const fetchData = async ()=>{
+        setLoading2(true)
         if (selectPage === 'Inventory') {
             await getInventoryData();
-        }else {
             
+        }else {
+            setLoading2(false)
         }
     }
     const getInventoryData = async ()=>{
@@ -412,6 +420,167 @@ const Inventory = ({user}) => {
                     ''
                 )
             }
+
+            {
+                selectPage === 'Supplier'? (
+                    <div>
+                        <div className='table-table2-container'>
+                            <table className='table-table2-table'>
+                                <thead className='table-table2-table-thead-search2'>
+                                    <tr className='table-table2-table-thead-tr-search2'>
+                                    
+                                        <th>
+                                            <input 
+                                            onKeyPress={handleKeypress}
+                                            placeholder='Supplier Name' value={searchSupplier.name} onChange={(e)=>{setSearchSupplier({...searchSupplier, name: e.target.value})}}/>
+                                        </th>
+                                        <th>
+                                            <div style={{display: 'flex', justifyContent: 'center'}}>
+                                                <button 
+                                                        onKeyPress={handleKeypress}
+                                                        style={{width: '19%', borderRadius: '5px', background: '#e9115bf0', color: 'white'}}
+                                                        onClick={()=>{
+                                                        setSearch({
+                                                            name: '', email: '', date_ordered:'', date_received:'', invoice_no:'', item:''
+                                                        })
+                                                        setClosedFilter('notClosed')
+                                                        }}
+                                                        className='cursor-pointer'
+                                                        >X</button>
+                                                <input placeholder='Email' value={searchSupplier.email} onChange={(e)=>{setSearchSupplier({...searchSupplier, email: e.target.value})}}/>
+                                                
+                                            </div>
+                                                
+                                        </th>
+                                        
+                                        
+                                        <th>
+                                            <input placeholder='Contact' value={searchSupplier.contact} onChange={(e)=>{setSearchSupplier({...searchSupplier, contact: e.target.value})}}/>
+                                        </th>
+                                        <th>
+                                            <input placeholder='Address' value={searchSupplier.address} onChange={(e)=>{setSearchSupplier({...searchSupplier, address: e.target.value})}}/>
+                                        </th>
+                                        <th>
+                                          <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                                <option value="">All Status</option>
+                                                {
+                                                statusList && statusList.map((f, i)=>{
+                                                    return (
+                                                        <option key={i} value={f}>{f}</option>
+                                                    )
+                                                })
+                                                }
+                                            </select>
+                                        </th>
+                                        
+                                        
+                                        <th><Link href="/cdcs/inventory/add-inventory" passHref><p className='cursor-pointer'>New</p></Link></th>
+                                    </tr>
+                                </thead>
+                                <thead className='table-table2-table-thead'>
+                                    <tr className='table-table2-table-thead-tr'>
+                                        <th>Supplier Name</th>
+                                        <th>Email</th>
+                                        <th>Contact</th>
+                                        <th>Address</th>
+                                        <th>Status</th>
+                                        <th>No</th>
+                                    </tr>
+                                </thead>
+                                <tbody className='table-table2-table-tbody'>
+                                    {inventoryData && inventoryData.map((inv, index)=>{
+                                        return (
+                                            <tr key={index} className='table-table2-table-tbody-tr'>
+                                                <td>{inv.supplier_id === undefined? '': inv.supplier_id.name}</td>
+                                                <td>{inv.status}</td>
+                                                <td className='maxW50px'>{
+                                                    formatDate(new Date(inv.date_ordered))
+                                                }</td>
+                                                <td>{inv.date_received === null || inv.date_received === ''? 'None' : formatDate(new Date(inv.date_received))}</td>
+                                                <td>{inv.invoice_no === null || inv.invoice_no === ''? 'None': inv.invoice_no}</td>
+                                                
+                                                <td>
+                                                    <Link href={`/cdcs/inventory/${inv._id}`} passHref>
+                                                        <button style={{background:'#e9115bf0'}} 
+                                                        className='cursor-pointer'
+                                                        >{(page-1)*itemsPerPage+index+1}
+                                                        </button>
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                            <div className='display-flex'>
+                            </div>
+                            <div className='display-flex-center'>
+                                <span className='color-white-13-bold' style={{margin: '5px 30px'}}>Number of Items: 
+                                    <select value={itemsPerPage}
+                                    style={{margin: '5px 10px'}}
+                                    onChange={(e)=>{setItemsPerPage(e.target.value)}}
+                                    >
+                                        <option value='10'>10</option>
+                                        <option value='15'>15</option>
+                                        <option value='20'>20</option>
+                                        <option value='25'>25</option>
+                                    </select>
+                                </span>
+                                <button onClick={()=>{
+                                    setPage((p)=>{
+                                        if (page === 1) {
+                                            return p;
+                                        }
+                                        return p - 1;
+                                    })
+                                    }}
+                                    disabled={page === 1}
+                                    style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
+                                    className='button-disabled'
+                                >&lt;</button>
+                                <span className='color-white-13-bold'
+                                    style={{margin: '5px 10px'}}
+                                    >{count? (`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + inventoryData.length} of ${count}`):
+                                        (`Results: 0 - ${(page-1)*itemsPerPage + inventoryData.length} of ${count}`)}
+                                </span> 
+                                <button onClick={()=>{
+                                    setPage((p)=>{
+                                        if (p === pageCount) {
+                                            return p
+                                        }
+                                        return p + 1;
+                                    })
+                                    }}
+                                    disabled={page === pageCount}
+                                    style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
+                                    className='button-disabled'
+                                >&gt;</button>
+                            </div>
+                        </div>
+                        {
+                            loading2? (
+                                <div className='overlay'>
+                                    <div className='center-div'>
+                                        <Image
+                                        src="/loading.gif"
+                                        alt="users"
+                                        width={40}
+                                        height={40}
+                                        />
+                                    </div>
+                                    
+                                </div>
+                            )
+                            :
+                            ('')
+                        }
+                    </div>
+                ):
+                (
+                    ''
+                )
+            }
+
         </div>
     )
 }

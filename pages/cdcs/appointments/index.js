@@ -88,6 +88,7 @@ const AppointmentTable = ({user}) => {
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
                 if (response.data.data) {
+                    // console.log('response.data.data',response.data.data)
                     let statusList = response.data.data.map(r=> r.status)
                     setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
@@ -218,6 +219,7 @@ const AppointmentTable = ({user}) => {
                                     setSearch({
                                         doctor: '', patient: '', status: '', dateStart:'', dateEnd:''
                                     })
+                                    setPage(1)
                                     setClosedFilter(e.target.value);
                                     }}>
                                             <option value="notClosed">Not Closed</option>

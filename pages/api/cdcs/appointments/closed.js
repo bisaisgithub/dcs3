@@ -22,6 +22,7 @@ export default async (req, res) => {
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
+          console.log('query',req.query)
           const items_per_page = req.query.itemsPerPage || 10;
           const page = req.query.page || 1;
           const skip = (page-1) * items_per_page;
@@ -36,6 +37,8 @@ export default async (req, res) => {
           const count = await Appointments.countDocuments(query);
           // console.log('count', count)
           const response = await Appointments.find(query)
+          .skip(skip)
+          .limit(items_per_page)
           .populate("created_by", "name")
           .populate("patient_id", "name")
           .populate("doctor_id", "name")
