@@ -59,7 +59,9 @@ const CDCSProcedures = () => {
                                 <span style={index? {display: 'none'}:{}}>Duration Minutes</span>
                                     <input name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} type='number' min="0" step="1"
                                     //  disabled={app_proc_field.proc_name === ''}
-                                    onChange={(event)=>{handleChangeInput(index, event)}} />
+                                    onChange={(event)=>{
+                                        handleChangeInput(index, event)
+                                        }} />
                             </div>
                             <div className="details-details-modal-body-input-box3">
                                 <div className="display-flex">
@@ -101,27 +103,37 @@ const CDCSProcedures = () => {
                 <button className='add-remove-button height-80p' onClick={()=>{
                     // set_app_proc_fields((prev)=>{return [...prev, {proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0}]})
                     
-                    let checkProcNotSelected = true;
-                        if (app.proc_fields) {
-                            app.proc_fields.map((proc)=>{
-                                if(proc.proc_name === ''){
-                                    // console.log('true')
-                                    
-                                    checkProcNotSelected = false;
-                                }
-                                // console.log('checkProcNotSelected:', checkProcNotSelected)
-                            })
-                        }
-                        if (checkProcNotSelected) {
+                    let checkProcAllValid = true;
+                    let proc_names = []
+                    if (app.proc_fields) {
+                        app.proc_fields.map((proc)=>{
+                            if(proc.proc_name === ''){
+                                // console.log('true')
+                                checkProcAllValid = false;
+                            }else{
+                                proc_names = [...proc_names, proc.proc_name]
+                            }
+                            // console.log('checkProcAllValid:', checkProcAllValid)
+                        })
+                    }
+                    
+                    if (checkProcAllValid) {
+                        let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
+                        let array = findDuplicates(proc_names)
+                        if (array.length>0) {
+                            alert('Duplicate procedure name detected, please rectify first')
+                        } else {
                             setApp((prev)=>{
                                 return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
                                             proc_duration_minutes: '', proc_cost: '',
                                             }] } 
                             })
-                        }else{
-                            alert('Select Procedure first')
-                            // console.log('app.proc_fieds:', app.proc_fields)
                         }
+                        
+                    }else{
+                        alert('Select Procedure first')
+                        // console.log('app.proc_fieds:', app.proc_fields)
+                    }
                     
                     }}>+</button>
             </div>
@@ -129,21 +141,59 @@ const CDCSProcedures = () => {
                         
                 <button className='button-w70 button-disabled' 
                     onClick={async()=>{
-                            const response = await axios.post(
-                                "/api/cdcs/fields",
-                                {app, postType: 'procedure'});
-                            console.log('app', app)
-                            console.log('response add/update Fields', response)
-                            if (response.data.message === 'tkn_e') {
-                                alert('token empty')
-                                router.push("/cdcs/login");
-                            } else if(response.data.success === true){
-                                alert('Procedure Fields Succesffuly Updated')
-                                router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/settings`);
-                            }else {
-                                // alert('token ok')
-                                alert('Failed Updating Procedure Fields')
+                        let checkProcAllValid = true;
+                        let checkDurationMinutesAllValid = true;
+                        let proc_names = []
+                        if (app.proc_fields) {
+                            app.proc_fields.map((proc)=>{
+                                if(proc.proc_name === ''){
+                                    // console.log('true')
+                                    checkProcAllValid = false;
+                                }else if(
+                                    parseInt(proc.proc_duration_minutes) !== 0 
+                                    &&  parseInt(proc.proc_duration_minutes)%15 !== 0
+                                     ){
+                                    checkDurationMinutesAllValid = false;
+                                }else{
+                                    proc_names = [...proc_names, proc.proc_name]
+                                }
+                            })
+                        }
+                        
+                        if (checkProcAllValid) {
+                            if (checkDurationMinutesAllValid) {
+                                let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
+                                let array = findDuplicates(proc_names)
+                                if (array.length>0) {
+                                    alert('Duplicate procedure name detected, please rectify first')
+                                } else {
+
+                                    const response = await axios.post(
+                                        "/api/cdcs/fields",
+                                        {app, postType: 'procedure'});
+                                    console.log('app', app)
+                                    console.log('response add/update Fields', response)
+                                    if (response.data.message === 'tkn_e') {
+                                        alert('token empty')
+                                        router.push("/cdcs/login");
+                                    } else if(response.data.success === true){
+                                        alert('Procedure Fields Succesffuly Updated')
+                                        router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/settings`);
+                                    }else {
+                                        // alert('token ok')
+                                        alert('Failed Updating Procedure Fields')
+                                    }
+                                }
+                            } else {
+                                alert('Duration Minutes must be divisible by 15')
                             }
+                            
+                            
+                        }else{
+                            alert('Select Procedure first')
+                            // console.log('app.proc_fieds:', app.proc_fields)
+                        }
+                            
                         
                     
                     }}>Update Procedure Fields</button>

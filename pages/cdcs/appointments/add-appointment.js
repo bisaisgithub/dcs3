@@ -418,14 +418,22 @@ const AddAppointment = () => {
                                                     <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
                                                     onChange={(event)=>{handleChangeInput(index, event)}}>
                                                         <option value={0}>-Select Minutes-</option>
-                                                        {
+                                                        <option value={15}>15</option>
+                                                        <option value={30}>30</option>
+                                                        <option value={45}>45</option>
+                                                        <option value={60}>60</option>
+                                                        <option value={75}>75</option>
+                                                        <option value={90}>90</option>
+                                                        <option value={105}>105</option>
+                                                        <option value={120}>120</option>
+                                                        {/* {
                                                             fields.app.proc_fields.map((f, k)=>{
                                                                 // console.log('f', f)
                                                                 return (
                                                                     <option key={k} value={f.proc_duration_minutes}>{f.proc_duration_minutes}</option>
                                                                 )
                                                             })
-                                                        }
+                                                        } */}
                                                     </select>
                                             </div>
                                             <div className="details-details-modal-body-input-box3">
