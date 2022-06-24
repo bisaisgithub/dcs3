@@ -57,7 +57,7 @@ const Navbarcdcs = ({ user }) => {
                 height={40}
               />
             </div>
-            <span>Dashboard</span>
+            <span>Reports</span>
           </a>
         </Link>
         <Link href="/cdcs/expenses" passHref>
@@ -150,7 +150,7 @@ const Navbarcdcs = ({ user }) => {
             <span>Inventory</span>
           </a>
         </Link>
-        <Link href="/cdcs/dashboard" passHref>
+        {/* <Link href="/cdcs/dashboard" passHref>
           <a className="nav__link">
             <div>
               <Image
@@ -160,9 +160,9 @@ const Navbarcdcs = ({ user }) => {
                 height={40}
               />
             </div>
-            <span>Dashboard</span>
+            <span>Reports</span>
           </a>
-        </Link>
+        </Link> */}
         <a className="nav__link" 
           onClick={()=>{
             let input = confirm('Are you sure you want to Logout?')

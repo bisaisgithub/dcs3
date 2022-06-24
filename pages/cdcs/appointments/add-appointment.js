@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import setHours from 'date-fns/setHours';
 import setMinutes from 'date-fns/setMinutes';
+import { addDays } from 'date-fns';
 import Select from 'react-select';
 // import Exam from '../../../components/cdcs/Exam/Exam';
 import Link from 'next/link'
@@ -26,7 +27,9 @@ const AddAppointment = () => {
       }
   });
   const [app, setApp] = useState({
-    date:'',patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
+    // date:''
+    date: setHours(setMinutes(new Date(), 0), 8)
+    ,patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
@@ -240,6 +243,10 @@ const AddAppointment = () => {
         minute: 'numeric',
         hour12: true
     }
+    const isWeekday = (date) => {
+        const day = date.getDay();
+        return day !== 0 && day !== 6;
+      };
 
     return(
         <>
@@ -310,16 +317,18 @@ const AddAppointment = () => {
                                 <div className='details-details-modal-body-input-box'>
                                     <span>Date</span>
                                     <DatePicker 
-                                    disabled={app.patient_id === ''}
+                                    disabled={app.patient_id._id === ''}
                                     showTimeSelect
-                                    minDate={new Date()} 
-                                    // minTime={setHours(setMinutes(new Date(), 0), 0)}
-                                    yearDropdownItemNumber={90} 
-                                    showYearDropdown 
-                                    scrollableYearDropdown={true} 
+                                    minDate={new Date()}
+                                    timeIntervals={15}
+                                    // minTime={setHours(setMinutes(new Date(), 0), 8)}
+                                    // maxTime={setHours(setMinutes(new Date(), 0), 17)}
+                                    // yearDropdownItemNumber={90} 
+                                    // showYearDropdown 
+                                    // scrollableYearDropdown={true} 
                                     dateFormat='MMMM d, yyyy' 
                                     className='date-picker' 
-                                    placeholderText="Select Date" 
+                                    placeholderText="Select Date"
                                     selected={app.date} 
                                     onChange={(date)=>{
                                         let totalMinutes = 0;
@@ -332,7 +341,14 @@ const AddAppointment = () => {
                                             date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
                                                 )});
                                         setApp({...app, date});
-                                    }} />
+                                    }} 
+                                    // isClearable
+                                    disabledKeyboardNavigation
+                                    // filterDate={isWeekday}
+                                    maxDate={addDays(new Date(), 30)}
+                                    >
+                                        {/* <div style={{ color: "red" }}>Don't forget to check the weather!</div> */}
+                                    </DatePicker>
                                     
                                 </div>
                                 <div className='details-details-modal-body-input-box'>

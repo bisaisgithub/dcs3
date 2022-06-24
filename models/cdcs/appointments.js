@@ -27,6 +27,8 @@ const AppointmentSchema = new mongoose.Schema(
     }],
     inventories: [{name: String, code: String, qty: Number}],
     app_pay_fields: [{}],
+    notes:[{}],
+    patient_request: {},
   },
   { timestamps: true }
 );

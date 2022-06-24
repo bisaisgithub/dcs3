@@ -41,6 +41,7 @@ export default async (req, res) => {
           .populate("created_by", "name")
           .populate("patient_id", "name")
           .populate("doctor_id", "name")
+          .sort({date: 1})
           res.json({success: true, data: response, pagination:{count, pageCount: count/items_per_page}})
         
         } else if(req.method === 'POST'){

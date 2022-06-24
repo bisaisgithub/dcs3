@@ -16,7 +16,7 @@ import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 
-const AddInventory = () => {
+const AddSupplier = () => {
   const [disableAdd, setDisableAdd] =useState(false);
   const [supplier, setSupplier]=useState({
     name:'',email:'',contact:'',address:'',status:''
@@ -136,4 +136,4 @@ export async function getServerSideProps({ req, res }) {
   }
 }
 
-export default AddInventory;
+export default AddSupplier;

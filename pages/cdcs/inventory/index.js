@@ -3,7 +3,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Navbarcdcs from "../../../components/cdcs/Navbarcdcs";
 import { useState, useEffect } from "react";
-// import {useRouter} from 'next/router';
+import {useRouter} from 'next/router';
 import { getCookie, removeCookies } from "cookies-next";
 import dbConnect from "../../../utils/dbConnect";
 import CDCSUsers7 from "../../../models/cdcs/Users";
@@ -12,7 +12,9 @@ import Link from "next/link";
 import Image from 'next/image';
 
 const Inventory = ({user}) => {
+    const router = useRouter();
     const [inventoryData, setInventoryData] = useState([]);
+    const [supplierData, setSupplierData] = useState([]);
     const [search, setSearch] = useState({
         name: '', status: '', date_ordered:'', date_received:'', invoice_no:'',item:''
       });
@@ -24,7 +26,7 @@ const Inventory = ({user}) => {
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const [statusList, setStatusList] = useState([])
-    const [selectPage, setSelectPage] = useState('Inventory');
+    const [selectPage, setSelectPage] = useState('Purchase Orders');
 
     const [searchSupplier, setSearchSupplier] = useState({
         name: '', email: '', contact:'', address:'', status:''
@@ -42,9 +44,8 @@ const Inventory = ({user}) => {
     ]);
     const fetchData = async ()=>{
         setLoading2(true)
-        if (selectPage === 'Inventory') {
+        if (selectPage === 'Purchase Orders') {
             await getInventoryData();
-            
         }else {
             setLoading2(false)
         }
@@ -182,13 +183,13 @@ const Inventory = ({user}) => {
                 <select 
                 onChange={(e)=>{setSelectPage(e.target.value)}}
                 style={{fontSize: '16px', height: '35px', borderRadius: '5px', }}>
-                    <option value='Inventory'>Inventory</option>
+                    <option value='Purchase Orders'>Purchase Orders</option>
                     <option value='Supplier'>Supplier</option>
                     <option value='Stocks'>Stocks</option>
                 </select>
             </div>
             {
-                selectPage === 'Inventory'? (
+                selectPage === 'Purchase Orders'? (
                     <div>
                         <div className='table-table2-container'>
                             <table className='table-table2-table'>
@@ -474,7 +475,7 @@ const Inventory = ({user}) => {
                                         </th>
                                         
                                         
-                                        <th><Link href="/cdcs/inventory/add-inventory" passHref><p className='cursor-pointer'>New</p></Link></th>
+                                        <th><Link href={`/cdcs/inventory/add-supplier`} passHref><p className='cursor-pointer'>New</p></Link></th>
                                     </tr>
                                 </thead>
                                 <thead className='table-table2-table-thead'>

@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import setHours from 'date-fns/setHours';
 import setMinutes from 'date-fns/setMinutes';
+import { addDays } from 'date-fns';
 import Select from 'react-select';
 // import Exam from '../../../components/cdcs/Exam/Exam';
 import Link from 'next/link'
@@ -89,7 +90,7 @@ const AppointmentDetails = () => {
   const getAppointments = async ()=>{
     const response = await axios.get(`/api/cdcs/appointments/${router.query.id}`);
     if (response.data.data && response.data.success) {
-      console.log('response is true', response.data);
+    //   console.log('response is true', response.data);
       let totalMinutes = 0;
       let totalCost = 0
       let totalPaymentChilds = 0 ;
@@ -151,7 +152,7 @@ const AppointmentDetails = () => {
           })
           setAppChild(childAppointments)
       }else{
-        console.log('empty child appointment')
+        // console.log('empty child appointment')
       }
       if (totalCost > (totalPayment + totalPaymentChilds)) {
           balance = totalCost - (totalPayment + totalPaymentChilds);
@@ -222,7 +223,7 @@ const AppointmentDetails = () => {
             }
             
         }else{
-            console.log('app.parent empty')
+            // console.log('app.parent empty')
         }
         setLoading(false);
     }else{
@@ -415,6 +416,10 @@ const AppointmentDetails = () => {
         minute: 'numeric',
         hour12: true
     }
+    const isWeekday = (date) => {
+        const day = date.getDay();
+        return day !== 0 && day !== 6;
+      };
 
     return(
         <>
@@ -508,29 +513,35 @@ const AppointmentDetails = () => {
                                 <div className='details-details-modal-body-input-box'>
                                     <span>Date</span>
                                     <DatePicker 
-                                    disabled={app.patient_id === ''}
-                                    showTimeSelect
-                                    minDate={new Date()} 
-                                    // minTime={setHours(setMinutes(new Date(), 0), 0)}
-                                    yearDropdownItemNumber={90} 
-                                    showYearDropdown 
-                                    scrollableYearDropdown={true} 
-                                    dateFormat='MMMM d, yyyy' 
-                                    className='date-picker' 
-                                    placeholderText="Select Date" 
-                                    selected={app.date} 
-                                    onChange={(date)=>{
-                                        let totalMinutes = 0;
-                                        app.proc_fields.map((app_proc_field)=>{
-                                            totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
-                                            return null;
-                                        });
-                                        setApp2(
-                                            {...app2,
-                                            date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
-                                                )});
-                                        setApp({...app, date});
-                                    }} />
+                                        disabled={app.patient_id === ''}
+                                        showTimeSelect
+                                        // minDate={new Date()} 
+                                        timeIntervals={15}
+                                        // minTime={setHours(setMinutes(new Date(), 0), 10)}
+                                        // maxTime={setHours(setMinutes(new Date(), 0), 17)}
+                                        // yearDropdownItemNumber={90} 
+                                        // showYearDropdown 
+                                        // scrollableYearDropdown={true} 
+                                        dateFormat='MMMM d, yyyy' 
+                                        className='date-picker' 
+                                        placeholderText="Select Date" 
+                                        selected={app.date} 
+                                        onChange={(date)=>{
+                                            let totalMinutes = 0;
+                                            app.proc_fields.map((app_proc_field)=>{
+                                                totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
+                                                return null;
+                                            });
+                                            setApp2(
+                                                {...app2,
+                                                date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
+                                                    )});
+                                            setApp({...app, date});
+                                        }}
+                                        disabledKeyboardNavigation
+                                        // filterDate={isWeekday}
+                                        maxDate={addDays(new Date(), 30)}
+                                    />
                                     
                                 </div>
                                 <div className='details-details-modal-body-input-box'>
@@ -593,18 +604,19 @@ const AppointmentDetails = () => {
                             {
                               app.proc_fields &&
                               app.proc_fields.map((app_proc_field, index)=>{
-                                    let checkCurrentProcFieldExist = false;
-                                    let proc_names = []
+                                    let checkCurrentProcFieldNotExist = false;
+                                    // let proc_names = []
                                     fields.app.proc_fields.forEach((f)=>{
-                                        if (app_proc_field.proc_name !== f.proc_name) {
-                                            proc_names = [...proc_names, f.proc_name]
-                                        } else {
-                                            checkCurrentProcFieldExist = true;
+                                        if (app_proc_field.proc_name === f.proc_name) {
+                                            // proc_names = [...proc_names, f.proc_name]
+                                        } 
+                                        else {
+                                            checkCurrentProcFieldNotExist = true;
                                         }
                                     })
-                                    if (!checkCurrentProcFieldExist) {
-                                        proc_names = [...proc_names, app_proc_field.proc_name]
-                                    }
+                                    // if (!checkCurrentProcFieldExist) {
+                                    //     proc_names = [...proc_names, app_proc_field.proc_name]
+                                    // }
                                     return (
                                         
                                         <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
@@ -614,14 +626,20 @@ const AppointmentDetails = () => {
                                                 onChange={(event)=>{handleChangeInput(index, event)}}>
                                                     <option value="">-Select Procedure-</option>
                                                     {
-                                                        // fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
-                                                            proc_names.map((f, k)=>{
+                                                        fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
+                                                            // proc_names.map((f, k)=>{
                                                             // console.log('f', f)
                                                             return (
-                                                                <option key={k} value={f}>{f}</option>
+                                                                <option key={k} value={f.proc_name}>{f.proc_name}</option>
                                                             )
                                                         })
                                                     }
+                                                    {
+                                                        checkCurrentProcFieldNotExist? (
+                                                            <option value={app_proc_field.proc_name}>{app_proc_field.proc_name}</option>
+                                                        ): ('')
+                                                    }
+                                                    
                                                     {/* <option value="Consultation">Consultation</option>
                                                     <option value="Extraction">Extraction</option>
                                                     <option value="Cleaning">Cleaning</option> */}
@@ -850,7 +868,7 @@ const AppointmentDetails = () => {
                                     const response = await axios.post(
                                         `/api/cdcs/appointments/${router.query.id}`,
                                         {new: appUpdate, old: appOld});
-                                    console.log('response add appointment', response)
+                                    // console.log('response add appointment', response)
                                     if (response.data.message === 'tkn_e') {
                                         alert('token empty')
                                         router.push("/cdcs/login");

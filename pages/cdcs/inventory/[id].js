@@ -276,27 +276,69 @@ const AddInventory = () => {
                                                     setStocks([])
                                                     await resp.data.data.fields.app.inventory_names.forEach(async(n)=>{
                                                         const resp2 = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
-                                                        console.log('resp2', resp2)
+                                                        console.log('resp2', resp2);
                                                         if (resp2.data.data === null) {
                                                             setStocks((p)=>{
                                                                 let newvalue = [...p, {name:n, qty_remain: 0}]
-                                                                console.log('newvalue', newvalue)
-                                                                return newvalue;    
+                                                                const sortedValue = newvalue.sort((a, b)=>{
+                                                                    if(a.qty_remain > b.qty_remain){
+                                                                        return 1
+                                                                    }else{
+                                                                        return -1
+                                                                    }
+                                                                })
+                                                                // console.log('newvalue', newvalue)
+                                                                // return newvalue;
+                                                                return sortedValue;
                                                             })
                                                         } else {
                                                             console.log(`resp for each else ${n}`, resp2.data);
-                                                            let count = 0
-                                                            resp2.data.data.items.forEach((i)=>{
-                                                                if (i.name === n) {
-                                                                    count = count + parseInt(i.qty_remain);
-                                                                }
-                                                            })
-                                                            // console.log('count', count)
-                                                            setStocks((p)=>{
-                                                                let newvalue = [...p, {name:n, qty_remain: count}]
-                                                                // console.log('newvalue', newvalue)
-                                                                return newvalue;
-                                                            })
+                                                            
+                                                            if (resp2.data.data.length > 0) {
+                                                                let count = 0
+                                                                resp2.data.data.forEach((inv)=>{
+                                                                    inv.items.forEach((i)=>{
+                                                                        if (i.name === n) {
+                                                                            count = count + parseInt(i.qty_remain);
+                                                                            console.log(`name ${n}: ${count}`)
+                                                                        }
+                                                                    })
+                                                                })
+                                                                // console.log('count', count)
+                                                                setStocks((p)=>{
+                                                                    let newvalue = [...p, {name:n, qty_remain: count}]
+                                                                    // console.log('newvalue', newvalue)
+                                                                    // return newvalue;
+                                                                    const sortedValue = newvalue.sort((a, b)=>{
+                                                                        if(a.qty_remain > b.qty_remain){
+                                                                            return 1
+                                                                        }else{
+                                                                            return -1
+                                                                        }
+                                                                    })
+                                                                    // console.log('newvalue', newvalue)
+                                                                    // return newvalue;
+                                                                    return sortedValue;
+                                                                })
+                                                            } 
+                                                            else {
+                                                                // alert('Empty stocks list')
+                                                                setStocks((p)=>{
+                                                                    let newvalue = [...p, {name:n, qty_remain: 0}]
+                                                                    // console.log('newvalue', newvalue)
+                                                                    // return newvalue;
+                                                                    const sortedValue = newvalue.sort((a, b)=>{
+                                                                        if(a.qty_remain > b.qty_remain){
+                                                                            return 1
+                                                                        }else{
+                                                                            return -1
+                                                                        }
+                                                                    })
+                                                                    // console.log('newvalue', newvalue)
+                                                                    // return newvalue;
+                                                                    return sortedValue;
+                                                                })
+                                                            }
                                                         }
                                                     })
                                                     setItemIndex(index)
@@ -545,17 +587,17 @@ const AddInventory = () => {
                             if (resp.data.message === 'tkn_e') {
                                 router.push("/cdcs/login");
                             } else if(resp.data.success === true){
-                                alert('Inventory Succesffuly Updated')
+                                alert('Purchase Order Succesffuly Updated')
                                 router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/inventory`);
                             }else {
-                                alert('Failed Updating Inventory')
+                                alert('Failed Updating Purchase Order')
                             }
                         }
                     }
                     
                 
                 }}>
-                    {disableButton.addInventory? 'Updating...' : 'Update Inventory' }
+                    {disableButton.addInventory? 'Updating...' : 'Update Purchase Order' }
                     
                     </button>     
 
