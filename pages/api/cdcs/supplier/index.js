@@ -24,7 +24,7 @@ export default async (req, res) => {
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin') {
-        if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Receptionist')){
+        if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Dental Assistant')){
           const response = await CDCSSupplier.find()
           // console.log('response', response)
           if (response) {
@@ -32,18 +32,50 @@ export default async (req, res) => {
           }else{
             res.json({ success: false, message: 'failed mdb find'});
           }
-        }else if(req.method === 'POST' && obj.type === 'Admin'){
-            // console.log('req.body', req.body)
+        }else if(req.method === 'POST' && obj.type === 'Admin' || obj.type === 'Dental Assistant'){
+          console.log('req.body.filterType', req.body.filterType)
+          if (req.body.filterType === 'createSupplier') {
             let data = { ...req.body.supplier, created_by: obj._id}
-            // console.log('data', data);
-            // console.log('req.body, ', req.body)
               const response = await CDCSSupplier.create(data);
               if (response) {
                 res.json({ success: true, data: response });
               } else {
                 res.json({success: false, message: 'failed mdb'})
               }
-              // res.json({success: true, message: 'test'})
+          }else if (req.body.filterType === 'searchSupplier') {
+            let query = {}
+            console.log('req.body', req.body)
+            if (req.body.searchSupplier.name !== '') {
+              query = {...query, 
+                name: new RegExp(`.*${req.body.searchSupplier.name}.*`,'i')
+              }
+            }
+            if (req.body.searchSupplier.contact !== '') {
+              query = {...query, 
+                contact: new RegExp(`.*${req.body.searchSupplier.contact}.*`,'i')
+              }
+            }
+            if (req.body.searchSupplier.email !== '') {
+              query = {...query, 
+                email: new RegExp(`.*${req.body.searchSupplier.email}.*`,'i')
+              }
+            }
+            if (req.body.searchSupplier.status !== '') {
+              query = {...query,
+                status: req.body.searchSupplier.status
+                    // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
+              }
+            }   
+            console.log('query', query)
+            const response = await CDCSSupplier.find(
+              query
+              )
+            // .populate("supplier_id", "name")
+            res.json({success: true, data: response})
+
+          }else{
+            res.json({success: false, message: 'failed filterT'})
+          }
         }else {
           res.json({success: false, message: `mthd ${req.method} _x and nt a`})
         }

@@ -153,7 +153,6 @@ export default async (req, res) => {
           }else{
             res.json({success: false, message: 'failed filterT'})
           }
-          
         }else {
           res.json({success: false, message: `mthd ${req.method} _x and nt a`})
         }

@@ -40,12 +40,14 @@ const Inventory = ({user}) => {
         closedFilter,
         search.date_ordered,
         search.date_received,
-        selectPage
+        selectPage,
+        searchSupplier.status,
     ]);
     const fetchData = async ()=>{
-        setLoading2(true)
-        if (selectPage === 'Purchase Orders') {
+        if(selectPage === 'Purchase Orders'){
             await getInventoryData();
+        }else if(selectPage === 'Supplier'){
+            await getSupplierData();
         }else {
             setLoading2(false)
         }
@@ -141,6 +143,41 @@ const Inventory = ({user}) => {
             setLoading(false)
         }    
     };
+    const getSupplierData = async ()=>{
+        console.log('getSupplier called', searchSupplier)
+        setLoading2(true)
+        if (searchSupplier.name !== '' || searchSupplier.email !== '' ||
+                searchSupplier.contact !== '' || searchSupplier.address !== '' || searchSupplier.status !== ''
+            ){
+                // console.log('filter')
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier`,
+                    // {data: {filterType: 'searchSupplier', search}}
+                    {filterType: 'searchSupplier', searchSupplier}
+                );
+                if (response.data.data) {
+                    let statusList = response.data.data.map(r=> r.status)
+                    setStatusList(uniq(statusList))
+                    setSupplierData(response.data.data)
+                    setLoading2(false)
+                }else{
+                    alert('Failed getting appointments with search');
+                    setLoading2(false)
+                }
+            }else{
+                // console.log('not closed no filter')
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier`);
+                console.log('response', response.data)
+                if (response.data.data) {
+                    let statusList = response.data.data.map(r=> r.status)
+                    setStatusList(uniq(statusList))
+                    setSupplierData(response.data.data)
+                    setLoading2(false)
+                }else{
+                    alert('Failed getting appointments no search');
+                    setLoading2(false)
+                }
+            }
+    };
     const handleKeypress = e => {
         //it triggers by pressing the enter key
         // console.log('e',e)
@@ -203,7 +240,7 @@ const Inventory = ({user}) => {
                                         </th>
                                         <th>
                                             {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
-                                            <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                            <select   className='appointment-filter-select' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
                                                 <option value="">All Status</option>
                                                 {
                                                 statusList && statusList.map((f, i)=>{
@@ -286,7 +323,7 @@ const Inventory = ({user}) => {
                                                         })
                                                         }}/>
                                                 <select  
-                                                style={{width: '20%'}}
+                                                style={{width: '30%'}}
                                                 className='appointment-filter-select'  value={closedFilter} onChange={(e)=>{setClosedFilter(e.target.value)}}>
                                                 <option value="notClosed">Not Received</option>
                                                 <option value="closedOnly">Received</option>
@@ -436,33 +473,35 @@ const Inventory = ({user}) => {
                                             placeholder='Supplier Name' value={searchSupplier.name} onChange={(e)=>{setSearchSupplier({...searchSupplier, name: e.target.value})}}/>
                                         </th>
                                         <th>
+                                            <input
+                                            onKeyPress={handleKeypress}
+                                            style={{width: '100%'}}
+                                            placeholder='Contact' value={searchSupplier.contact} onChange={(e)=>{setSearchSupplier({...searchSupplier, contact: e.target.value})}}/>
+                                        </th>
+                                        <th>
+                                            <input 
+                                            onKeyPress={handleKeypress}
+                                            placeholder='Email' value={searchSupplier.email} onChange={(e)=>{setSearchSupplier({...searchSupplier, email: e.target.value})}}/>
+                                        </th>
+                                        <th>
                                             <div style={{display: 'flex', justifyContent: 'center'}}>
                                                 <button 
                                                         onKeyPress={handleKeypress}
                                                         style={{width: '19%', borderRadius: '5px', background: '#e9115bf0', color: 'white'}}
                                                         onClick={()=>{
-                                                        setSearch({
-                                                            name: '', email: '', date_ordered:'', date_received:'', invoice_no:'', item:''
+                                                            setSearchSupplier({
+                                                            name: '', contact: '', email:'', address:'', invoice_no:'', status:''
                                                         })
-                                                        setClosedFilter('notClosed')
                                                         }}
                                                         className='cursor-pointer'
                                                         >X</button>
-                                                <input placeholder='Email' value={searchSupplier.email} onChange={(e)=>{setSearchSupplier({...searchSupplier, email: e.target.value})}}/>
+                                                <input placeholder='Address' value={searchSupplier.address} onChange={(e)=>{setSearchSupplier({...searchSupplier, address: e.target.value})}}/>
                                                 
                                             </div>
                                                 
                                         </th>
-                                        
-                                        
                                         <th>
-                                            <input placeholder='Contact' value={searchSupplier.contact} onChange={(e)=>{setSearchSupplier({...searchSupplier, contact: e.target.value})}}/>
-                                        </th>
-                                        <th>
-                                            <input placeholder='Address' value={searchSupplier.address} onChange={(e)=>{setSearchSupplier({...searchSupplier, address: e.target.value})}}/>
-                                        </th>
-                                        <th>
-                                          <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                          <select  className='appointment-filter-select'  value={searchSupplier.status} onChange={(e)=>{setSearchSupplier({...searchSupplier, status: e.target.value})}}>
                                                 <option value="">All Status</option>
                                                 {
                                                 statusList && statusList.map((f, i)=>{
@@ -481,30 +520,29 @@ const Inventory = ({user}) => {
                                 <thead className='table-table2-table-thead'>
                                     <tr className='table-table2-table-thead-tr'>
                                         <th>Supplier Name</th>
+                                        <th style={{width: '0.5%'}}>Contact</th>
                                         <th>Email</th>
-                                        <th>Contact</th>
-                                        <th>Address</th>
+                                        <th style={{width: '1%'}}>Address</th>
                                         <th>Status</th>
                                         <th>No</th>
                                     </tr>
                                 </thead>
                                 <tbody className='table-table2-table-tbody'>
-                                    {inventoryData && inventoryData.map((inv, index)=>{
+                                    {supplierData && supplierData.map((f, index)=>{
                                         return (
                                             <tr key={index} className='table-table2-table-tbody-tr'>
-                                                <td>{inv.supplier_id === undefined? '': inv.supplier_id.name}</td>
-                                                <td>{inv.status}</td>
-                                                <td className='maxW50px'>{
-                                                    formatDate(new Date(inv.date_ordered))
-                                                }</td>
-                                                <td>{inv.date_received === null || inv.date_received === ''? 'None' : formatDate(new Date(inv.date_received))}</td>
-                                                <td>{inv.invoice_no === null || inv.invoice_no === ''? 'None': inv.invoice_no}</td>
-                                                
+                                                <td>{f.name}</td>
+                                                <td>{f.contact}</td>
+                                                <td>{f.email}</td>
+                                                <td>{f.address}</td>
+                                                <td>{f.status}</td>
                                                 <td>
-                                                    <Link href={`/cdcs/inventory/${inv._id}`} passHref>
+                                                    <Link href={`/cdcs/supplier/${f._id}`} passHref>
                                                         <button style={{background:'#e9115bf0'}} 
                                                         className='cursor-pointer'
-                                                        >{(page-1)*itemsPerPage+index+1}
+                                                        >
+                                                            {/* {(page-1)*itemsPerPage+index+1} */}
+                                                            {index+1}
                                                         </button>
                                                     </Link>
                                                 </td>
@@ -515,7 +553,7 @@ const Inventory = ({user}) => {
                             </table>
                             <div className='display-flex'>
                             </div>
-                            <div className='display-flex-center'>
+                            {/* <div className='display-flex-center'>
                                 <span className='color-white-13-bold' style={{margin: '5px 30px'}}>Number of Items: 
                                     <select value={itemsPerPage}
                                     style={{margin: '5px 10px'}}
@@ -556,7 +594,7 @@ const Inventory = ({user}) => {
                                     style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
                                     className='button-disabled'
                                 >&gt;</button>
-                            </div>
+                            </div> */}
                         </div>
                         {
                             loading2? (
