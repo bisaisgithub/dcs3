@@ -45,6 +45,7 @@ const Supplier = ({user}) => {
     ]);
    
     const getSupplierData = async ()=>{
+        setLoading2(true)
         // console.log('getSupplier called', searchSupplier)
         if (searchSupplier.name !== '' || searchSupplier.email !== '' ||
                 searchSupplier.contact !== '' || searchSupplier.address !== '' || searchSupplier.status !== ''
