@@ -513,6 +513,11 @@ input[type="text"] {
   font-weight: 600;
   font-size: 13px;
 }
+.color-black-13-bold{
+  color: black;
+  font-weight: 600;
+  font-size: 13px;
+}
 .overlay{
   position: fixed;
   top: 0;
@@ -520,6 +525,15 @@ input[type="text"] {
   width: 100vw;
   height: 100vh;
   background-color: rgba(128,128,128,0.5);
+}
+.overlay10{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(128,128,128,0.5);
+  z-index: 10;
 }
 .center-div{
   position: fixed;

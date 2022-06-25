@@ -17,7 +17,7 @@ export default async (req, res) => {
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist') {
         if (req.method === 'GET') {
-          console.log('req.query.id', req.query.id);
+          // console.log('req.query.id', req.query.id);
           // ({awards: {$elemMatch: {award:'National Medal', year:1975}}})
           const item = await CDCSInventory.find({
             $and: [

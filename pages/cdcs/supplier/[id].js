@@ -15,14 +15,33 @@ import Link from 'next/link'
 import { getCookie, removeCookies } from "cookies-next";
 import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
+import Image from 'next/image';
 
-const AddSupplier = () => {
+const EditSupplier = () => {
+  const router = useRouter();
   const [disableAdd, setDisableAdd] =useState(false);
   const [supplier, setSupplier]=useState({
     name:'',email:'',contact:'',address:'',status:''
-  })
+    })
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(()=>{
+    getSupplier();
+  }, [])
+  const getSupplier = async ()=>{
+    setIsLoading(true);
+    const response = await axios.get(`/api/cdcs/supplier/${router.query.id}`);
+    console.log('response', response)
+    if (response.data.data && response.data.success) {
+      setSupplier(response.data.data)
+        setIsLoading(false);
+    }else{
+        alert('No Inventory Found');
+        setIsLoading(false);
+    }
+  }
   return(
-    <div className='details-details-container'>
+    <div>
+      <div className='details-details-container'>
       <div className='details-details-modal-container'>
         <div className='details-details-modal-body-button margin-bottom-20'> 
         </div>
@@ -70,16 +89,14 @@ const AddSupplier = () => {
                     alert('Empty Field')
                   } else {
                     const response = await axios.post(
-                      "/api/cdcs/supplier",
-                      {supplier, filterType: 'createSupplier'});
+                      `/api/cdcs/supplier/${router.query.id}`,
+                      {supplier});
                     if (response.data.message === 'tkn_e') {
                       alert('You token has been expired, please login again');
                       router.push("/cdcs/login");
                     }else if (response.data.success) {
-                      alert('Supplier Succesfully Added');
-                      setSupplier({
-                        name:'',email:'',contact:'',address:'',status:''
-                      })
+                      alert('Supplier Succesfully Updated');
+                      router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/supplier`);
                       setDisableAdd(false)
                     }else {
                       alert('Failed Adding Supplier');
@@ -87,7 +104,7 @@ const AddSupplier = () => {
                     }
                   }
                 }}>
-                    {disableAdd? 'Adding...' : 'Add Supplier' }
+                    {disableAdd? 'Updating...' : 'Update Supplier' }
                     
                     </button>     
 
@@ -95,6 +112,25 @@ const AddSupplier = () => {
         </div>
       </div>
     </div>
+    {
+          isLoading? (
+              <div className='overlay'>
+                  <div className='center-div'>
+                      <Image
+                      src="/loading.gif"
+                      alt="users"
+                      width={40}
+                      height={40}
+                      />
+                  </div>
+                  
+              </div>
+          )
+          :
+          ('')
+      }
+    </div>
+    
   )
 };
 
@@ -136,4 +172,4 @@ export async function getServerSideProps({ req, res }) {
   }
 }
 
-export default AddSupplier;
+export default EditSupplier;

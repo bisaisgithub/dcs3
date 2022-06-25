@@ -17,7 +17,7 @@ import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 import Image from "next/image";
 
-const AddInventory = () => {
+const EditInventory = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -38,7 +38,7 @@ const AddInventory = () => {
   });
 
   const [disableButton, setDisableButton] = useState({
-      addInventory: false 
+      updateInventory: false 
   })
   const [isOpen, setIsOpen] = useState({
     supplier: false, stocks: false
@@ -560,10 +560,11 @@ const AddInventory = () => {
             <button className='button-w70 button-disabled' 
             disabled={
                 // app.type === '' || 
-                disableButton.addInventory
+                disableButton.updateInventory
                 // false
             } 
                 onClick={async()=>{ 
+                    setDisableButton({...disableButton, updateInventory: true});
                     // console.log('app2', app2)
                     let checkItemNameEmpty = false;
                         inventory.items.forEach((i)=>{
@@ -572,12 +573,14 @@ const AddInventory = () => {
                             }
                         })
                     if (checkItemNameEmpty) {
-                        alert('Please select item name and input order quantity')
+                        alert('Please select item name and input order quantity');
+                        setDisableButton({...disableButton, updateInventory: false});    
                     } else {
 
                         // setDisableButton({...disableButton, addInventory: true});
                         if(inventory.date_ordered ==='' || inventory.status ===''){
                             alert('Select status or date order is empty')
+                            setDisableButton({...disableButton, updateInventory: false});
                         }else{
                             let data = {inventory, filterType: 'editInventory',}
                             const resp = await axios.post(
@@ -590,14 +593,15 @@ const AddInventory = () => {
                                 alert('Purchase Order Succesffuly Updated')
                                 router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/inventory`);
                             }else {
-                                alert('Failed Updating Purchase Order')
+                                alert('Failed Updating Purchase Order');
+                                setDisableButton({...disableButton, updateInventory: false});
                             }
                         }
                     }
                     
                 
                 }}>
-                    {disableButton.addInventory? 'Updating...' : 'Update Purchase Order' }
+                    {disableButton.updateInventory? 'Updating...' : 'Update Purchase Order' }
                     
                     </button>     
 
@@ -819,4 +823,4 @@ export async function getServerSideProps({ req, res }) {
   }
 }
 
-export default AddInventory;
+export default EditInventory;

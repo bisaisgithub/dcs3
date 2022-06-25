@@ -25,10 +25,16 @@ export default async (req, res) => {
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin') {
         if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Dental Assistant')){
+          const items_per_page = req.query.itemsPerPage || 10;
+          const page = req.query.page || 1;
+          const skip = (page-1) * items_per_page;
+          const count = await CDCSSupplier.countDocuments();
           const response = await CDCSSupplier.find()
+          .skip(skip)
+          .limit(items_per_page)
           // console.log('response', response)
           if (response) {
-            res.json({ success: true, data: response });
+            res.json({ success: true, data: response, pagination:{count, pageCount: count/items_per_page} });
           }else{
             res.json({ success: false, message: 'failed mdb find'});
           }
@@ -60,18 +66,29 @@ export default async (req, res) => {
                 email: new RegExp(`.*${req.body.searchSupplier.email}.*`,'i')
               }
             }
+            if (req.body.searchSupplier.address !== '') {
+              query = {...query, 
+                address: new RegExp(`.*${req.body.searchSupplier.address}.*`,'i')
+              }
+            }
             if (req.body.searchSupplier.status !== '') {
               query = {...query,
                 status: req.body.searchSupplier.status
                     // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
               }
             }   
-            console.log('query', query)
+            // console.log('query', query)
+            const items_per_page = req.query.itemsPerPage || 10;
+            const page = req.query.page || 1;
+            const skip = (page-1) * items_per_page;
+            const count = await CDCSSupplier.countDocuments(query);
             const response = await CDCSSupplier.find(
               query
               )
+              .skip(skip)
+              .limit(items_per_page)
             // .populate("supplier_id", "name")
-            res.json({success: true, data: response})
+            res.json({success: true, data: response, pagination:{count, pageCount: count/items_per_page}})
 
           }else{
             res.json({success: false, message: 'failed filterT'})

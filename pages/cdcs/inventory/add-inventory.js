@@ -20,6 +20,7 @@ import Image from "next/image";
 const AddInventory = () => {
   
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSupplier, setIsLoadingSupplier] = useState(false);
   const router = useRouter();
   const [inventory, setInventory] =useState({
     status:'',date_ordered: new Date(),date_received:null,invoice_no:'',
@@ -36,7 +37,6 @@ const AddInventory = () => {
         }
     ]
   });
-
   const [disableButton, setDisableButton] = useState({
       addInventory: false 
   })
@@ -46,9 +46,22 @@ const AddInventory = () => {
   const [suppliers, setSuppliers] = useState([]);
 //   const [items, setItems] = useState([]);
   const [stocks, setStocks] = useState([]);
-  const [itemIndex, setItemIndex] = useState(0)
-//   useEffect(()=>{
-//   }, [])
+  const [itemIndex, setItemIndex] = useState(0);
+
+  const [statusList, setStatusList] = useState([]);
+  const [searchSupplier, setSearchSupplier] = useState({
+    name: '', email: '', contact:'', address:'', status:''
+  });
+  const [count, setCount] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(15);
+  const [page, setPage]= useState(1)
+
+  useEffect(()=>{
+    getSupplier()
+  }, [
+    page, itemsPerPage, searchSupplier.status
+  ])
     const handleChangeItem = async (index, event, date, ename)=>{
         if (event) {
             // console.log('handle change item called')
@@ -100,6 +113,58 @@ const AddInventory = () => {
         minute: 'numeric',
         hour12: true
     }
+    const handleKeypress = e => {
+        //it triggers by pressing the enter key
+        // console.log('e',e)
+        if (e.key === 'Enter' || e.key === ',') {
+        // console.log('test')
+        getSupplier();
+        }
+        
+    };
+    function uniq(a) {
+        return a.sort().filter(function(item, pos, ary) {
+            return !pos || item != ary[pos - 1];
+        });
+    }
+  const getSupplier = async ()=>{
+    setIsLoadingSupplier(true)
+    if (searchSupplier.name !== '' || searchSupplier.email !== '' ||
+            searchSupplier.contact !== '' || searchSupplier.address !== '' || searchSupplier.status !== ''
+        ){
+            // console.log('filter')
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier?page=${page}&itemsPerPage=${itemsPerPage}`,
+                // {data: {filterType: 'searchSupplier', search}}
+                {filterType: 'searchSupplier', searchSupplier}
+            );
+            if (response.data.data) {
+                let statusList = response.data.data.map(r=> r.status)
+                setStatusList(uniq(statusList))
+                setSuppliers(response.data.data)
+                setPageCount(Math.ceil(response.data.pagination.pageCount));
+                setCount(response.data.pagination.count)
+                setIsLoadingSupplier(false)
+            }else{
+                alert('Failed getting appointments with search');
+                setIsLoadingSupplier(false)
+            }
+        }else{
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier?page=${page}&itemsPerPage=${itemsPerPage}`)
+            if (response) {
+                let statusList = response.data.data.map(r=> r.status)
+                setStatusList(uniq(statusList))
+                // console.log('respose', response)
+                setSuppliers(response.data.data)
+                setPageCount(Math.ceil(response.data.pagination.pageCount));
+                setCount(response.data.pagination.count)
+                setIsLoadingSupplier(false)
+            } else {
+                alert('Failed Getting Suppliers')
+                setIsLoadingSupplier(false)
+            }
+        }
+    
+  }
   return(
     <div className='details-details-container'>
       <div className='details-details-modal-container'>
@@ -173,18 +238,9 @@ const AddInventory = () => {
                         {
                             inventory.supplier_id._id !== ''? (
                                 <button
-                                onClick={async()=>{
-                                    setIsLoading(true)
-                                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier`)
-                                    if (response) {
-                                        console.log('respose', response)
-                                        setSuppliers(response.data.data)
-                                        setIsOpen({...isOpen, supplier: true})
-                                        setIsLoading(false)
-                                    } else {
-                                        alert('Failed Getting Suppliers')
-                                        setIsLoading(false)
-                                    }
+                                onClick={async ()=>{
+                                    await getSupplier();
+                                    setIsOpen({...isOpen, supplier: true})
                                 }}
                                 className="add_inventory_item_button"
                                 style={{background: 'white',  color: 'black'}}
@@ -192,9 +248,7 @@ const AddInventory = () => {
                             ):(
                                 <button
                                 onClick={async()=>{
-                                    const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier`)
-                                    console.log('respose', response)
-                                    setSuppliers(response.data.data)
+                                    await getSupplier();
                                     setIsOpen({...isOpen, supplier: true})
                                 }}
                                 className="add_inventory_item_button">Select Supplier</button>
@@ -322,7 +376,7 @@ const AddInventory = () => {
                                                     setStocks([])
                                                     await resp.data.data.fields.app.inventory_names.forEach(async(n)=>{
                                                         const resp2 = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/item_count/${n}`);
-                                                        console.log('resp2', resp2);
+                                                        // console.log('resp2', resp2);
                                                         if (resp2.data.data === null) {
                                                             setStocks((p)=>{
                                                                 let newvalue = [...p, {name:n, qty_remain: 0}]
@@ -338,7 +392,7 @@ const AddInventory = () => {
                                                                 return sortedValue;
                                                             })
                                                         } else {
-                                                            console.log(`resp for each else ${n}`, resp2.data);
+                                                            // console.log(`resp for each else ${n}`, resp2.data);
                                                             
                                                             if (resp2.data.data.length > 0) {
                                                                 let count = 0
@@ -346,7 +400,7 @@ const AddInventory = () => {
                                                                     inv.items.forEach((i)=>{
                                                                         if (i.name === n) {
                                                                             count = count + parseInt(i.qty_remain);
-                                                                            console.log(`name ${n}: ${count}`)
+                                                                            // console.log(`name ${n}: ${count}`)
                                                                         }
                                                                     })
                                                                 })
@@ -518,7 +572,7 @@ const AddInventory = () => {
                 // false
             } 
                 onClick={async()=>{ 
-                    // console.log('app2', app2)
+                    setDisableButton({...disableButton, addInventory: true})
                     let checkItemNameEmpty = false;
                         inventory.items.forEach((i)=>{
                             if (i.name === ''|| i.qty_ord === '') {
@@ -526,25 +580,25 @@ const AddInventory = () => {
                             }
                         })
                     if (checkItemNameEmpty) {
-                        alert('Please select item name and input order quantity')
+                        alert('Please select item name and input order quantity');
+                        setDisableButton({...disableButton, addInventory: false})
                     } else {
-
-                        // setDisableButton({...disableButton, addInventory: true});
                         if(inventory.date_ordered ==='' || inventory.status ===''){
                             alert('Select status or date order is empty')
+                            setDisableButton({...disableButton, addInventory: false})
                         }else{
                             let data = {inventory, filterType: 'addInventory',}
                             const resp = await axios.post(
                                 `${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory`,
                                 {data});
-                            // console.log('response add inventory', resp)
                             if (resp.data.message === 'tkn_e') {
                                 router.push("/cdcs/login");
                             } else if(resp.data.success === true){
                                 alert('Purchase Order Succesffuly Added')
                                 router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/inventory`);
                             }else {
-                                alert('Failed Adding Purchase Order')
+                                alert('Failed Adding Purchase Order');
+                                setDisableButton({...disableButton, addInventory: false})
                             }
                         }
                     }
@@ -570,17 +624,75 @@ const AddInventory = () => {
                     <div>
                         <div className='table-table2-container' style={{paddingBottom: '0px'}}>
                             <table className="table-table2-table">
-                                <thead className='table-table2-table-thead-search2'>
-                                </thead>
+                            <thead className='table-table2-table-thead-search2'>
+                      <tr className='table-table2-table-thead-tr-search2'>
+                      
+                          <th>
+                              <input 
+                              onKeyPress={handleKeypress}
+                              placeholder='Supplier Name' value={searchSupplier.name} onChange={(e)=>{setSearchSupplier({...searchSupplier, name: e.target.value})}}/>
+                          </th>
+                          <th>
+                              <input
+                              onKeyPress={handleKeypress}
+                              style={{width: '100%'}}
+                              placeholder='Contact' value={searchSupplier.contact} onChange={(e)=>{setSearchSupplier({...searchSupplier, contact: e.target.value})}}/>
+                          </th>
+                          <th>
+                              <input 
+                              onKeyPress={handleKeypress}
+                              placeholder='Email' value={searchSupplier.email} onChange={(e)=>{setSearchSupplier({...searchSupplier, email: e.target.value})}}/>
+                          </th>
+                          <th>
+                              <div style={{display: 'flex', justifyContent: 'center'}}>
+                                  
+                                  <input 
+                                  onKeyPress={handleKeypress}
+                                  placeholder='Address' value={searchSupplier.address} onChange={(e)=>{setSearchSupplier({...searchSupplier, address: e.target.value})}}/>
+                                  
+                              </div>
+                                  
+                          </th>
+                          <th>
+                            <select  className='appointment-filter-select'  value={searchSupplier.status} onChange={(e)=>{setSearchSupplier({...searchSupplier, status: e.target.value})}}>
+                                  <option value="">All Status</option>
+                                  {
+                                  statusList && statusList.map((f, i)=>{
+                                      return (
+                                          <option key={i} value={f}>{f}</option>
+                                      )
+                                  })
+                                  }
+                              </select>
+                          </th>
+                          <th>
+                            <button 
+                                onKeyPress={handleKeypress}
+                                style={{
+                                    width: '100%', 
+                                    height: '35px',
+                                    borderRadius: '5px', background: '#e9115bf0', color: 'white'}}
+                                onClick={async ()=>{
+                                    await setSearchSupplier({
+                                    name: '', contact: '', email:'', address:'', invoice_no:'', status:''
+                                    })
+                                    getSupplier();
+                                }}
+                                className='cursor-pointer'
+                            >X</button>
+                          </th> 
+                          {/* <th><Link href={`/cdcs/inventory/add-supplier`} passHref><p className='cursor-pointer'>New</p></Link></th> */}
+                      </tr>
+                  </thead>
                                 
                                 <thead className='table-table2-table-thead'>
                                 <tr className='table-table2-table-thead-tr'>
                                     <th>Name</th>
-                                    <th>Email</th>
                                     <th>Contact</th>
+                                    <th>Email</th>
+                                    <th style={{width: '1.5%'}}>Address</th>
                                     <th>Status</th>
-                                    <th>Address</th>
-                                    <th>Option</th>
+                                    <th>Select</th>
                                 </tr>
                                 </thead>
                                 <tbody className='table-table2-table-tbody'>
@@ -589,19 +701,28 @@ const AddInventory = () => {
                                             return (
                                                 <tr key={i} className='table-table2-table-tbody-tr'>
                                                     <td>{s.name}</td>
-                                                    <td>{s.email}</td>
                                                     <td>{s.contact}</td>
-                                                    <td>{s.status}</td>
+                                                    <td>{s.email}</td>
                                                     <td>{s.address}</td>
+                                                    <td>{s.status}</td>
+                                                    {/* <td>
+                                                        <button style={{background:'#e9115bf0'}} 
+                                                        // className='cursor-pointer'
+                                                        >
+                                                        {(page-1)*itemsPerPage+i+1}
+                                                        </button>
+                                                    </td> */}
                                                     <td>
                                                         <button
-                                                          onClick={(e)=>{
-                                                            setInventory({...inventory, 
-                                                                supplier_id: {_id:s._id,name:s.name,email:s.email,contact:s.contact,address:s.address}})
-                                                            setIsOpen({...isOpen, supplier: false})
-                                                          }}
+                                                            style={{background:'#e9115bf0'}}
+                                                            className='cursor-pointer'
+                                                            onClick={(e)=>{
+                                                                setInventory({...inventory, 
+                                                                    supplier_id: {_id:s._id,name:s.name,email:s.email,contact:s.contact,address:s.address}})
+                                                                setIsOpen({...isOpen, supplier: false})
+                                                            }}
 
-                                                        >Select</button>
+                                                        >{(page-1)*itemsPerPage+i+1}</button>
                                                     </td>
                                                 </tr>
                                             )
@@ -610,11 +731,16 @@ const AddInventory = () => {
                                     <tr>
                                         <td>-</td>
                                         <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
                                         <td>
                                         <button
+                                            style={{color: 'white', background:'#e9115bf0', height: '35px', width: '100%', borderRadius: '5px'}}
+                                            className='cursor-pointer'
                                             onClick={(e)=>{
                                                 setInventory({...inventory, 
-                                                    supplier_d: {_id:'',name:'',email:'',contact:'',address:''}})
+                                                    supplier_id: {_id:'',name:'',email:'',contact:'',address:''}})
                                                 setIsOpen({...isOpen, supplier: false})
                                             }}
                                         >De Select</button>
@@ -623,6 +749,48 @@ const AddInventory = () => {
                                 </tbody>
                             </table>
                         </div>
+                        <div className='display-flex-center'>
+                                <span className='color-black-13-bold' style={{margin: '5px 30px'}}>Number of Items: 
+                                    <select value={itemsPerPage}
+                                    style={{margin: '5px 10px'}}
+                                    onChange={(e)=>{setItemsPerPage(e.target.value)}}
+                                    >
+                                        <option value='10'>10</option>
+                                        <option value='15'>15</option>
+                                        <option value='20'>20</option>
+                                        <option value='25'>25</option>
+                                    </select>
+                                </span>
+                                <button onClick={()=>{
+                                    setPage((p)=>{
+                                        if (page === 1) {
+                                            return p;
+                                        }
+                                        return p - 1;
+                                    })
+                                    }}
+                                    disabled={page === 1}
+                                    style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
+                                    className='button-disabled'
+                                >&lt;</button>
+                                <span className='color-black-13-bold'
+                                    style={{margin: '5px 10px'}}
+                                    >{count? (`Results: ${(page-1)*itemsPerPage+1} - ${(page-1)*itemsPerPage + suppliers.length} of ${count}`):
+                                        (`Results: 0 - ${(page-1)*itemsPerPage + suppliers.length} of ${count}`)}
+                                </span> 
+                                <button onClick={()=>{
+                                    setPage((p)=>{
+                                        if (p === pageCount) {
+                                            return p
+                                        }
+                                        return p + 1;
+                                    })
+                                    }}
+                                    disabled={page === pageCount}
+                                    style={{width: '50px',fontSize: '20px', background: '#e9115bf0', color: 'white', cursor: 'pointer'}}
+                                    className='button-disabled'
+                                >&gt;</button>
+                            </div>
                         
                     </div>
 
@@ -715,6 +883,24 @@ const AddInventory = () => {
       {
             isLoading? (
             <div className='overlay'>
+                <div className='center-div'>
+                    <Image
+                    src="/loading.gif"
+                    alt="users"
+                    width={40}
+                    height={40}
+                    />
+                </div>
+                
+            </div>
+            )
+            :
+            ('')
+      }
+      {
+            isLoadingSupplier?
+             (
+            <div className='overlay10'>
                 <div className='center-div'>
                     <Image
                     src="/loading.gif"

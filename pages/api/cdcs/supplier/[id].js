@@ -26,31 +26,13 @@ export default async (req, res) => {
             res.json({success: true, message: 'empty resp' })
           }
         }else if(req.method === 'POST' && (obj.type === 'Admin'|| obj.type === 'Dental Assistant')){
-          // console.log('req.body', req.body.data.inventory)
-          console.log('req.query', req.query.id)
-          console.log('req.body', req.body.data.inventory)
-          if (req.body.data.inventory.supplier_id === undefined || req.body.data.inventory.supplier_id._id !=='' ) {
-            console.log('not empty supplier')
-            let data = {...req.body.data.inventory, 
-              // supplier_id: req.body.data.inventory.supplier_id.id
-            }
-            const response = await CDCSSupplier.updateOne({_id: req.query.id},data)
-            console.log('response', response);
+            const response = await CDCSSupplier.updateOne({_id: req.query.id}, req.body.supplier)
+            // console.log('response', response);
             if (response) {
                   res.json({ success: true, data: response });
                 } else {
                   res.json({success: false, message: 'failed mdb'})
                 }
-          } else {
-            console.log('empty supplier')
-            let data = {...req.body.data.inventory}
-            const response = await CDCSInventory.updateOne({_id: req.query.id},data)
-            if (response) {
-              res.json({ success: true, data: response });
-            } else {
-              res.json({success: false, message: 'failed mdb'})
-            }
-          }
         }else {
           res.json({success: false, message: `mthd ${req.method} _x and nt a`})
         }
