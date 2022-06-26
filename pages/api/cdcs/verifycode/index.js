@@ -9,14 +9,14 @@ export default async function (req, res) {
 
   try {
     await dbConnect();
-    const token = getCookie("cdcsjwt", { req, res });
+    // const token = getCookie("cdcsjwt", { req, res });
     if (
       // !token
       false
       ) {
       res.json({message: "noToken" });
     } else {
-      const verified = jwt.verify(token, process.env.JWT_SECRET);
+      // const verified = jwt.verify(token, process.env.JWT_SECRET);
       if (
         // verified.id === 'registration'
         true

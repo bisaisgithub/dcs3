@@ -36,7 +36,7 @@ export default async (req, res) => {
           res.json({ success: true, data: note });
         // }
       }
-      
+
       // try {
       //   const hash = bcrypt.hashSync(req.body.password, 10);
       //   req.body.password = hash;
@@ -46,7 +46,7 @@ export default async (req, res) => {
       // } catch (error) {
       //   res.json({ success: false, error: `post error: ${error}` });
       // }
-      res.json({ success: false, message: "no-token" });
+      // res.json({ success: false, message: "no-token" });
     } else {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       if (verified.id === 'registration') {

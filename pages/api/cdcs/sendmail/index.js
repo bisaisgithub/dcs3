@@ -18,7 +18,7 @@ export default async function (req, res) {
 
   try {
     await dbConnect();
-    const token = getCookie("cdcsjwt", { req, res });
+    // const token = getCookie("cdcsjwt", { req, res });
     if (
       // !token
       false
@@ -26,7 +26,7 @@ export default async function (req, res) {
       res.json({message: "noToken" });
     } else {
       const code = Math.floor(1000 + Math.random() * 9000);
-      const verified = jwt.verify(token, process.env.JWT_SECRET);
+      // const verified = jwt.verify(token, process.env.JWT_SECRET);
       if (
         // verified.id === 'registration'
         true
