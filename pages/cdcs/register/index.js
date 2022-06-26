@@ -169,15 +169,20 @@ const Register = () => {
             </div>
             <div className='details-details-modal-body-input-box'>
                 <span>Pasword</span>
-                <input type="password" placeholder="Enter password" value={userInput.password} required onChange={e=>setUserInput(prev=>({...prev,password:e.target.value}))} />
+                <input type="password" placeholder="Enter password" value={userInput.password} 
+                pattern=".{8,}"
+                title="must be 8 or more characters"
+                required onChange={e=>setUserInput(prev=>({...prev,password:e.target.value}))} />
             </div>
             <div className="details-details-modal-body-input-box">
                 <span>Mobile</span>
                 <input type="text" placeholder="Enter mobile" value={userInput.mobile} 
-                pattern="[0-9]{10}"
+                // pattern="[0-9]{10}"
+                pattern="[8,9]+[0-9]{9}"
+                // pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" //email
                 // pattern="[A-Za-z\d\.]{6,12}"
                 // pattern="https?://.+"
-                title="must be 10 digit number"
+                title="must start with 8 or 9 and must be 10 digit number"
                 required onChange={e=>setUserInput(p=>({...p,mobile:e.target.value}))}/>
             </div>                       
             <div className="details-details-modal-body-input-box">
@@ -214,7 +219,14 @@ const Register = () => {
                 Registration
               </div>
               {/* <h3 className="text_center_margin0">Step 1 of 2</h3> */}
-              <p className="text_center_margin0">Enter the code you received in your email</p>
+              <p className="text_center_margin0">{`Enter the code you received at  ${email}`}</p>
+              <p>If the email is incorrect, click 
+                <span 
+                onClick={()=>{
+                  setDisableButton({...disableButton, verify: false});
+                  setStep({one: true, two: false, three: false});
+                }}
+                style={{color: 'blue', textDecoration:'underline', cursor: 'pointer'}}> Here</span></p>
             </div>
             <div className="form-body-input-box">
               {/* <span className="form-body-input-box-span">Code</span> */}
