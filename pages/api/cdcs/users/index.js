@@ -10,6 +10,33 @@ export default async (req, res) => {
     await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
     if (!token) {
+      const checkNameExist = await CDCSUsers7.find({
+        name: req.body.name, 
+        // email: req.body.email
+      }, {name: 1}
+      )
+      // console.log('checkNameExist', checkNameExist.length)
+      // res.json({success: true, data: checkUserExist})
+      if (checkNameExist.length > 0) {
+        res.json({success: false, message: 'exist_name'})
+      } else {
+        // const checkEmailExist = await CDCSUsers7.find({
+        //   email: req.body.email, 
+        //   // email: req.body.email
+        // }, {name: 1}
+        // )
+        // // console.log('checkEmailExist', checkEmailExist.length)
+        // if (checkEmailExist.length > 0) {
+        //   res.json({success: false, message: 'exist_email'})
+        // } else {
+          // res.json({success: true, message: 'not exist'})
+          const hash = bcrypt.hashSync(req.body.password, 10);
+          req.body.password = hash;
+          const note = await CDCSUsers7.create(req.body);
+          res.json({ success: true, data: note });
+        // }
+      }
+      
       // try {
       //   const hash = bcrypt.hashSync(req.body.password, 10);
       //   req.body.password = hash;

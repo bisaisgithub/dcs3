@@ -14,7 +14,7 @@ import "react-datepicker/dist/react-datepicker.css";
 const Register = () => {
   // const [render, setRender] = useState(0);
   useEffect(()=>{
-    getTkn();
+    // getTkn();
   }, [])
   const router = useRouter();
   const [email, setEmail] = useState('');

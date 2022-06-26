@@ -19,12 +19,18 @@ export default async function (req, res) {
   try {
     await dbConnect();
     const token = getCookie("cdcsjwt", { req, res });
-    if (!token) {
+    if (
+      // !token
+      false
+      ) {
       res.json({message: "noToken" });
     } else {
       const code = Math.floor(1000 + Math.random() * 9000);
       const verified = jwt.verify(token, process.env.JWT_SECRET);
-      if (verified.id === 'registration') {
+      if (
+        // verified.id === 'registration'
+        true
+        ) {
         const checkNameExist = await CDCSUsers7.find({
           email: req.body.email, 
           // email: req.body.email
