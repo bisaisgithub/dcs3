@@ -499,7 +499,7 @@ const AddInventory = () => {
                                             }}
                                         />                               
                                 </div>
-                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input" style={{width: '62px'}}>
                                         <span style={index? {display: 'none'}:{}}>Total Cost</span>
                                         <input type='number' name="total_cost" value={item.total_cost} disabled
                                             // onChange={(event)=>{
@@ -507,7 +507,7 @@ const AddInventory = () => {
                                             // }}
                                         />                               
                                 </div>
-                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input" style={{width: '62px'}}>
                                         <span style={index? {display: 'none'}:{}}>Qty Remain</span>
                                         <input type='number' name="qty_remaining" value={item.qty_remain} disabled
                                             // onChange={(event)=>{
@@ -515,7 +515,7 @@ const AddInventory = () => {
                                             // }}
                                         />                               
                                 </div>
-                                <div className="details-details-modal-body-input-box3 add-inventory-item-input">
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input" style={{margin: '0px'}}>
                                     <span style={index? {display: 'none'}:{}}>Delete</span>
                                     <button className='add-remove-button' 
                                         onClick={async ()=>{

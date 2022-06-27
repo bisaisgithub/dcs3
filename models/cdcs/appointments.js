@@ -29,6 +29,7 @@ const AppointmentSchema = new mongoose.Schema(
     app_pay_fields: [{}],
     notes:[{}],
     patient_request: {},
+    patient_exam: [{}]
   },
   { timestamps: true }
 );

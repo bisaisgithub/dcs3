@@ -13,32 +13,44 @@ const Users = ({ user }) => {
   // const [data, setData] = useState(null);
   const [usersData, setUsersData] = useState(null);
   const [search, setSearch] = useState({
-    name_: '',status_: '',type: '',
+    name: '',status: '',type: '',
   });
+  const [statusList, setStatusList] = useState([])
+  const [typeList, setTypeList] = useState([])
   useEffect(() => {
     getUsers();
   }, [])
   // if (isLoading){
   //   return <p>Loading...</p>
   // }
-  const getUsers = async (data)=>{
-    if (data) {
-      console.log('data is not empty', data);
+  const getUsers = async ()=>{
+    if (search.name !== '' || search.status !== '' || search.type !== '') {
+      console.log('data is not empty' );
       const response = await axios.post(`/api/cdcs/users`,{
-        post:1,data
+        post:1,data:search
         });
       if (response.data) {
-        
+        let statusList = response.data.data.map(r=> r.status)
+        let typeList = response.data.data.map(r=> r.type)
+        setTypeList(uniq(typeList));
+        setStatusList(uniq(statusList));
         setUsersData(response.data.data);
-          // console.log('response',response.data);
+        // console.log('statusList',statusList);
+        // console.log('typeList',typeList);
       }else{
         console.log('Failed getting users with filter')
       }
     }else{
-      console.log('data is empty', data);
+      // console.log('data is empty', data);
       const response = await axios.get(`/api/cdcs/users`);
         if (response.data) {
+          let statusList = response.data.data.map(r=> r.status);
+          let typeList = response.data.data.map(r=> r.type);
+          setTypeList(uniq(typeList));
+          setStatusList(uniq(statusList));
           setUsersData(response.data.data);
+          // console.log('statusList',statusList);
+          // console.log('typeList',typeList);
             // console.log(response.data);
             // console.log('response',response.data);
         }else{
@@ -46,6 +58,11 @@ const Users = ({ user }) => {
         }
     }
   }
+  function uniq(a) {
+    return a.sort().filter(function(item, pos, ary) {
+        return !pos || item != ary[pos - 1];
+    });
+}
   return (
     <div className="blackbg" >
       <Navbarcdcs user={user} />
@@ -53,18 +70,47 @@ const Users = ({ user }) => {
         <table className="table-table2-table">
           <thead className='table-table2-table-thead-search2'>
             <tr className='table-table2-table-thead-tr-search2'>
-              <th><p onClick={()=>{getUsers({name: search.name_,status:search.status_,type:search.type})}}>Find</p></th>
-              <th><input placeholder='Name' value={search.name_} onChange={e=>setSearch(prev=>({...prev, name_: e.target.value}))}/>
+              {/* <th><p onClick={()=>{getUsers()}}>Find</p></th> */}
+              <th>
+                <input placeholder='Name' value={search.name} onChange={e=>setSearch(prev=>({...prev, name: e.target.value}))}/>
+                
+              </th>
+              <th>
+                <select style={{width: '80%'}}
+                value={search.status} onChange={e=>setSearch(prev=>({...prev, status: e.target.value}))}
+                className='appointment-filter-select' >
+                  <option value="">All Status</option>
+                  {
+                    statusList && statusList.map((f, i)=>{
+                    return (
+                        <option key={i} value={f}>{f}</option>
+                    )
+                    })
+                  }
+                </select>
                 <button onClick={()=>setSearch({name_:'',status_:'',type:''})}>X</button>
               </th>
-              <th><input placeholder='Status' value={search.status_} onChange={e=>setSearch(prev=>({...prev, status_: e.target.value}))}/></th>
-              <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th>
+              {/* <th><input placeholder='Type' value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}/></th> */}
+              <th>
+                <select 
+                value={search.type} onChange={e=>setSearch(prev=>({...prev, type: e.target.value}))}
+                className='appointment-filter-select' >
+                  <option value="">All Type</option>
+                  {
+                    typeList && typeList.map((f, i)=>{
+                    return (
+                        <option key={i} value={f}>{f}</option>
+                    )
+                    })
+                  }
+                </select>
+              </th>
               <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
             </tr>
           </thead>
           <thead className='table-table2-table-thead'>
             <tr className='table-table2-table-thead-tr'>
-              <th>No</th>
+              {/* <th>No</th> */}
               <th>Name</th>
               <th>Status</th>
               <th>Type</th>
@@ -77,7 +123,7 @@ const Users = ({ user }) => {
             usersData && usersData.map((user, index)=>{
               return (
                 <tr key={index} className='table-table2-table-tbody-tr'>
-                  <td>{index+1}</td>
+                  {/* <td>{index+1}</td> */}
                   <td>{user.name}</td>
                   <td>
                       <button  id={user.status=== 'Scheduled'? 'bg-green':'bg-black'}>{user.status}</button>
