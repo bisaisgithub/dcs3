@@ -50,7 +50,7 @@ export default async (req, res) => {
               }
           }else if (req.body.filterType === 'searchSupplier') {
             let query = {}
-            console.log('req.body', req.body)
+            // console.log('req.body', req.body)
             if (req.body.searchSupplier.name !== '') {
               query = {...query, 
                 name: new RegExp(`.*${req.body.searchSupplier.name}.*`,'i')

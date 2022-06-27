@@ -52,14 +52,26 @@ const UserDetails = () => {
       alert('Failed Updating User')
     }
   }
+  const setPatientAgeFunction = (patientDOB)=>{
+    const ageDiffs = new Date().getFullYear() - new Date(patientDOB).getFullYear();
+    if ((new Date().getMonth() >= new Date(patientDOB).getMonth()) && (new Date().getDate() >= new Date(patientDOB).getDate())) {
+        // setPatientAge(ageDiffs -1);
+        return ageDiffs;
+    } else {
+        return ageDiffs -1;
+        
+        // setPatientAge(ageDiffs);
+    }
+  }
   return ( 
     <div className="blackbg">
       <div className='details-details-container'>
       <div className='details-details-modal-container'>
-        <div className='details-details-modal-title'>
-        {/* {patient_id? `${patient_name} Details --  Age: ${patientAge}`: 'Patient Details'} */}
+        <div className='details-details-modal-title-left-1'>
+        {/* {userInput._id? `${userInput.name} Details --  Age: ${14}`: 'Patient Details'} */}
+        {userInput._id? `  Age: ${setPatientAgeFunction(new Date(userInput.dob))}`: ''}
         </div>
-        <input type="text" placeholder={`${router.query.id}`}/>
+        {/* <input type="text" placeholder={`${router.query.id}`}/> */}
         <div className='details-details-modal-body'>
           <div className='details-details-modal-body-input-box'>
               <span>Full Name</span>

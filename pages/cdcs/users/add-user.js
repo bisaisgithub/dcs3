@@ -38,11 +38,23 @@ const AddUser = ({user}) => {
       }
     }
   };
+  const setPatientAgeFunction = (patientDOB)=>{
+    const ageDiffs = new Date().getFullYear() - new Date(patientDOB).getFullYear();
+    if ((new Date().getMonth() >= new Date(patientDOB).getMonth()) && (new Date().getDate() >= new Date(patientDOB).getDate())) {
+        // setPatientAge(ageDiffs -1);
+        return ageDiffs;
+    } else {
+        return ageDiffs -1;
+        
+        // setPatientAge(ageDiffs);
+    }
+  }
   return (
     <div className='details-details-container'>
       <form className='details-details-modal-container' onSubmit={addUser}>
-        <div className='details-details-modal-title'>
+        <div className='details-details-modal-title-left-1'>
           {/* {patient_id? `${patient_name} Details --  Age: ${patientAge}`: 'Patient Details'} */}
+          {userInput.dob? `  Age: ${setPatientAgeFunction(new Date(userInput.dob))}`: `Age: `}
           </div>
         <div className='details-details-modal-body'>
           <div className='details-details-modal-body-input-box'>

@@ -86,8 +86,13 @@ export default async (req, res) => {
           const { method } = req;
           if (method === "GET") {
             // console.log('req.method', req.method)
+            const items_per_page = req.query.itemsPerPage || 10;
+            const page = req.query.page || 1;
+            const skip = (page-1) * items_per_page;
+            let count;
             switch (obj.type) {
               case "Admin":
+                  count = await CDCSUsers7.countDocuments();
                   const userGetAdmin = await CDCSUsers7.find(
                     {},
                     {
@@ -100,15 +105,16 @@ export default async (req, res) => {
                       status: 1,
                     }
                   )
-                    // .skip(3)
-                    // .limit(10)
+                    .skip(skip)
+                    .limit(items_per_page)
                     .populate("created_by", "name")
                     .sort({ type: -1, name: 1 });
                   // console.log('user:', user);
                   // const username = await CDCSUsers7.findOne({_id: })
-                  res.json({ sucess: true, data: userGetAdmin });
+                  res.json({ sucess: true, data: userGetAdmin, pagination:{count, pageCount: count/items_per_page} });
                 break;
               case "Receptionist":
+                  count = await CDCSUsers7.countDocuments();
                   const user = await CDCSUsers7.find(
                     { 
                       type: { $ne: "Admin" } 
@@ -123,8 +129,11 @@ export default async (req, res) => {
                       status: 1,
                     }
                   )
-                  .sort({ type: -1 });
-                  res.json({ sucess: true, data: user });
+                    .skip(skip)
+                    .limit(items_per_page)
+                    .populate("created_by", "name")
+                    .sort({ type: -1, name: 1 });
+                  res.json({ sucess: true, data: user, pagination:{count, pageCount: count/items_per_page} });
                 break;
               default:
                 console.log("user get default not admin or receptionist");
@@ -133,12 +142,39 @@ export default async (req, res) => {
           } else if (method === "POST") {
             if (req.body.post === 1) { 
               // console.log('req.body.data', req.body.data.name)
+              let query = {}
+              // console.log('req.body', req.body)
+              if (req.body.data.name !== '') {
+                query = {...query, 
+                  name: new RegExp(`.*${req.body.data.name}.*`,'i')
+                }
+              }
+              if (req.body.data.status !== '') {
+                query = {...query,
+                  status: req.body.data.status
+                      // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
+                }
+              }
+              if (req.body.data.type !== '') {
+                query = {...query,
+                  type: req.body.data.type
+                      // {$regex: `.*${req.body.data.search.status}.*`, $options: 'i'} ,
+                }
+              } 
+              // console.log('query', query)
+              const items_per_page = req.query.itemsPerPage || 10;
+              const page = req.query.page || 1;
+              const skip = (page-1) * items_per_page;
+              let count;
+              // const count = await CDCSSupplier.countDocuments(query);
+              // const response = await CDCSSupplier.find(query)
               switch (obj.type) {
                 case "Admin":
-                    const userAdmin = await CDCSUsers7.find(
-                      {name: new RegExp(`.*${req.body.data.name}.*`,'i'), type: new RegExp(`.*${req.body.data.type}.*`,'i'),
-                      //  status: /.*.*/i,
-                      },
+                    // query = {...query, 
+                    //   type: { $ne: "Admin" }
+                    // }
+                    count = await CDCSUsers7.countDocuments(query);
+                    const userAdmin = await CDCSUsers7.find(query,
                       {
                         name: 1,
                         email: 1,
@@ -149,24 +185,20 @@ export default async (req, res) => {
                         status: 1,
                       }
                     )
+                      .skip(skip)
+                      .limit(items_per_page)
                       .populate("created_by", "name")
-                      .sort({ type: -1 });
+                      .sort({ type: -1, name: 1 });
                     // console.log('user:', user);
                     // const username = await CDCSUsers7.findOne({_id: })
-                    res.json({ sucess: true, data: userAdmin });
+                    res.json({ sucess: true, data: userAdmin, pagination:{count, pageCount: count/items_per_page}  });
                   break;
                 case "Receptionist":
-                    const user = await CDCSUsers7.find(
-                      // { type: { $ne: "Admin" } },
-                      {
-                        name: 
-                        // 'Benar Isais',
-                        new RegExp(`.*${req.body.data.name}.*`,'i'),
-                      type: 
-                      {$regex: `.*${req.body.data.type}.*`, $options: 'i', $ne: "Admin"} ,
-                      status: 
-                      {$regex: `.*${req.body.data.status}.*`, $options: 'i'} ,
-                      },
+                    query = {...query, 
+                        type: { $ne: "Admin" }
+                    }
+                    count = await CDCSUsers7.countDocuments(query);
+                    const user = await CDCSUsers7.find(query,
                       {
                         name: 1,
                         email: 1,
@@ -176,7 +208,11 @@ export default async (req, res) => {
                         created_by: 1,
                         status: 1,
                       }
-                    );
+                    )
+                    .skip(skip)
+                    .limit(items_per_page)
+                    .populate("created_by", "name")
+                    .sort({ type: -1, name: 1 });
                     res.json({ sucess: true, data: user });
                   break;
                 default:

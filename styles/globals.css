@@ -258,10 +258,26 @@ th, td{
   font-weight: 500;
   position: relative;
 }
+.details-details-modal-title-left-1 {
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  padding: 10px;
+}
 .details-details-modal-title::before {
   content: "";
   position: absolute;
   left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 30px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #71b7e6, #9b59b6);
+}
+.details-details-modal-title-left-1::before {
+  content: "";
+  position: absolute;
+  left: 1;
   bottom: 0;
   height: 3px;
   width: 30px;
