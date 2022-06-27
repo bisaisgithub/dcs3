@@ -43,8 +43,8 @@ const AppointmentTable = ({user}) => {
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -57,8 +57,8 @@ const AppointmentTable = ({user}) => {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
                 // console.log('response', response.data.data)
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)

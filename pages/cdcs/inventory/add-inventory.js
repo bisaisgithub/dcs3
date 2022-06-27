@@ -461,7 +461,7 @@ const AddInventory = () => {
                                             }}
                                         />                               
                                 </div>
-                                <div className="details-details-modal-body-input-box3 add-inventory-item-input-small">
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input-small" style={{width: '59px'}}>
                                         <span style={index? {display: 'none'}:{}}>Qty Rcvd</span>
                                         <input disabled={inventory.date_received === null|| inventory.date_received === '' || item.name === ''}  type='text' name="qty_rcvd" value={item.qty_rcvd} 
                                             onChange={(event)=>{
@@ -490,7 +490,7 @@ const AddInventory = () => {
                                     }} />
                                     
                                 </div>
-                                <div className="details-details-modal-body-input-box3 add-inventory-item-input-small">
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input-small" style={{width: '62px'}} >
                                         <span style={index? {display: 'none'}:{}}>Unit Cost</span>
                                         <input disabled={item.qty_rcvd=== ''} type='text' name="unit_cost" value={item.unit_cost}
                                             onChange={(event)=>{
@@ -508,14 +508,14 @@ const AddInventory = () => {
                                         />                               
                                 </div>
                                 <div className="details-details-modal-body-input-box3 add-inventory-item-input" style={{width: '62px'}}>
-                                        <span style={index? {display: 'none'}:{}}>Qty Remain</span>
+                                        <span style={index? {display: 'none'}:{}}>Qty Rem</span>
                                         <input type='number' name="qty_remaining" value={item.qty_remain} disabled
                                             // onChange={(event)=>{
                                             //     handleChangeItem(index, event)
                                             // }}
                                         />                               
                                 </div>
-                                <div className="details-details-modal-body-input-box3 add-inventory-item-input" style={{margin: '0px'}}>
+                                <div className="details-details-modal-body-input-box3 add-inventory-item-input" style={{margin: '0px', width: '62px'}}>
                                     <span style={index? {display: 'none'}:{}}>Delete</span>
                                     <button className='add-remove-button' 
                                         onClick={async ()=>{
