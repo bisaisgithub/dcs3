@@ -852,17 +852,26 @@ const AppointmentDetails = () => {
                                     alert('Please select procedure')
                                 }else if(!app.patient_id||!app.doctor_id||!app.date||!app.status ||!app.type){
                                     alert('Empty Field/s')
-                                    console.log('app.patient_id: ', app.patient_id)
-                                    console.log('app.doctor_id: ', app.doctor_id)
-                                    console.log('app.status: ', app.status)
-                                    console.log('app.type: ', app.type)
+                                    // console.log('app.patient_id: ', app.patient_id)
+                                    // console.log('app.doctor_id: ', app.doctor_id)
+                                    // console.log('app.status: ', app.status)
+                                    // console.log('app.type: ', app.type)
                                 }
                                 else{
                                     // console.log('app: ', app)
                                     // console.log('appOld: ', appOld)
                                     // console.log('router_id: ', router.query.id);
-                                    let appUpdate = {...app, patient_id: app.patient_id.value}
-                                    delete appUpdate._id;
+                                    let appUpdate;
+                                    console.log('app.patient_id.value', app.patient_id.value)
+                                    if (app.patient_id.value === undefined) {
+                                        appUpdate = {...app}
+                                        delete appUpdate._id;  
+                                    }else{
+                                        appUpdate = {...app, patient_id: app.patient_id.value}
+                                        delete appUpdate._id; 
+                                    }
+                                    
+                                    console.log('appUpdate', appUpdate);
                                     // let appUpdateCombined = {new: appUpdate, old: appOld}
                                     // console.log('combined', appUpdateCombined)
                                     const response = await axios.post(

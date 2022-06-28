@@ -75,8 +75,8 @@ const AppointmentTable = ({user}) => {
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -89,8 +89,8 @@ const AppointmentTable = ({user}) => {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
                 if (response.data.data) {
                     // console.log('response.data.data',response.data.data)
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -222,9 +222,9 @@ const AppointmentTable = ({user}) => {
                                     setPage(1)
                                     setClosedFilter(e.target.value);
                                     }}>
-                                            <option value="notClosed">Not Closed</option>
-                                            <option value="closedOnly">All Closed</option>
-                                        </select>
+                                    <option value="notClosed">Not Closed</option>
+                                    <option value="closedOnly">All Closed</option>
+                                </select>
                             </th>
                             {/* <th><p onClick={()=>{
                                     getAppointments();
@@ -234,15 +234,36 @@ const AppointmentTable = ({user}) => {
                             </th> */}
                             <th>
                                 {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
-                                <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                
+                                {
+                                    closedFilter === 'notClosed'? (
+                                        <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
                                             <option value="">All Status</option>
-                                            {
+                                            <option value="In Request">In Request</option>
+                                            <option value="On Schedule">On Schedule</option>
+                                            <option value="In Waiting Area">In Waiting Area</option>
+                                            <option value="In Procedure Room">In Procedure Room</option>
+                                        </select>
+                                        
+                                    ):
+                                    (
+                                        <select  className='appointment-filter-select'  value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                            <option value="">All Status</option>
+                                            <option value="Next Appointment">Next Appointment</option>
+                                            <option value="Closed">Closed</option>
+                                            <option value="Closed No Show">Closed No Show</option>
+                                            <option value="Closed w/ Balance">Closed w/ Balance</option>
+                                        </select>
+                                        
+                                    )
+                                }
+                                            {/* {
                                                statusList && statusList.map((f, i)=>{
                                                 return (
                                                     <option key={i} value={f}>{f}</option>
                                                 )
                                                })
-                                            }
+                                            } */}
                                             {/* <option value="On Schedule">On Schedule</option>
                                             <option value="In Waiting Area">In Waiting Area</option>
                                             <option value="In Procedure Room">In Procedure Room</option>
@@ -251,7 +272,7 @@ const AppointmentTable = ({user}) => {
                                             <option value="Closed No Show">Closed No Show</option>
                                             <option value="Closed w/ Balance">Closed w/ Balance</option>
                                             <option value="In Request">In Request</option> */}
-                                        </select>
+                                        
                                 </th>
                             <th><Link href="/cdcs/appointments/add-appointment" passHref><p className='cursor-pointer'>New</p></Link></th>
                             

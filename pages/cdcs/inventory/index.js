@@ -22,7 +22,7 @@ const Inventory = ({user}) => {
     const [count, setCount] = useState(0);
     const [pageCount, setPageCount] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(15);
-    const [closedFilter, setClosedFilter] = useState('notClosed')
+    const [closedFilter, setClosedFilter] = useState('notClosed');
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
     const [statusList, setStatusList] = useState([])
@@ -61,8 +61,8 @@ const Inventory = ({user}) => {
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -76,8 +76,8 @@ const Inventory = ({user}) => {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory?page=${page}&itemsPerPage=${itemsPerPage}`);
                 // console.log('response', response.data)
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -104,8 +104,8 @@ const Inventory = ({user}) => {
                     {data: {filterType: 'search', search}}
                 );
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -117,8 +117,8 @@ const Inventory = ({user}) => {
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/inventory/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setInventoryData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -213,16 +213,36 @@ const Inventory = ({user}) => {
                                 </th>
                                 <th>
                                     {/* <input placeholder='Status' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}/> */}
-                                    <select   className='appointment-filter-select' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
-                                        <option value="">All Status</option>
-                                        {
-                                        statusList && statusList.map((f, i)=>{
-                                            return (
-                                                <option key={i} value={f}>{f}</option>
-                                            )
-                                        })
-                                        }
-                                    </select>
+                                    {
+                                        closedFilter === 'notClosed'? (
+                                            <select   className='appointment-filter-select' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                                <option value="">All Status</option>
+                                                <option value="In Request">In Request</option>
+                                                <option value="In Supplier">In Supplier</option>
+                                                <option value="In Shipping">In Shipping</option>
+                                                {/* {
+                                                statusList && statusList.map((f, i)=>{
+                                                    return (
+                                                        <option key={i} value={f}>{f}</option>
+                                                    )
+                                                })
+                                                } */}
+                                            </select>
+                                        ):(
+                                            <select   className='appointment-filter-select' value={search.status} onChange={(e)=>{setSearch({...search, status: e.target.value})}}>
+                                                <option value="">All Status</option>
+                                                <option value="Received">Received</option>
+                                                {/* {
+                                                statusList && statusList.map((f, i)=>{
+                                                    return (
+                                                        <option key={i} value={f}>{f}</option>
+                                                    )
+                                                })
+                                                } */}
+                                            </select>
+                                        )
+                                    }
+                                    
                                 </th>
                                 
                                 

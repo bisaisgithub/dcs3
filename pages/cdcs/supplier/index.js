@@ -56,8 +56,8 @@ const Supplier = ({user}) => {
                     {filterType: 'searchSupplier', searchSupplier}
                 );
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setSupplierData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -71,8 +71,8 @@ const Supplier = ({user}) => {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/supplier?page=${page}&itemsPerPage=${itemsPerPage}`);
                 // console.log('response', response.data)
                 if (response.data.data) {
-                    let statusList = response.data.data.map(r=> r.status)
-                    setStatusList(uniq(statusList))
+                    // let statusList = response.data.data.map(r=> r.status)
+                    // setStatusList(uniq(statusList))
                     setSupplierData(response.data.data)
                     setPageCount(Math.ceil(response.data.pagination.pageCount));
                     setCount(response.data.pagination.count)
@@ -142,7 +142,7 @@ const Supplier = ({user}) => {
                 </Link>
                 <Link href={`/cdcs/inventory`} passHref>
                     <span 
-                    onClick={()=>{setLoading2(true)}}
+                    // onClick={()=>{setLoading2(true)}}
                     style={{background:'#034c81', width: '20%', textAlign: 'center', 
                         padding: '10px', fontSize: '18px', color: 'white', fontWeight: '500', borderRadius: '5px'}} 
                     className='cursor-pointer'
@@ -193,14 +193,18 @@ const Supplier = ({user}) => {
                           </th>
                           <th>
                             <select  className='appointment-filter-select'  value={searchSupplier.status} onChange={(e)=>{setSearchSupplier({...searchSupplier, status: e.target.value})}}>
-                                  <option value="">All Status</option>
-                                  {
+                                <option value="">All Status</option>
+                                <option value="Active Good">Active Good</option>
+                                <option value="Active Semi Good">Active Semi Good</option>
+                                <option value="Active Bad">Active Bad</option>
+                                <option value="Closed">Closed</option>
+                                  {/* {
                                   statusList && statusList.map((f, i)=>{
                                       return (
                                           <option key={i} value={f}>{f}</option>
                                       )
                                   })
-                                  }
+                                  } */}
                               </select>
                           </th>
                           
