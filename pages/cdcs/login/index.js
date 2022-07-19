@@ -17,10 +17,18 @@ const Login = () => {
       "/api/cdcs/login",
       credentials
     );
-    // console.log(user);
+    console.log(user);
     if (user.data.success) {
+      if (user.data.userType === 'Receptionist') {
+        router.push("/cdcs/appointments");
+      }else if (user.data.userType === 'Dental Assistant') {
+        router.push("/cdcs/inventory");
+      }else {
+        router.push("/cdcs/dashboard");
+      }
       // console.log("router push should run after");
-      router.push("/cdcs/dashboard");
+      // router.push("/cdcs/dashboard");
+
     }else{
       alert('Invalid Email or Password');
       setDisabled(false);

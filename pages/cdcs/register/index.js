@@ -28,11 +28,11 @@ const Register = () => {
   // const [receivedCode, setReceivedCode] = useState('');
   const [disableButton, setDisableButton] = useState({verify: false, submitCode: false, register : false});
 
-  const getTkn = async ()=>{
-    const getTknRes = await axios.get(
-      "/api/cdcs/register"
-    );
-  }
+  // const getTkn = async ()=>{
+  //   const getTknRes = await axios.get(
+  //     "/api/cdcs/register"
+  //   );
+  // }
  
   const verifyEmail = async (e) => {
     e.preventDefault();

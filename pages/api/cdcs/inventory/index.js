@@ -15,7 +15,7 @@ export default async (req, res) => {
     } else {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-        if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Receptionist')){
+        if(req.method === 'GET' && (obj.type === 'Admin' || obj.type === 'Dental Assistant')){
           const items_per_page = req.query.itemsPerPage || 10;
           const page = req.query.page || 1;
           const skip = (page-1) * items_per_page;

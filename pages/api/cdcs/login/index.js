@@ -13,7 +13,7 @@ export default async function (req, res) {
     // console.log("req.body.email:", req.body.email);
     const user = await CDCSUsers7.findOne(
       { email: req.body.email },
-      { password: 1 }
+      { password: 1, type: 1 }
     );
     // console.log("user:", user);
     if (!user) {
@@ -39,7 +39,7 @@ export default async function (req, res) {
       });
       res.setHeader("Set-Cookie", serialised);
 
-      res.json({ success: true, message: "tagumpay ang login nya"});
+      res.json({ success: true, message: "tagumpay ang login nya", userType: user.type});
     }
   } catch (error) {
     res.json({ success: false, error: `get error: ${error}` });

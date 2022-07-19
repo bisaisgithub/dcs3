@@ -274,7 +274,16 @@ const AppointmentTable = ({user}) => {
                                             <option value="In Request">In Request</option> */}
                                         
                                 </th>
-                            <th><Link href="/cdcs/appointments/add-appointment" passHref><p className='cursor-pointer'>New</p></Link></th>
+                            <th>
+                                {
+                                    user.type === 'Receptionist' || user.type === 'Admin'? (
+                                        <Link href="/cdcs/appointments/add-appointment" passHref><p className='cursor-pointer'>New</p>
+                                        </Link>
+                                    ):(
+                                        <p style={{background: 'gray'}}>New</p>
+                                    )
+                                }
+                            </th>
                             
                         </tr>
                     </thead>

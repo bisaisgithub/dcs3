@@ -108,7 +108,68 @@ const Navbarcdcs = ({ user }) => {
         {/* </button> */}
       </div>
     );
-  } else {
+  } else if(user.type === 'Dental Assistant'){
+    return (
+      <div className="nav">
+        <Link href="/cdcs/appointments" passHref>
+          <a className="nav__link">
+            <div>
+              <Image
+                src="/navbar/appointment-Freepik.png"
+                alt="appointment"
+                width={40}
+                height={40}
+              />
+            </div>
+            <span>Appointment</span>
+          </a>
+        </Link>
+        <Link href="/cdcs/inventory" passHref>
+          <a className="nav__link">
+            <div>
+              <Image
+                src="/navbar/inventory.png"
+                alt="users"
+                width={40}
+                height={40}
+              />
+            </div>
+            <span>Inventory</span>
+          </a>
+        </Link>
+        <Link href="/cdcs/expenses" passHref>
+          <a className="nav__link">
+            <div>
+              <Image
+                src="/navbar/expenses.png"
+                alt="expenses"
+                width={40}
+                height={40}
+              />
+            </div>
+            <span>Expenses</span>
+          </a>
+        </Link>
+        <a className="nav__link" 
+          onClick={()=>{
+            let input = confirm('Are you sure you want to Logout?')
+            if (input) {
+              router.push('/cdcs/logout');
+            }
+          }}>
+            <div>
+              <Image
+                src="/navbar/exit-smalllikeart-flaticon.png"
+                alt="Logout"
+                width={40}
+                height={40}
+              />
+            </div>
+            <span>{`${user.type.substring(0,1)}:${user.name.split(' ')[0]}`}</span>
+          </a>
+      </div>
+    );
+  }else {
     return (
       <div className="nav">
         <Link href="/cdcs/appointments" passHref>
@@ -137,7 +198,7 @@ const Navbarcdcs = ({ user }) => {
             <span>Users</span>
           </a>
         </Link>
-        <Link href="/cdcs/users" passHref>
+        {/* <Link href="/cdcs/inventory" passHref>
           <a className="nav__link">
             <div>
               <Image
@@ -149,7 +210,7 @@ const Navbarcdcs = ({ user }) => {
             </div>
             <span>Inventory</span>
           </a>
-        </Link>
+        </Link> */}
         {/* <Link href="/cdcs/dashboard" passHref>
           <a className="nav__link">
             <div>

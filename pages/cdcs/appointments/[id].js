@@ -18,7 +18,7 @@ import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 import dbConnect from "../../../utils/dbConnect";
 
-const AppointmentDetails = () => {
+const AppointmentDetails = ({user}) => {
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const [fields, setFields] = useState({
@@ -400,9 +400,10 @@ const AppointmentDetails = () => {
             return null;
         });
     }else{
-        alert('Failed to get Patient List')
-        router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
+        // alert('Failed to get Patient List', usersList);
+        // router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
     }
+    // console.log('userList', usersList)
     const formatDate = (app_date)=>{
         let d = new Date(app_date);
         let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
@@ -426,43 +427,34 @@ const AppointmentDetails = () => {
             <div className='details-details-container'>
                 <div className='details-details-modal-container'>
                     <div className='details-details-modal-body-button margin-bottom-20'> 
-                        <button className='add-payment-button height-80p' onClick={()=>{
-                            setIsOpen({...isOpen, payment: true});
-                            }}>Payments
-                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
-                        </button>
-                        <button className='add-payment-button height-80p' onClick={()=>{
-                            // addPaymentFieldFunction()
-                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                            }}>Inventories
-                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
-                        </button>
-                        <button className='add-payment-button height-80p' onClick={async ()=>{
-                            if (app.patient_id.value === '') {
-                                alert('Please select patient first');
-                            } else {
-                                // if (app.parent_appointments) {
-                                //     // console.log('parent appointment not empty')
-                                //     const response = await axios.get(`/api/cdcs/appointments/${app.parent_appointments}`,
-                                //     // {post:2,id:router.query.id,}
-                                //     );
-                                //     // console.log('get parent appointment response', response.data.data);
-                                //     let totalCost = 0
-                                //     response.data.data.proc_fields.map((f)=>{
-                                //         totalCost = totalCost + parseFloat(f.proc_cost)
-                                //     })
-                                //     setAppParent({...response.data.data, totalCost})
-                                // } else {
-                                //     // console.log('parent appointment empty')
-                                // }
-                                setIsOpen({...isOpen, appointment: true});
-                            }
-                            }}>Appointment Links
-                        </button>
-                        {/* <button className='add-payment-button height-80p' onClick={()=>{
-                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(), pay_change: '', pay_balance: '',}])
-                            }}>{`isPaymentOpen: ${isPaymentOpen}`}
-                        </button> */}
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='add-payment-button height-80p' onClick={()=>{
+                                setIsOpen({...isOpen, payment: true});
+                                }}>Payments
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                            user.type === 'Dental Assistant' || user.type === 'Admin' || user.type === 'Dentist'?(<button className='add-payment-button height-80p' onClick={()=>{
+                                // addPaymentFieldFunction()
+                                set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                }}>Inventories
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>): ''
+                        }
+                        {
+                            user.type === 'Receptionist' || user.type === 'Admin' || user.type === 'Dentist'? (
+                                <button className='add-payment-button height-80p' onClick={async ()=>{
+                                    if (app.patient_id.value === '') {
+                                        alert('Please select patient first');
+                                    } else {
+                                        setIsOpen({...isOpen, appointment: true});
+                                    }
+                                    }}>Appointment Links
+                                </button>
+                            ): ''
+                        }
+                        
                     </div>
                     
                     <div className='details-details-modal-body-container'>

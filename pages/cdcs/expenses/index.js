@@ -14,7 +14,7 @@ const Expenses = ({user}) => {
   return (
     <div>
       <Navbarcdcs user={user}/>
-      <h1 >Expenses</h1>
+      <h1>Expenses</h1>
     </div>
   );
 };
@@ -32,7 +32,7 @@ export async function getServerSideProps({ req, res }) {
     // console.log("obj:", obj);
     // console.log("obj.type:", obj.type);
     if (
-      obj.type ==='Admin' || obj.type === 'Receptionist'
+      obj.type ==='Admin' || obj.type === 'Dental Assistant'
       // obj
       // true
     ) {

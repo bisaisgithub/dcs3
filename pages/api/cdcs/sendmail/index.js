@@ -17,6 +17,7 @@ oAuth2Client.setCredentials({refresh_token: process.env.GOOGLE_REFRESH_TOKEN})
 export default async function (req, res) {
 
   try {
+    // removeCookies("cdcsjwt", { req, res });
     await dbConnect();
     // const token = getCookie("cdcsjwt", { req, res });
     if (

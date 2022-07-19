@@ -20,7 +20,7 @@ export default async (req, res) => {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
-      if (obj.type === 'Admin' || obj.type === 'Receptionist') {
+      if (obj.type === 'Admin' || obj.type === 'Receptionist' || obj.type === 'Dental Assistant') {
         if (req.method === 'GET') {
           const items_per_page = req.query.itemsPerPage || 10;
           const page = req.query.page || 1;

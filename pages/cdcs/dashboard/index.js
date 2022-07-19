@@ -14,7 +14,7 @@ const Dashboard = ({user}) => {
   return (
     <div>
       <Navbarcdcs user={user}/>
-      <h1 >Reports</h1>
+      <h1>Reports</h1>
     </div>
   );
 };
@@ -32,7 +32,7 @@ export async function getServerSideProps({ req, res }) {
     // console.log("obj:", obj);
     // console.log("obj.type:", obj.type);
     if (
-      obj.type ==='Admin' || obj.type === 'Receptionist'
+      obj.type ==='Admin'
       // obj
       // true
     ) {
@@ -41,8 +41,9 @@ export async function getServerSideProps({ req, res }) {
           user: { type: obj.type, name: obj.name },
         },
       };
-    } else if(obj.type ==='_Patient'){
-      return { redirect: { destination: "/cdcs/patient" } };
+    // } 
+    // else if(obj.type ==='_Patient'){
+    //   return { redirect: { destination: "/cdcs/patient" } };
     }else {
       removeCookies("cdcsjwt", { req, res });
       return { redirect: { destination: "/cdcs/login" } };
