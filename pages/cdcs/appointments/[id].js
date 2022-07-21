@@ -426,16 +426,16 @@ const AppointmentDetails = ({user}) => {
         <>
             <div className='details-details-container'>
                 <div className='details-details-modal-container'>
-                    <div className='details-details-modal-body-button margin-bottom-20'> 
+                    <div className='appoinment-tabs-container'> 
                         {
-                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='add-payment-button height-80p' onClick={()=>{
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='appointment-tabs' onClick={()=>{
                                 setIsOpen({...isOpen, payment: true});
                                 }}>Payments
                                 {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
                             </button>) : ''
                         }
                         {
-                            user.type === 'Dental Assistant' || user.type === 'Admin' || user.type === 'Dentist'?(<button className='add-payment-button height-80p' onClick={()=>{
+                            user.type === 'Dental Assistant' || user.type === 'Admin' || user.type === 'Dentist'?(<button className='appointment-tabs' onClick={()=>{
                                 // addPaymentFieldFunction()
                                 set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
                                 }}>Inventories
@@ -444,7 +444,7 @@ const AppointmentDetails = ({user}) => {
                         }
                         {
                             user.type === 'Receptionist' || user.type === 'Admin' || user.type === 'Dentist'? (
-                                <button className='add-payment-button height-80p' onClick={async ()=>{
+                                <button className='appointment-tabs' onClick={async ()=>{
                                     if (app.patient_id.value === '') {
                                         alert('Please select patient first');
                                     } else {
