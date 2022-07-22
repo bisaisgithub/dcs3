@@ -18,7 +18,7 @@ import jwt from "jsonwebtoken";
 import CDCSUsers7 from "../../../models/cdcs/Users";
 import dbConnect from "../../../utils/dbConnect";
 
-const AddAppointment = () => {
+const AddAppointment = ({user}) => {
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const [fields, setFields] = useState({
@@ -49,23 +49,26 @@ const AddAppointment = () => {
   const [isOpen, setIsOpen] = useState({
     payment: false, appointment: false, appointmentSelectParent: false
   })
+  const [tabs, setTabs] = useState({
+      details: true, notes: false, exams: false, history: false, payments: false, inventories: false, appointmentLinks: false
+  })
   const [disableButton, setDisableButton] = useState({
       addAppointment: false 
   })
   const [usersList, setUserList] = useState([]);
   useEffect(()=>{
-    setLoading(true);
+    // setLoading(true);
     getPatientDoctorList();
     getFields();
     // console.log('appParent', appParent)
   }, [])
-  if (isLoading){
-    return (
-        <div className='details-details-container'>
-            <h1>Loading...</h1>
-        </div>
-    )
-  }
+//   if (isLoading){
+//     return (
+//         <div className='details-details-container'>
+//             <h1>Loading...</h1>
+//         </div>
+//     )
+//   }
   const getFields = async ()=>{
     const getFields = await axios.get('/api/cdcs/fields')
     // console.log('getFields', getFields.data.data.fields)
@@ -252,359 +255,408 @@ const AddAppointment = () => {
         <>
             <div className='details-details-container'>
                 <div className='details-details-modal-container'>
-                    <div className='details-details-modal-body-button margin-bottom-20'> 
-                        <button className='add-payment-button height-80p button-disabled' 
-                            disabled={
-                                app.type === ''
-                                // false
-                            }
-                            onClick={async ()=>{
-                            console.log('appParent', appParent)
-                            setIsOpen({...isOpen, payment: true});
-                            }}>Payments
-                        </button>
-                        <button className='add-payment-button height-80p button-disabled'
-                            disabled={
-                                app.type === ''
-                                // false
-                            }
-                            onClick={()=>{
-                            // addPaymentFieldFunction()
-                            set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
-                            }}>Inventories
-                            {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
-                        </button>
-                        <button className='add-payment-button height-80p button-disabled' 
-                            disabled={
-                                app.patient_id.value === ''
-                                // false
-                            }
-                            onClick={async()=>{
-                                if (app.patient_id.value === '') {
-                                    alert('Please select patient first');
-                                } else {
-                                    setIsOpen({...isOpen, appointment: true});
-                                }
-                            }}>Appointment Links
-                        </button>
+                    <div className='appoinment-tabs-container'>
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className={tabs.details? 'appointment-tabs tab-active': 'appointment-tabs'} 
+                                onClick={()=>{
+                                  setTabs({details: true, notes: false, exams: false, history: false, payments: false, inventories: false, appointmentLinks: false});
+                                }}>Details
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className={tabs.notes? 'appointment-tabs tab-active': 'appointment-tabs'}
+                              onClick={()=>{
+                                setTabs({details: false, notes: true, exams: false, history: false, payments: false, inventories: false, appointmentLinks: false});
+                              }}>Notes
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className={tabs.exams? 'appointment-tabs tab-active': 'appointment-tabs'}
+                             onClick={()=>{
+                                setTabs({details: false, notes: false, exams: true, history: false, payments: false, inventories: false, appointmentLinks: false});
+                             }}>Exams
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className={tabs.history? 'appointment-tabs tab-active': 'appointment-tabs'}
+                             onClick={()=>{
+                                setTabs({details: false, notes: false, exams: false, history: true, payments: false, inventories: false, appointmentLinks: false});
+                             }}>History
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='appointment-tabs' onClick={()=>{
+                                setIsOpen({...isOpen, payment: true});
+                                }}>Payments
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                            user.type === 'Dental Assistant' || user.type === 'Admin' || user.type === 'Dentist'?(<button className='appointment-tabs' onClick={()=>{
+                                // addPaymentFieldFunction()
+                                set_app_pay_fields([...app_pay_fields, {pay_amount: '', pay_date: new Date(),}])
+                                }}>Inventories
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>): ''
+                        }
+                        {
+                            user.type === 'Receptionist' || user.type === 'Admin' || user.type === 'Dentist'? (
+                                <button className='appointment-tabs' onClick={async ()=>{
+                                    if (app.patient_id.value === '') {
+                                        alert('Please select patient first');
+                                    } else {
+                                        setIsOpen({...isOpen, appointment: true});
+                                    }
+                                    }}>Appnmt_Links
+                                </button>
+                            ): ''
+                        }
                     </div>
                     
-                    <div className='details-details-modal-body-container'>
-                        <div className='details-details-modal-body'>
-                            <div className="details-details-modal-body-input-box">
-                                <span>Patient</span>
-                                <Select options={patients} 
-                                defaultValue={app.patient_id}
-                                // value={app.patient_id}
-                                instanceId="long-value-select-patient"
-                                // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
-                                onChange={(value)=>{
-                                    setApp({...app, patient_id:  value}) //for testing
-                                    // selectedOption
-                                    }}/>
-                            </div>
-                            <div className="details-details-modal-body-input-box">
-                                <span>Doctor</span>
-                                {/* <Select options={doctors} defaultValue={{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}} disabled={true}
-                                instanceId="long-value-select-doctor"
-                                onChange={(value)=>{
-                                    setApp({...app, doctor_id: value.value})
-                                    }}/> */}
-                                <input type="text" disabled value={'AGC'} />
-                            </div>
-                            
-                            <div style={{display: 'flex', width: '100%'}}>
-                                <div className='details-details-modal-body-input-box'>
-                                    <span>Date</span>
-                                    <DatePicker 
-                                    disabled={app.patient_id._id === ''}
-                                    showTimeSelect
-                                    minDate={new Date()}
-                                    timeIntervals={15}
-                                    // minTime={setHours(setMinutes(new Date(), 0), 8)}
-                                    // maxTime={setHours(setMinutes(new Date(), 0), 17)}
-                                    // yearDropdownItemNumber={90} 
-                                    // showYearDropdown 
-                                    // scrollableYearDropdown={true} 
-                                    dateFormat='MMMM d, yyyy' 
-                                    className='date-picker' 
-                                    placeholderText="Select Date"
-                                    selected={app.date} 
-                                    onChange={(date)=>{
-                                        let totalMinutes = 0;
-                                        app.proc_fields.map((app_proc_field)=>{
-                                            totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
-                                            return null;
-                                        });
-                                        setApp2(
-                                            {...app2,
-                                            date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
-                                                )});
-                                        setApp({...app, date});
-                                    }} 
-                                    // isClearable
-                                    disabledKeyboardNavigation
-                                    // filterDate={isWeekday}
-                                    maxDate={addDays(new Date(), 30)}
-                                    >
-                                        {/* <div style={{ color: "red" }}>Don't forget to check the weather!</div> */}
-                                    </DatePicker>
+                    {
+                        tabs.details?(
+                            <div className='details-details-modal-body-container'>
+                                <div className='details-details-modal-body'>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Patient</span>
+                                        <Select options={patients} 
+                                        defaultValue={app.patient_id}
+                                        // value={app.patient_id}
+                                        instanceId="long-value-select-patient"
+                                        // defaultValue={app.patient_id.value? app.patient_id : ({value: '', label: 'Select Patient'}) } 
+                                        onChange={(value)=>{
+                                            setApp({...app, patient_id:  value}) //for testing
+                                            // selectedOption
+                                            }}/>
+                                    </div>
+                                    <div className="details-details-modal-body-input-box">
+                                        <span>Doctor</span>
+                                        {/* <Select options={doctors} defaultValue={{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}} disabled={true}
+                                        instanceId="long-value-select-doctor"
+                                        onChange={(value)=>{
+                                            setApp({...app, doctor_id: value.value})
+                                            }}/> */}
+                                        <input type="text" disabled value={'AGC'} />
+                                    </div>
                                     
-                                </div>
-                                <div className='details-details-modal-body-input-box'>
-                                    <span>Start Time</span>
-                                    <DatePicker
-                                        disabled
-                                        selected={app.date}
-                                        showTimeSelect
-                                        showTimeSelectOnly
-                                        timeIntervals={15}
-                                        minTime={setHours(setMinutes(new Date(), 0), 8)}
-                                        maxTime={setHours(setMinutes(new Date(), 30), 18)}
-                                        placeholderText="Select Start Time"
-                                        timeCaption="Time"
-                                        dateFormat="h:mm aa"
-                                    />
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>End Time</span>
-                                    <div className='duration-minutes-container'>
-                                        {/* <input value={app_end_time} disabled/> */}
-                                        <DatePicker
-                                            selected={app2.date_end}
-                                            // onChange={(date) => setApp({...app, date_end: date})}
+                                    <div style={{display: 'flex', width: '100%'}}>
+                                        <div className='details-details-modal-body-input-box'>
+                                            <span>Date</span>
+                                            <DatePicker 
+                                            disabled={app.patient_id._id === ''}
                                             showTimeSelect
-                                            showTimeSelectOnly
-                                            // timeIntervals={30}
+                                            minDate={new Date()}
+                                            timeIntervals={15}
                                             // minTime={setHours(setMinutes(new Date(), 0), 8)}
-                                            // maxTime={setHours(setMinutes(new Date(), 30), 18)}
-                                            // placeholderText="Select Start Time"
-                                            timeCaption="Time"
-                                            dateFormat="h:mm aa"
-                                            disabled
-                                        />
-                                    </div> 
+                                            // maxTime={setHours(setMinutes(new Date(), 0), 17)}
+                                            // yearDropdownItemNumber={90} 
+                                            // showYearDropdown 
+                                            // scrollableYearDropdown={true} 
+                                            dateFormat='MMMM d, yyyy' 
+                                            className='date-picker' 
+                                            placeholderText="Select Date"
+                                            selected={app.date} 
+                                            onChange={(date)=>{
+                                                let totalMinutes = 0;
+                                                app.proc_fields.map((app_proc_field)=>{
+                                                    totalMinutes = totalMinutes + parseInt(app_proc_field.proc_duration_minutes);
+                                                    return null;
+                                                });
+                                                setApp2(
+                                                    {...app2,
+                                                    date_end: new Date(new Date(new Date(date).setMinutes(new Date(date).getMinutes()+totalMinutes))
+                                                        )});
+                                                setApp({...app, date});
+                                            }} 
+                                            // isClearable
+                                            disabledKeyboardNavigation
+                                            // filterDate={isWeekday}
+                                            maxDate={addDays(new Date(), 30)}
+                                            >
+                                                {/* <div style={{ color: "red" }}>Don't forget to check the weather!</div> */}
+                                            </DatePicker>
+                                            
+                                        </div>
+                                        <div className='details-details-modal-body-input-box'>
+                                            <span>Start Time</span>
+                                            <DatePicker
+                                                disabled
+                                                selected={app.date}
+                                                showTimeSelect
+                                                showTimeSelectOnly
+                                                timeIntervals={15}
+                                                minTime={setHours(setMinutes(new Date(), 0), 8)}
+                                                maxTime={setHours(setMinutes(new Date(), 30), 18)}
+                                                placeholderText="Select Start Time"
+                                                timeCaption="Time"
+                                                dateFormat="h:mm aa"
+                                            />
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>End Time</span>
+                                            <div className='duration-minutes-container'>
+                                                {/* <input value={app_end_time} disabled/> */}
+                                                <DatePicker
+                                                    selected={app2.date_end}
+                                                    // onChange={(date) => setApp({...app, date_end: date})}
+                                                    showTimeSelect
+                                                    showTimeSelectOnly
+                                                    // timeIntervals={30}
+                                                    // minTime={setHours(setMinutes(new Date(), 0), 8)}
+                                                    // maxTime={setHours(setMinutes(new Date(), 30), 18)}
+                                                    // placeholderText="Select Start Time"
+                                                    timeCaption="Time"
+                                                    dateFormat="h:mm aa"
+                                                    disabled
+                                                />
+                                            </div> 
+                                            
+                                        </div>
+                                    </div>
+                                    <div style={{display: 'flex', width: '100%'}}>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Total Cost</span>
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Total Payment</span>
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Balance</span>
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Change</span>
+                                            <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div>
+                                    {
+                                    app.proc_fields &&
+                                    app.proc_fields.map((app_proc_field, index)=>{
+                                            return (
+                                                
+                                                <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
+                                                    <div className="details-details-modal-body-input-box3">
+                                                        <span style={index? {display: 'none'}:{}}>Procedure</span>
+                                                        <select name="proc_name" value={app_proc_field.proc_name} disabled={app.date === ''}
+                                                        onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                            <option value="">-Select Procedure-</option>
+                                                            {
+                                                                fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
+                                                                    // console.log('f', f)
+                                                                    return (
+                                                                        <option key={k} value={f.proc_name}>{f.proc_name}</option>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </select>       
+                                                    </div>
+                                                    <div className="details-details-modal-body-input-box3">
+                                                        <span style={index? {display: 'none'}:{}}>Duration Minutes</span>
+                                                            <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
+                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                <option value={0}>-Select Minutes-</option>
+                                                                <option value={15}>15</option>
+                                                                <option value={30}>30</option>
+                                                                <option value={45}>45</option>
+                                                                <option value={60}>60</option>
+                                                                <option value={75}>75</option>
+                                                                <option value={90}>90</option>
+                                                                <option value={105}>105</option>
+                                                                <option value={120}>120</option>
+                                                                {/* {
+                                                                    fields.app.proc_fields.map((f, k)=>{
+                                                                        // console.log('f', f)
+                                                                        return (
+                                                                            <option key={k} value={f.proc_duration_minutes}>{f.proc_duration_minutes}</option>
+                                                                        )
+                                                                    })
+                                                                } */}
+                                                            </select>
+                                                    </div>
+                                                    <div className="details-details-modal-body-input-box3">
+                                                        <div className="display-flex">
+                                                            <span style={index? {display: 'none'}:{}}>Cost</span>
+                                                            <span style={index? {display: 'none'}:{}}>To Parent?</span>
+                                                            <span style={index? {display: 'none'}:{}}>Delete</span>
+                                                        </div>
+                                                        
+                                                        <div className='duration-minutes-container'>
+                                                            <input type='number' name="proc_cost" value={app_proc_field.proc_cost} disabled={app_proc_field.proc_name === ''}
+                                                                onChange={(event)=>{
+                                                                    handleChangeInput(index, event)
+                                                                }}
+                                                            />
+                                                            {
+                                                                app.parent_appointments?
+                                                                (
+                                                                    <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                        <option value='Yes'>Yes</option>
+                                                                        <option value='No'>No</option>
+                                                                        {/* <option value='No'>{app.parent_appointments}</option> */}
+                                                                    </select>
+                                                                )
+                                                                :
+                                                                (
+                                                                    <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
+                                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
+                                                                        <option value='No'>No</option>
+                                                                    </select>
+                                                                )
+                                                            }
+                                                            <button className='add-remove-button' 
+                                                            onClick={async ()=>{
+                                                                // console.log('app: ', app)
+                                                                if (app.proc_fields.length < 2) {
+                                                                    alert('Cannot delete remaining last procedure')
+                                                                } else {
+                                                                    // console.log('false: ', app.proc_fields.length)
+                                                                    if(app.date){
+                                                                        let input = confirm('Do you want to delete the procedure?')
+                                                                        if (input) {
+                                                                            let totalCost = 0;
+                                                                            let totalMinutes = 0;
+                                                                            const values = [...app.proc_fields];
+                                                                            values.splice(index, 1);
+                                                                            values.map((value)=>{
+                                                                                if (value.proc_cost > -1 && value.in_package === 'No') {
+                                                                                totalCost = totalCost+parseFloat(value.proc_cost); 
+                                                                                }
+                                                                                if (value.proc_duration_minutes> -1) {
+                                                                                    totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
+                                                                                }
+                                                                                return null;
+                                                                            });
+                                                                            let change = 0;
+                                                                            let balance = 0;
+                                                                            if (totalCost - parseFloat(app2.payments.totalPayment)<0) {
+                                                                                change = parseFloat(app2.payments.totalPayment) - totalCost;
+                                                                            } else {
+                                                                                balance = totalCost - parseFloat(app2.payments.totalPayment);
+                                                                            }
+        
+                                                                            setApp2({...app2, date_end: new Date(
+                                                                                new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
+                                                                                ), payments: {...app2.payments, totalCost, change, balance}
+                                                                            }); 
+                                                                            setApp({...app, proc_fields: values})
+                                                                        }
+                                                                    }else{
+                                                                        alert('Enter Date First')
+                                                                    }
+                                                                }
+                                                                
+                                                            }}
+                                                            >-</button>
+                                                        </div>                                    
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    }
                                     
-                                </div>
-                            </div>
-                            <div style={{display: 'flex', width: '100%'}}>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Total Cost</span>
-                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalCost)}</span>
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Total Payment</span>
-                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.totalPayment)}</span>
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Balance</span>
-                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.balance)}</span>
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Change</span>
-                                    <span className="span-total">{new Intl.NumberFormat().format(app2.payments.change)}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            {
-                              app.proc_fields &&
-                              app.proc_fields.map((app_proc_field, index)=>{
-                                    return (
-                                        
-                                        <div style={{marginTop:'0'}} className='details-details-modal-body' key={index}>
-                                            <div className="details-details-modal-body-input-box3">
-                                                <span style={index? {display: 'none'}:{}}>Procedure</span>
-                                                <select name="proc_name" value={app_proc_field.proc_name} disabled={app.date === ''}
-                                                onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                    <option value="">-Select Procedure-</option>
-                                                    {
-                                                        fields.app.proc_fields && fields.app.proc_fields.map((f, k)=>{
-                                                            // console.log('f', f)
-                                                            return (
-                                                                <option key={k} value={f.proc_name}>{f.proc_name}</option>
-                                                            )
+                                    <div className='display-flex'>
+                                        <div className='details-details-modal-body-button-proc_name'>                                               
+                                            <button className='add-remove-button height-80p' onClick={()=>{
+                                                // set_app_proc_fields((prev)=>{return [...prev, {proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0}]})
+                                                
+                                                let checkProcNotSelected = true;
+                                                    if (app.proc_fields) {
+                                                        app.proc_fields.map((proc)=>{
+                                                            if(proc.proc_name === ''){
+                                                                checkProcNotSelected = false;
+                                                            }
                                                         })
                                                     }
-                                                </select>       
-                                            </div>
-                                            <div className="details-details-modal-body-input-box3">
-                                                <span style={index? {display: 'none'}:{}}>Duration Minutes</span>
-                                                    <select name="proc_duration_minutes" value={app_proc_field.proc_duration_minutes} disabled={app_proc_field.proc_name === ''}
-                                                    onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                        <option value={0}>-Select Minutes-</option>
-                                                        <option value={15}>15</option>
-                                                        <option value={30}>30</option>
-                                                        <option value={45}>45</option>
-                                                        <option value={60}>60</option>
-                                                        <option value={75}>75</option>
-                                                        <option value={90}>90</option>
-                                                        <option value={105}>105</option>
-                                                        <option value={120}>120</option>
-                                                        {/* {
-                                                            fields.app.proc_fields.map((f, k)=>{
-                                                                // console.log('f', f)
-                                                                return (
-                                                                    <option key={k} value={f.proc_duration_minutes}>{f.proc_duration_minutes}</option>
-                                                                )
-                                                            })
-                                                        } */}
-                                                    </select>
-                                            </div>
-                                            <div className="details-details-modal-body-input-box3">
-                                                <div className="display-flex">
-                                                    <span style={index? {display: 'none'}:{}}>Cost</span>
-                                                    <span style={index? {display: 'none'}:{}}>To Parent?</span>
-                                                    <span style={index? {display: 'none'}:{}}>Delete</span>
-                                                </div>
-                                                
-                                                <div className='duration-minutes-container'>
-                                                    <input type='number' name="proc_cost" value={app_proc_field.proc_cost} disabled={app_proc_field.proc_name === ''}
-                                                        onChange={(event)=>{
-                                                            handleChangeInput(index, event)
-                                                        }}
-                                                    />
-                                                    {
-                                                        app.parent_appointments?
-                                                        (
-                                                            <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
-                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                                <option value='Yes'>Yes</option>
-                                                                <option value='No'>No</option>
-                                                                {/* <option value='No'>{app.parent_appointments}</option> */}
-                                                            </select>
-                                                        )
-                                                        :
-                                                        (
-                                                            <select name="in_package"  value={app_proc_field.in_package} disabled={app_proc_field.proc_name === ''}
-                                                            onChange={(event)=>{handleChangeInput(index, event)}}>
-                                                                <option value='No'>No</option>
-                                                            </select>
-                                                        )
-                                                    }
-                                                    <button className='add-remove-button' 
-                                                    onClick={async ()=>{
-                                                        // console.log('app: ', app)
-                                                        if (app.proc_fields.length < 2) {
-                                                            alert('Cannot delete remaining last procedure')
-                                                        } else {
-                                                            // console.log('false: ', app.proc_fields.length)
-                                                            if(app.date){
-                                                                let input = confirm('Do you want to delete the procedure?')
-                                                                if (input) {
-                                                                    let totalCost = 0;
-                                                                    let totalMinutes = 0;
-                                                                    const values = [...app.proc_fields];
-                                                                    values.splice(index, 1);
-                                                                    values.map((value)=>{
-                                                                        if (value.proc_cost > -1 && value.in_package === 'No') {
-                                                                        totalCost = totalCost+parseFloat(value.proc_cost); 
-                                                                        }
-                                                                        if (value.proc_duration_minutes> -1) {
-                                                                            totalMinutes = totalMinutes+parseInt(value.proc_duration_minutes);
-                                                                        }
-                                                                        return null;
-                                                                    });
-                                                                    let change = 0;
-                                                                    let balance = 0;
-                                                                    if (totalCost - parseFloat(app2.payments.totalPayment)<0) {
-                                                                        change = parseFloat(app2.payments.totalPayment) - totalCost;
-                                                                    } else {
-                                                                        balance = totalCost - parseFloat(app2.payments.totalPayment);
-                                                                    }
-
-                                                                    setApp2({...app2, date_end: new Date(
-                                                                        new Date(new Date(app.date).setMinutes(new Date(app.date).getMinutes()+totalMinutes))
-                                                                        ), payments: {...app2.payments, totalCost, change, balance}
-                                                                    }); 
-                                                                    setApp({...app, proc_fields: values})
-                                                                }
-                                                            }else{
-                                                                alert('Enter Date First')
-                                                            }
+                                                    if (checkProcNotSelected) {
+                                                        {
+                                                            app.parent_appointments? 
+                                                            (
+                                                                setApp((prev)=>{
+                                                                    return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
+                                                                                proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
+                                                                                }] } 
+                                                                })
+                                                            )
+                                                            :
+                                                            (
+                                                                setApp((prev)=>{
+                                                                    return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
+                                                                                proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
+                                                                                }] } 
+                                                                })
+                                                            )
                                                         }
                                                         
-                                                    }}
-                                                    >-</button>
-                                                </div>                                    
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            }
-                            
-                            <div className='display-flex'>
-                                <div className='details-details-modal-body-button-proc_name'>                                               
-                                    <button className='add-remove-button height-80p' onClick={()=>{
-                                        // set_app_proc_fields((prev)=>{return [...prev, {proc_name: '', proc_duration_minutes: 0, proc_cost: 0, proc_id: null, is_deleted: 0}]})
-                                        
-                                        let checkProcNotSelected = true;
-                                            if (app.proc_fields) {
-                                                app.proc_fields.map((proc)=>{
-                                                    if(proc.proc_name === ''){
-                                                        checkProcNotSelected = false;
+                                                    }else{
+                                                        alert('Select Procedure first')
+                                                        // console.log('app.proc_fieds:', app.proc_fields)
                                                     }
-                                                })
-                                            }
-                                            if (checkProcNotSelected) {
-                                                {
-                                                    app.parent_appointments? 
-                                                    (
-                                                        setApp((prev)=>{
-                                                            return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                                                        proc_duration_minutes: 0, proc_cost: 0, in_package: 'Yes'
-                                                                        }] } 
-                                                        })
-                                                    )
-                                                    :
-                                                    (
-                                                        setApp((prev)=>{
-                                                            return {...app, proc_fields: [...prev.proc_fields, {proc_name: '', 
-                                                                        proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
-                                                                        }] } 
-                                                        })
-                                                    )
-                                                }
                                                 
-                                            }else{
-                                                alert('Select Procedure first')
-                                                // console.log('app.proc_fieds:', app.proc_fields)
-                                            }
-                                        
-                                        }}>+</button>
+                                                }}>+</button>
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Status</span>
+                                            <select disabled={app.date === ''}  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
+                                                <option value="">-Select Status-</option>
+                                                <option value="On Schedule">On Schedule</option>
+                                                <option value="In Waiting Area">In Waiting Area</option>
+                                                <option value="In Procedure Room">In Procedure Room</option>
+                                                <option value="Next Appointment">Next Appointment</option>
+                                                <option value="Closed">Closed</option>
+                                                <option value="Closed No Show">Closed No Show</option>
+                                                <option value="Closed w/ Balance">Closed w/ Balance</option>
+                                                <option value="In Request">In Request</option>
+                                            </select>       
+                                        </div>
+                                        <div className="details-details-modal-body-input-box">
+                                            <span>Type</span>
+                                            <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
+                                                <option value="">-Select Type-</option>
+                                                <option value="Follow-up">Follow-up</option>
+                                                <option value="Phone Call">Phone Call</option>
+                                                <option value="SMS">SMS</option>
+                                                <option value="FB Messenger">FB Messenger</option>
+                                                <option value="Walk-in">Walk-in</option>
+                                                <option value="Portal">Portal</option>
+                                            </select>       
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Status</span>
-                                    <select disabled={app.date === ''}  value={app.status} onChange={(e)=>{setApp({...app, status: e.target.value})}}>
-                                        <option value="">-Select Status-</option>
-                                        <option value="On Schedule">On Schedule</option>
-                                        <option value="In Waiting Area">In Waiting Area</option>
-                                        <option value="In Procedure Room">In Procedure Room</option>
-                                        <option value="Next Appointment">Next Appointment</option>
-                                        <option value="Closed">Closed</option>
-                                        <option value="Closed No Show">Closed No Show</option>
-                                        <option value="Closed w/ Balance">Closed w/ Balance</option>
-                                        <option value="In Request">In Request</option>
-                                    </select>       
-                                </div>
-                                <div className="details-details-modal-body-input-box">
-                                    <span>Type</span>
-                                    <select disabled={app.status === ''} value={app.type} onChange={(e)=>{setApp({...app, type: e.target.value})}}>
-                                        <option value="">-Select Type-</option>
-                                        <option value="Follow-up">Follow-up</option>
-                                        <option value="Phone Call">Phone Call</option>
-                                        <option value="SMS">SMS</option>
-                                        <option value="FB Messenger">FB Messenger</option>
-                                        <option value="Walk-in">Walk-in</option>
-                                        <option value="Portal">Portal</option>
-                                    </select>       
-                                </div>
+        
                             </div>
-                        </div>
-
-                    </div>
-                    
+                        ):''
+                    }
+                    {
+                        tabs.notes?(
+                            <div className='details-details-modal-body-container'>
+                                Notes
+                            </div>
+                        ):''
+                    }
+                    {
+                        tabs.exams?(
+                            <div className='details-details-modal-body-container'>
+                                Exams
+                            </div>
+                        ):''
+                    }
+                    {
+                        tabs.history?(
+                            <div className='details-details-modal-body-container'>
+                                History
+                            </div>
+                        ):''
+                    }
                     <div className='details-details-modal-body-button'> 
                         
                         <button className='button-w70 button-disabled' 

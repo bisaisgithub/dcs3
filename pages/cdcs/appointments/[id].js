@@ -426,7 +426,28 @@ const AppointmentDetails = ({user}) => {
         <>
             <div className='details-details-container'>
                 <div className='details-details-modal-container'>
-                    <div className='appoinment-tabs-container'> 
+                    <div className='appoinment-tabs-container'>
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='appointment-tabs' onClick={()=>{
+                                // setIsOpen({...isOpen, payment: true});
+                                }}>Details
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='appointment-tabs' onClick={()=>{
+                                // setIsOpen({...isOpen, payment: true});
+                                }}>Notes
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
+                        {
+                           user.type === 'Dentist' || user.type === 'Admin'? (<button className='appointment-tabs' onClick={()=>{
+                                // setIsOpen({...isOpen, payment: true});
+                                }}>Exams
+                                {/* {showAddPayment? 'Hide Add Payment' : 'Add Payment'} */}
+                            </button>) : ''
+                        }
                         {
                            user.type === 'Dentist' || user.type === 'Admin'? (<button className='appointment-tabs' onClick={()=>{
                                 setIsOpen({...isOpen, payment: true});
@@ -450,7 +471,7 @@ const AppointmentDetails = ({user}) => {
                                     } else {
                                         setIsOpen({...isOpen, appointment: true});
                                     }
-                                    }}>Appointment Links
+                                    }}>Appoinment_Links
                                 </button>
                             ): ''
                         }

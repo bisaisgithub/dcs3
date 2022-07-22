@@ -710,5 +710,14 @@ iframe {
   display: flex;
   justify-content: space-between;
 }
+.tab-active{
+  background-color: #eee;
+  color: black;
+}
 /* appointment styles end */
+/* Global style starts */
+button{
+  cursor: pointer;
+}
+/* Global style ends */
 
