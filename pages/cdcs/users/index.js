@@ -113,16 +113,9 @@ const Users = ({ user }) => {
                   <option value="Inactive">Inactive</option>
                   <option value="Scheduled">Scheduled</option>
                   <option value="Deleted">Deleted</option>
-                  {/* {
-                    statusList && statusList.map((f, i)=>{
-                    return (
-                        <option key={i} value={f}>{f}</option>
-                    )
-                    })
-                  } */}
                 </select>
                 <button onClick={async()=>{
-                  await setSearch({name:'',status:'',type:''});
+                  setSearch({name:'',status:'',type:''});
                   getUsers()
                   }}>X</button>
               </th>
@@ -146,7 +139,7 @@ const Users = ({ user }) => {
                   } */}
                 </select>
               </th>
-              <th><Link href="/cdcs/users/add-user" passHref><p>New</p></Link></th>
+              <th><Link href="/cdcs/users/add-user" passHref><p style={{cursor: 'pointer'}}>New</p></Link></th>
             </tr>
           </thead>
           <thead className='table-table2-table-thead'>

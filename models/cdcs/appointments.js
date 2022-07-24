@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 
 const AppointmentSchema = new mongoose.Schema(
   {
-    created_by: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
-    },
-    updated_by: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
-    },
+    // created_by: {
+    //   type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
+    // },
+    // updated_by: {
+    //   type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
+    // },
     patient_id: {
         type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
     },
@@ -19,17 +19,19 @@ const AppointmentSchema = new mongoose.Schema(
     type: String,
     status: String,
     proc_fields: [{}],
-    parent_appointments: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'Appointments'
-    },
-    child_appointments: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Appointments'
-    }],
-    inventories: [{name: String, code: String, qty: Number}],
-    app_pay_fields: [{}],
     notes:[{}],
-    patient_request: {},
-    patient_exam: [{}]
+    exams: [{}],
+    histories: [{
+      createdUpdated_by: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'CDCSUsers7'
+      },
+      fieldsUpdated: []
+    }],
+    app_pay_fields: [{}],
+    inventories: [{}],
+    parent_appointments: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'CDCSAppoinments'
+    }
   },
   { timestamps: true }
 );
@@ -37,9 +39,9 @@ const AppointmentSchema = new mongoose.Schema(
 let Appointments;
 
 try {
-  Appointments = mongoose.model("Appointments2");
+  Appointments = mongoose.model("CDCSAppoinments");
 }catch(err){
-  Appointments = mongoose.model('Appointments2', AppointmentSchema);
+  Appointments = mongoose.model('CDCSAppoinments', AppointmentSchema);
 }
 
 module.exports =

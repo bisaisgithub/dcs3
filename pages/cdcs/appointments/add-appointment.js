@@ -29,7 +29,7 @@ const AddAppointment = ({user}) => {
   const [app, setApp] = useState({
     // date:''
     date: setHours(setMinutes(new Date(), 0), 8)
-    ,patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
+    ,patient_id: {value: '', label: 'Select Patient'} ,doctor_id: {value: '6256d9a47011cbc6fb99a15b', label: 'AGP'},
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
@@ -219,17 +219,17 @@ const AddAppointment = ({user}) => {
         }
     }
     let patients = [{value: '', label: 'Select Patient'}];
-    let doctors = [{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}];
+    let doctors = [{value: '', label: 'Select Doctor'}];
     if (usersList) {
-        usersList.map((user)=>{
+        usersList.forEach((user)=>{
             if(user.type === '_Patient'){
             patients = [...patients, {value: user._id, label: user.name}]
             }
-            // if(user.type === 'Dentist'){
-            // doctors = [...doctors, {value: user._id, label: user.name}]
-            // }
-            return null;
+            if(user.type === 'Dentist'){
+            doctors = [...doctors, {value: user._id, label: user.name}]
+            }
         });
+        
     }else{
         router.push(`${process.env.NEXT_PUBLIC_SERVER}cdcs/login`);
     }
@@ -335,12 +335,14 @@ const AddAppointment = ({user}) => {
                                     </div>
                                     <div className="details-details-modal-body-input-box">
                                         <span>Doctor</span>
-                                        {/* <Select options={doctors} defaultValue={{value: '6256d9a47011cbc6fb99a15b', label: 'Dentist 1'}} disabled={true}
+                                        <Select options={doctors} 
+                                        // defaultValue={{value: '6256d9a47011cbc6fb99a15b', label: 'AGP'}}
+                                        defaultValue={app.doctor_id}
                                         instanceId="long-value-select-doctor"
                                         onChange={(value)=>{
                                             setApp({...app, doctor_id: value.value})
-                                            }}/> */}
-                                        <input type="text" disabled value={'AGC'} />
+                                            }}/>
+                                        {/* <input type="text" disabled value={'AGC'} /> */}
                                     </div>
                                     
                                     <div style={{display: 'flex', width: '100%'}}>
