@@ -705,10 +705,12 @@ iframe {
   font-weight: 550;
   background-color: grey;
   width: 100%;
+  border-top-right-radius: 10px;
 }
 .appoinment-tabs-container{
   display: flex;
   justify-content: space-between;
+  background: grey;
 }
 .tab-active{
   background-color: #eee;

@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
    <div>
-     <h1>Root</h1>
+     <h1>Root Mic Jer</h1>
    </div>
   )
 }

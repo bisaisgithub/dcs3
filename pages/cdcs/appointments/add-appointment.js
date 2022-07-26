@@ -29,7 +29,8 @@ const AddAppointment = ({user}) => {
   const [app, setApp] = useState({
     // date:''
     date: setHours(setMinutes(new Date(), 0), 8)
-    ,patient_id: {value: '', label: 'Select Patient'} ,doctor_id: {value: '6256d9a47011cbc6fb99a15b', label: 'AGP'},
+    ,patient_id: {value: '', label: 'Select Patient'} ,doctor_id: '6256d9a47011cbc6fb99a15b',
+    // {value: '6256d9a47011cbc6fb99a15b', label: 'AGP'},
     status: '',type:'',
     proc_fields: [{
         proc_name: '', proc_duration_minutes: 0, proc_cost: 0, in_package: 'No'
