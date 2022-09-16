@@ -21,6 +21,7 @@ export default async (req, res) => {
       // console.log("verified.id:", verified);
       const obj = await CDCSUsers7.findOne({ _id: verified.id }, { type: 1 });
       if (obj.type === 'Admin' || obj.type === 'Receptionist' || obj.type === 'Dental Assistant') {
+        console.log('test')
         if (req.method === 'GET') {
           const items_per_page = req.query.itemsPerPage || 10;
           const page = req.query.page || 1;
@@ -38,7 +39,6 @@ export default async (req, res) => {
           const response = await Appointments.find(query)
           .skip(skip)
           .limit(items_per_page)
-          .populate("created_by", "name")
           .populate("patient_id", "name")
           .populate("doctor_id", "name")
           .sort({date: 1})
@@ -126,7 +126,6 @@ export default async (req, res) => {
               const response = await Appointments.find(query)
               .skip(skip)
               .limit(items_per_page)
-              .populate("created_by", "name")
               .populate("patient_id", "name")
               .populate("doctor_id", "name")
               .sort({date: 1})
@@ -141,17 +140,8 @@ export default async (req, res) => {
         res.json({success: false, message: 'obj t nt a/r'})
       }
     }
-    // switch (req.method) {
-    //   case 'POST':
-    //     console.log('req.body', req.body)
-        
-    //     break;
-    
-    //   default:
-    //     console.log('method not allowed')
-    //     break;
-    // }
   } catch (error) {
     console.log('catch error appointment index: ', error)
+    res.json({success: false, message: 'catch err'})
   }
 }

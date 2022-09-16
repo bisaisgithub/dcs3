@@ -36,7 +36,7 @@ const AppointmentTable = ({user}) => {
         // search.patient,
     ]);
     const getAppointments = async (data)=>{
-        setLoading(true)
+        setLoading(true);
         if (closedFilter === 'notClosed') {
             if (search.doctor !== '' || search.patient !== '' || search.status !== '' || search.dateStart !== '') {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`,
@@ -53,9 +53,12 @@ const AppointmentTable = ({user}) => {
                     alert('Failed getting appointments with search');
                     setLoading(false)
                 }
+                console.log('not closed outside if')
             }else{
+                console.log('empty fields')
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments?page=${page}&itemsPerPage=${itemsPerPage}`);
-                // console.log('response', response.data.data)
+                console.log('response');
+                console.log('response', response.data.data);
                 if (response.data.data) {
                     // let statusList = response.data.data.map(r=> r.status)
                     // setStatusList(uniq(statusList))
@@ -88,7 +91,7 @@ const AppointmentTable = ({user}) => {
             }else{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}api/cdcs/appointments/closed?page=${page}&itemsPerPage=${itemsPerPage}`);
                 if (response.data.data) {
-                    // console.log('response.data.data',response.data.data)
+                    console.log('response.data.data',response.data.data)
                     // let statusList = response.data.data.map(r=> r.status)
                     // setStatusList(uniq(statusList))
                     setAppointmentsData(response.data.data)

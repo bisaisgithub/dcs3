@@ -68,7 +68,7 @@ const Users = ({ user }) => {
           setUsersData(response.data.data);
           // console.log('statusList',statusList);
           // console.log('typeList',typeList);
-            // console.log(response.data);
+            console.log(response.data);
             // console.log('response',response.data);
             setLoading(false);
         }else{

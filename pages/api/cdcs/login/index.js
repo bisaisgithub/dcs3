@@ -7,9 +7,10 @@ const bcrypt = require("bcrypt");
 
 
 export default async function (req, res) {
+  await dbConnect();
   console.log('cdcs login')
   try {
-    await dbConnect();
+    // await dbConnect();
     // console.log("req.body.email:", req.body.email);
     const user = await CDCSUsers7.findOne(
       { email: req.body.email },
@@ -42,7 +43,7 @@ export default async function (req, res) {
       res.json({ success: true, message: "tagumpay ang login nya", userType: user.type});
     }
   } catch (error) {
-    res.json({ success: false, error: `get error: ${error}` });
+    res.json({ success: false, error: `login get error: ${error}` });
   }
 
 }

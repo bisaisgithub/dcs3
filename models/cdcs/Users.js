@@ -42,5 +42,4 @@ try {
 }
 
 module.exports =
-  // mongoose.models.CDCSUsers7 || mongoose.model("CDCSUsers7", CDCSUsersSchema);
   CDCSUsers7;
